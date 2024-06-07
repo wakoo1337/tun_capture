@@ -1,5 +1,5 @@
 struct CaptureSettings {
-	int tun_fd; // Файловый дескриптор интерфейса
+	int fd; // Файловый дескриптор интерфейса
 	uint16_t tun_mtu; // MTU интерфейса
 	unsigned int threads_count; // Число потоков
 	struct in_addr addr_v4; // Сетевой адрес IPv4

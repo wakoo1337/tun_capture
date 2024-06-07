@@ -1,0 +1,1 @@
+int openInterface(int card);
