@@ -3,6 +3,8 @@
 #include <stdio.h>
 #include <netinet/in.h>
 #include <time.h>
+#include "ForwardingMappingIPv4.h"
+#include "ForwardingMappingIPv6.h"
 #include "CaptureSettings.h"
 #include "openInterface.h"
 #include "doCapture.h"

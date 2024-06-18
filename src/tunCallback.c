@@ -3,8 +3,12 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <stdbool.h>
+#include <netinet/in.h>
+#include "contrib/C-Collections/pqlib/PQ.h"
 #include "PacketQueueItem.h"
 #include "CaptureContext.h"
+#include "ForwardingMappingIPv4.h"
+#include "ForwardingMappingIPv6.h"
 #include "CaptureSettings.h"
 
 #include "tunCallback.h"

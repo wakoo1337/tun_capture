@@ -1,5 +1,6 @@
 #include <pthread.h>
 #include <stdbool.h>
+#include "contrib/C-Collections/pqlib/PQ.h"
 #include "CaptureContext.h"
 #include "PacketQueueItem.h"
 

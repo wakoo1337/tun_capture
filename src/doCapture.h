@@ -1,1 +1,1 @@
-unsigned int doCapture(struct CaptureSettings *settings);
+unsigned int doCapture(const struct CaptureSettings *settings);
