@@ -19,7 +19,7 @@ unsigned int processUDPPacket(void *free_me, void *packet, unsigned int packet_l
 	hdr.dst_port = ntohs(get16Bit(&((uint8_t *) packet)[2]));
 	hdr.length = ntohs(get16Bit(&((uint8_t *) packet)[4]));
 	if (hdr.length != packet_len) return 1;
-	hdr.checksum = ntohs(get16Bit(&((uint8_t *) packet)[6]));
+	hdr.checksum = get16Bit(&((uint8_t *) packet)[6]); // На little-endian машинах порядок байтов менять не нужно -- он уже поменян при вычислении контрольной суммы
 	struct ChecksumContext ctx;
 	uint16_t computed_cs;
 	if ((hdr.checksum == 0) || (
@@ -28,7 +28,7 @@ unsigned int processUDPPacket(void *free_me, void *packet, unsigned int packet_l
 		computeChecksum(&ctx, pseudo, strategy->pseudo_length),
 		computeChecksum(&ctx, packet, packet_len),
 		(computed_cs = getChecksum(&ctx)),
-		((computed_cs == hdr.checksum) || ((hdr.checksum == 0xFFFF) && (computed_cs == 0)))
+		((computed_cs == hdr.checksum) || ((hdr.checksum == 0xFFFF) && ((computed_cs == 0) || (computed_cs == 0xFFFF))))
 		)) {
 		// Проверка контрольной суммы прошла успешно. Нужно вставить в очередь на отправку на соответствующий адрес и порт
 		return 0;
