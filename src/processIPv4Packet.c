@@ -6,6 +6,8 @@
 #include "contrib/C-Collections/pqlib/PQ.h"
 #include "CaptureContext.h"
 #include "IPv4HeaderData.h"
+#include "IPPacketPayload.h"
+#include "SrcDstSockaddrs.h"
 #include "UDPNetworkProtocolStrategy.h"
 #include "parseIPv4Header.h"
 #include "processUDPPacket.h"
@@ -22,14 +24,22 @@ unsigned int processIPv4Packet(struct CaptureContext *context, void *data, unsig
 			// TCP
 		} else if (hdr.protocol == 17) {
 			// UDP
-			struct sockaddr dst = {0};
-			((struct sockaddr_in *) &dst)->sin_family = AF_INET;
-			((struct sockaddr_in *) &dst)->sin_addr.s_addr = htonl(hdr.dst.s_addr);
+			struct SrcDstSockaddrs srcdst = {0};
+			((struct sockaddr_in *) &(srcdst.src))->sin_family = AF_INET;
+			((struct sockaddr_in *) &(srcdst.src))->sin_addr.s_addr = htonl(hdr.src.s_addr);
+			((struct sockaddr_in *) &(srcdst.dst))->sin_family = AF_INET;
+			((struct sockaddr_in *) &(srcdst.dst))->sin_addr.s_addr = htonl(hdr.dst.s_addr);
 			static const struct UDPNetworkProtocolStrategy strategy = {
 				.pseudo_length = 12,
 				.port_setter = &setIPv4SockaddrPort
 			};
-			processUDPPacket(data, data + hdr.len, hdr.total_length - hdr.len, pseudo, &strategy, &dst);
+			struct IPPacketPayload ip_payload = {
+				.free_me = data,
+				.packet = data + hdr.len,
+				.pseudo = pseudo,
+				.count = hdr.total_length - hdr.len
+			};
+			return processUDPPacket(context, &ip_payload, &strategy, &srcdst);
 		}
 		return 0;
 	} else {
