@@ -55,8 +55,8 @@ unsigned int processUDPPacket(struct CaptureContext *context, const struct IPPac
 			pthread_mutex_unlock(&binding->mutex);
 			return 1;
 		};
-		queue_item->send_me = payload->packet;
-		queue_item->size = payload->count;
+		queue_item->send_me = payload->packet + 8;
+		queue_item->size = payload->count - 8;
 		queue_item->free_me = payload->free_me;
 		queue_item->dst = addrs->dst;
 		queue_item->next = binding->queue;
