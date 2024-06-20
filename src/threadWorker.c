@@ -19,8 +19,7 @@ void *threadWorker(void *arg) {
 		};
 		uint8_t type = (((uint8_t *) packet->data)[0]) >> 4;
 		if (type == 4) {
-			processIPv4Packet(context, packet->data, packet->count);
-			free(packet->data);
+			if (processIPv4Packet(context, packet->data, packet->count)) free(packet->data);
 			free(packet);
 		} else if (type == 6) {
 			free(packet->data);

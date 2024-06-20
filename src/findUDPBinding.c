@@ -3,6 +3,7 @@
 #include <event2/event.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include <fcntl.h>
 #include "contrib/avl.h"
 #include "contrib/C-Collections/pqlib/PQ.h"
 #include "CaptureContext.h"
@@ -34,7 +35,13 @@ struct UDPBinding *findUDPBinding(struct CaptureContext *context, const struct s
 		};
 		struct sockaddr bind_addr = {0}; // Это будет любой адрес
 		((struct sockaddr_in *) &bind_addr)->sin_family = sa->sa_family;
-		if (bind(binding->sock, &bind_addr, sizeof(struct sockaddr))) {
+		if (-1 == bind(binding->sock, &bind_addr, sizeof(struct sockaddr))) {
+			pthread_mutex_unlock(&context->udp_mutex);
+			close(binding->sock);
+			free(binding);
+			return NULL;
+		};
+		if (-1 == fcntl(binding->sock, F_SETFL, O_NONBLOCK)) {
 			pthread_mutex_unlock(&context->udp_mutex);
 			close(binding->sock);
 			free(binding);

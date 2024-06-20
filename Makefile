@@ -49,7 +49,7 @@ bin/get32Bit.o: src/get32Bit.c src/get32Bit.h
 	$(CC) $(CFLAGS) -c -o bin/get32Bit.o src/get32Bit.c
 bin/addShortWithCarry.o: src/addShortWithCarry.c src/addShortWithCarry.h
 	$(CC) $(CFLAGS) -c -o bin/addShortWithCarry.o src/addShortWithCarry.c
-bin/udpCallback.o: src/udpCallback.c src/udpCallback.h src/contrib/C-Collections/pqlib/PQ.h src/UDPBinding.h
+bin/udpCallback.o: src/udpCallback.c src/udpCallback.h src/contrib/C-Collections/pqlib/PQ.h src/UDPQueueItem.h src/UDPBinding.h
 	$(CC) $(CFLAGS) $(LIBEVENT_CFLAGS) -c -o bin/udpCallback.o src/udpCallback.c
 bin/compareUDPBindings.o: src/compareUDPBindings.c src/compareUDPBindings.h src/UDPBinding.h
 	$(CC) $(CFLAGS) -c -o bin/compareUDPBindings.o src/compareUDPBindings.c
