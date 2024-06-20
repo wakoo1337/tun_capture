@@ -42,8 +42,8 @@ unsigned int processUDPPacket(struct CaptureContext *context, const struct IPPac
 		((computed_cs == hdr.checksum) || ((hdr.checksum == 0xFFFF) && ((computed_cs == 0) || (computed_cs == 0xFFFF))))
 		)) {
 		// Проверка контрольной суммы прошла успешно. Нужно вставить в очередь на отправку
-		strategy->port_setter(&addrs->src, htons(hdr.src_port));
-		strategy->port_setter(&addrs->dst, htons(hdr.dst_port));
+		strategy->port_setter(&addrs->src, hdr.src_port);
+		strategy->port_setter(&addrs->dst, hdr.dst_port);
 		struct UDPBinding *binding;
 		binding = findUDPBinding(context, &addrs->src);
 		if (binding == NULL) {
