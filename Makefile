@@ -5,15 +5,15 @@ CC := cc
 CFLAGS := -O0 -g -Wall -std=gnu11
 .PHONY: all
 all: bin/tun_capture
-bin/tun_capture: bin/tun_capture.o bin/openInterface.o bin/doCapture.o bin/tunCallback.o bin/set16Bit.o bin/set32Bit.o bin/saveCallback.o bin/dequeuePacket.o bin/threadWorker.o bin/compareIPv4FragmentsIdsSources.o bin/compareIPv4Queue.o bin/processIPv4Packet.o bin/compareTimespec.o bin/get16Bit.o bin/get32Bit.o bin/parseIPv4Header.o bin/addShortWithCarry.o bin/udpCallback.o bin/compareUDPBindings.o bin/processUDPPacket.o bin/setIPv4SockaddrPort.o bin/findUDPBinding.o bin/checksum.a bin/avl.o bin/PQ.o
-	$(CC) $(CFLAGS) -o bin/tun_capture bin/tun_capture.o bin/openInterface.o bin/doCapture.o bin/tunCallback.o bin/set16Bit.o bin/set32Bit.o bin/saveCallback.o bin/dequeuePacket.o bin/threadWorker.o bin/compareIPv4FragmentsIdsSources.o bin/compareIPv4Queue.o bin/compareTimespec.o bin/processIPv4Packet.o bin/get16Bit.o bin/get32Bit.o bin/parseIPv4Header.o bin/addShortWithCarry.o bin/udpCallback.o bin/compareUDPBindings.o bin/processUDPPacket.o bin/setIPv4SockaddrPort.o bin/findUDPBinding.o bin/checksum.a bin/avl.o bin/PQ.o $(LIBEVENT_LIBS)
+bin/tun_capture: bin/tun_capture.o bin/openInterface.o bin/doCapture.o bin/tunCallback.o bin/set16Bit.o bin/set32Bit.o bin/saveCallback.o bin/dequeuePacket.o bin/threadWorker.o bin/compareIPv4FragmentsIdsSources.o bin/compareIPv4Queue.o bin/processIPv4Packet.o bin/compareTimespec.o bin/get16Bit.o bin/get32Bit.o bin/parseIPv4Header.o bin/addShortWithCarry.o bin/udpCallback.o bin/compareUDPBindings.o bin/processUDPPacket.o bin/setIPv4SockaddrPort.o bin/findUDPBinding.o bin/packetsProcessor.o bin/checksum.a bin/avl.o bin/PQ.o
+	$(CC) $(CFLAGS) -o bin/tun_capture bin/tun_capture.o bin/openInterface.o bin/doCapture.o bin/tunCallback.o bin/set16Bit.o bin/set32Bit.o bin/saveCallback.o bin/dequeuePacket.o bin/threadWorker.o bin/compareIPv4FragmentsIdsSources.o bin/compareIPv4Queue.o bin/compareTimespec.o bin/processIPv4Packet.o bin/get16Bit.o bin/get32Bit.o bin/parseIPv4Header.o bin/addShortWithCarry.o bin/udpCallback.o bin/compareUDPBindings.o bin/processUDPPacket.o bin/setIPv4SockaddrPort.o bin/findUDPBinding.o bin/packetsProcessor.o bin/checksum.a bin/avl.o bin/PQ.o $(LIBEVENT_LIBS)
 bin/tun_capture.o: src/tun_capture.c src/ForwardingMappingIPv4.h src/ForwardingMappingIPv6.h src/CaptureSettings.h src/openInterface.h src/doCapture.h src/saveCallback.h src/set32Bit.h src/set16Bit.h
 	$(CC) $(CFLAGS) -c -o bin/tun_capture.o src/tun_capture.c
 bin/openInterface.o: src/openInterface.c src/openInterface.h
 	$(CC) $(CFLAGS) -c -o bin/openInterface.o src/openInterface.c
 bin/doCapture.o: src/doCapture.c src/doCapture.h src/contrib/avl.h src/contrib/C-Collections/pqlib/PQ.h src/ForwardingMappingIPv4.h src/ForwardingMappingIPv6.h src/CaptureContext.h src/CaptureSettings.h src/tunCallback.h src/threadWorker.h src/compareIPv4FragmentsIdsSources.h src/compareIPv4Queue.h src/compareUDPBindings.h src/UDPBinding.h src/udpCallback.h
 	$(CC) $(CFLAGS) $(LIBEVENT_CFLAGS) -c -o bin/doCapture.o src/doCapture.c
-bin/tunCallback.o: src/tunCallback.c src/tunCallback.h src/contrib/C-Collections/pqlib/PQ.h src/PacketQueueItem.h src/CaptureContext.h src/ForwardingMappingIPv4.h src/ForwardingMappingIPv6.h src/CaptureSettings.h
+bin/tunCallback.o: src/tunCallback.c src/tunCallback.h src/contrib/C-Collections/pqlib/PQ.h src/CaptureContext.h src/PacketQueueItem.h src/ForwardingMappingIPv4.h src/ForwardingMappingIPv6.h src/CaptureSettings.h src/packetsProcessor.h
 	$(CC) $(CFLAGS) $(LIBEVENT_CFLAGS) -c -o bin/tunCallback.o src/tunCallback.c
 bin/set16Bit.o: src/set16Bit.c src/set16Bit.h
 	$(CC) $(CFLAGS) -c -o bin/set16Bit.o src/set16Bit.c
@@ -23,7 +23,7 @@ bin/saveCallback.o: src/saveCallback.c src/saveCallback.h src/set32Bit.h
 	$(CC) $(CFLAGS) -c -o bin/saveCallback.o src/saveCallback.c
 bin/dequeuePacket.o: src/dequeuePacket.c src/dequeuePacket.h src/contrib/C-Collections/pqlib/PQ.h src/CaptureContext.h src/PacketQueueItem.h
 	$(CC) $(CFLAGS) -c -o bin/dequeuePacket.o src/dequeuePacket.c
-bin/threadWorker.o: src/threadWorker.c src/threadWorker.h src/contrib/C-Collections/pqlib/PQ.h src/CaptureContext.h src/PacketQueueItem.h src/dequeuePacket.h src/processIPv4Packet.h
+bin/threadWorker.o: src/threadWorker.c src/threadWorker.h src/contrib/C-Collections/pqlib/PQ.h src/CaptureContext.h src/PacketQueueItem.h src/dequeuePacket.h
 	$(CC) $(CFLAGS) -c -o bin/threadWorker.o src/threadWorker.c
 bin/compareIPv4FragmentsIdsSources.o: src/compareIPv4FragmentsIdsSources.c src/compareIPv4FragmentsIdsSources.h src/IPv4Fragments.h
 	$(CC) $(CFLAGS) -c -o bin/compareIPv4FragmentsIdsSources.o src/compareIPv4FragmentsIdsSources.c
@@ -59,6 +59,8 @@ bin/setIPv4SockaddrPort.o: src/setIPv4SockaddrPort.c src/setIPv4SockaddrPort.h
 	$(CC) $(CFLAGS) -c -o bin/setIPv4SockaddrPort.o src/setIPv4SockaddrPort.c
 bin/findUDPBinding.o: src/findUDPBinding.c src/findUDPBinding.h src/contrib/avl.h src/contrib/C-Collections/pqlib/PQ.h src/CaptureContext.h src/UDPBinding.h src/udpCallback.h
 	$(CC) $(CFLAGS) -c -o bin/findUDPBinding.o src/findUDPBinding.c
+bin/packetsProcessor.o: src/packetsProcessor.c src/packetsProcessor.h src/contrib/C-Collections/pqlib/PQ.h src/CaptureContext.h src/processIPv4Packet.h
+	$(CC) $(CFLAGS) -c -o bin/packetsProcessor.o src/packetsProcessor.c
 bin/avl.o: src/contrib/avl.c src/contrib/avl.h
 	$(CC) $(CFLAGS) -c -o bin/avl.o src/contrib/avl.c
 bin/PQ.o: src/contrib/C-Collections/pqlib/PQ.c src/contrib/C-Collections/pqlib/PQ.h
