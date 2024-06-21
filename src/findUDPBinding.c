@@ -14,7 +14,7 @@
 struct UDPBinding *findUDPBinding(struct CaptureContext *context, const struct sockaddr *sa) {
 	pthread_mutex_lock(&context->udp_mutex);
 	struct UDPBinding *binding;
-	binding = avl_find(context->udp_bindings, &sa);
+	binding = avl_find(context->udp_bindings, sa);
 	if (binding) {
 		pthread_mutex_lock(&binding->mutex);
 		pthread_mutex_unlock(&context->udp_mutex);
