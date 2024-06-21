@@ -1,0 +1,1 @@
+#define MAX_UDP_PAYLOAD 65535

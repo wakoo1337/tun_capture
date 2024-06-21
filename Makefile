@@ -5,8 +5,8 @@ CC := cc
 CFLAGS := -O0 -g -Wall -std=gnu11
 .PHONY: all
 all: bin/tun_capture
-bin/tun_capture: bin/tun_capture.o bin/openInterface.o bin/doCapture.o bin/tunCallback.o bin/set16Bit.o bin/set32Bit.o bin/saveCallback.o bin/dequeuePacket.o bin/threadWorker.o bin/compareIPv4FragmentsIdsSources.o bin/compareIPv4Queue.o bin/processIPv4Packet.o bin/compareTimespec.o bin/get16Bit.o bin/get32Bit.o bin/parseIPv4Header.o bin/addShortWithCarry.o bin/udpCallback.o bin/compareUDPBindings.o bin/processUDPPacket.o bin/setIPv4SockaddrPort.o bin/findUDPBinding.o bin/packetsProcessor.o bin/checksum.a bin/avl.o bin/PQ.o
-	$(CC) $(CFLAGS) -o bin/tun_capture bin/tun_capture.o bin/openInterface.o bin/doCapture.o bin/tunCallback.o bin/set16Bit.o bin/set32Bit.o bin/saveCallback.o bin/dequeuePacket.o bin/threadWorker.o bin/compareIPv4FragmentsIdsSources.o bin/compareIPv4Queue.o bin/compareTimespec.o bin/processIPv4Packet.o bin/get16Bit.o bin/get32Bit.o bin/parseIPv4Header.o bin/addShortWithCarry.o bin/udpCallback.o bin/compareUDPBindings.o bin/processUDPPacket.o bin/setIPv4SockaddrPort.o bin/findUDPBinding.o bin/packetsProcessor.o bin/checksum.a bin/avl.o bin/PQ.o $(LIBEVENT_LIBS)
+bin/tun_capture: bin/tun_capture.o bin/openInterface.o bin/doCapture.o bin/tunCallback.o bin/set16Bit.o bin/set32Bit.o bin/saveCallback.o bin/dequeuePacket.o bin/threadWorker.o bin/compareIPv4FragmentsIdsSources.o bin/compareIPv4Queue.o bin/processIPv4Packet.o bin/compareTimespec.o bin/get16Bit.o bin/get32Bit.o bin/parseIPv4Header.o bin/addShortWithCarry.o bin/udpCallback.o bin/compareUDPBindings.o bin/processUDPPacket.o bin/setIPv4SockaddrPort.o bin/findUDPBinding.o bin/packetsProcessor.o bin/udpProcessor.o bin/checksum.a bin/avl.o bin/PQ.o
+	$(CC) $(CFLAGS) -o bin/tun_capture bin/tun_capture.o bin/openInterface.o bin/doCapture.o bin/tunCallback.o bin/set16Bit.o bin/set32Bit.o bin/saveCallback.o bin/dequeuePacket.o bin/threadWorker.o bin/compareIPv4FragmentsIdsSources.o bin/compareIPv4Queue.o bin/compareTimespec.o bin/processIPv4Packet.o bin/get16Bit.o bin/get32Bit.o bin/parseIPv4Header.o bin/addShortWithCarry.o bin/udpCallback.o bin/compareUDPBindings.o bin/processUDPPacket.o bin/setIPv4SockaddrPort.o bin/findUDPBinding.o bin/packetsProcessor.o bin/udpProcessor.o bin/checksum.a bin/avl.o bin/PQ.o $(LIBEVENT_LIBS)
 bin/tun_capture.o: src/tun_capture.c src/ForwardingMappingIPv4.h src/ForwardingMappingIPv6.h src/CaptureSettings.h src/openInterface.h src/doCapture.h src/saveCallback.h src/set32Bit.h src/set16Bit.h
 	$(CC) $(CFLAGS) -c -o bin/tun_capture.o src/tun_capture.c
 bin/openInterface.o: src/openInterface.c src/openInterface.h
@@ -49,7 +49,7 @@ bin/get32Bit.o: src/get32Bit.c src/get32Bit.h
 	$(CC) $(CFLAGS) -c -o bin/get32Bit.o src/get32Bit.c
 bin/addShortWithCarry.o: src/addShortWithCarry.c src/addShortWithCarry.h
 	$(CC) $(CFLAGS) -c -o bin/addShortWithCarry.o src/addShortWithCarry.c
-bin/udpCallback.o: src/udpCallback.c src/udpCallback.h src/contrib/C-Collections/pqlib/PQ.h src/UDPQueueItem.h src/UDPBinding.h
+bin/udpCallback.o: src/udpCallback.c src/udpCallback.h src/contrib/C-Collections/pqlib/PQ.h src/UDPQueueItem.h src/UDPBinding.h src/CaptureContext.h src/PacketQueueItem.h src/HEADERS_RESERVE.h src/MAX_UDP_PAYLOAD.h src/udpProcessor.h
 	$(CC) $(CFLAGS) $(LIBEVENT_CFLAGS) -c -o bin/udpCallback.o src/udpCallback.c
 bin/compareUDPBindings.o: src/compareUDPBindings.c src/compareUDPBindings.h src/UDPBinding.h
 	$(CC) $(CFLAGS) -c -o bin/compareUDPBindings.o src/compareUDPBindings.c
@@ -61,6 +61,8 @@ bin/findUDPBinding.o: src/findUDPBinding.c src/findUDPBinding.h src/contrib/avl.
 	$(CC) $(CFLAGS) -c -o bin/findUDPBinding.o src/findUDPBinding.c
 bin/packetsProcessor.o: src/packetsProcessor.c src/packetsProcessor.h src/contrib/C-Collections/pqlib/PQ.h src/CaptureContext.h src/processIPv4Packet.h
 	$(CC) $(CFLAGS) -c -o bin/packetsProcessor.o src/packetsProcessor.c
+bin/udpProcessor.o: src/udpProcessor.c src/udpProcessor.h src/contrib/C-Collections/pqlib/PQ.h src/CaptureContext.h src/HEADERS_RESERVE.h
+	$(CC) $(CFLAGS) -c -o bin/udpProcessor.o src/udpProcessor.c
 bin/avl.o: src/contrib/avl.c src/contrib/avl.h
 	$(CC) $(CFLAGS) -c -o bin/avl.o src/contrib/avl.c
 bin/PQ.o: src/contrib/C-Collections/pqlib/PQ.c src/contrib/C-Collections/pqlib/PQ.h
