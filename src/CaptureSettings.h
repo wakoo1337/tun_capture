@@ -1,11 +1,13 @@
 struct CaptureSettings {
-	int fd; // Файловый дескриптор интерфейса
-	uint16_t tun_mtu; // MTU интерфейса
+	uint16_t mtu; // MTU интерфейса
+	uint8_t ttl; // TTL генерируемых пакетов
 	unsigned int threads_count; // Число потоков
-	struct ForwardingMappingIPv4 v4_tcpmap, v4_udpmap;
-	struct ForwardingMappingIPv6 v6_tcpmap, v6_udpmap;
+	struct ForwardingMappingIPv4 *v4_tcpmap, *v4_udpmap;
+	struct ForwardingMappingIPv6 *v6_tcpmap, *v6_udpmap;
 	unsigned int v4_tcpcount, v4_udpcount;
 	unsigned int v6_tcpcount, v6_udpcount;
-	void (*packet_callback)(unsigned int count, void *bytes, bool direction, void *user); // Функция, которой передаются захваченные и сгенерированные пакеты
-	void *user; // Указатель на пользовательские данные, которые передаются в callback-функцию
+	int (*fd_getter)(void *user); // Функция, возвращающая дескриптор сетевого интерфейса
+	ssize_t (*read_function)(void *bytes, size_t count, void *user); // Функция, которая считывает пакеты из интерфейса
+	ssize_t (*write_function)(void *bytes, size_t count, void *user); // Функция, которая записывает пакеты в интерфейс. В случае veth, для этого нужно использовать не write(), а sendto()
+	void *user; // Указатель на пользовательские данные, которые передаются в callback-функции
 };

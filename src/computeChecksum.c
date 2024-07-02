@@ -1,7 +1,6 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include "ChecksumContext.h"
-#include "LengthBlob.h"
 #include "addShortWithCarry.h"
 
 #include "computeChecksum.h"
@@ -20,8 +19,11 @@ void computeChecksum(struct ChecksumContext *context, uint8_t *data, unsigned in
 	};
 	context->offset = (length % 2 != 0);
 
-	const bool aligned = !(((int)data) & 7);
-	struct LengthBlob begin_part, mid_part, end_part;
+	const bool aligned = !(((uintptr_t) data) & 7);
+	struct {
+		uint8_t *data;
+		unsigned long int size;
+	} begin_part, mid_part, end_part;
 
 	begin_part.data = data;
 	if (aligned) {
@@ -30,7 +32,7 @@ void computeChecksum(struct ChecksumContext *context, uint8_t *data, unsigned in
 		mid_part.size = length & -8;
 	}
 	else {
-		begin_part.size = 8 - (((int)data) & 7);
+		begin_part.size = 8 - (((uintptr_t)data) & 7);
 		mid_part.data = (uint8_t*)((((uint64_t)data) + 8) & -8);
 		mid_part.size = (length - begin_part.size) & -8;
 	};
@@ -76,8 +78,11 @@ void computeChecksum(struct ChecksumContext *context, uint8_t *data, unsigned in
 	} conv64;
 	
 	conv64.ll = acc;
-	conv64.ll = ((uint64_t) conv64.s[0]) + ((uint64_t) conv64.s[1]) + ((uint64_t) conv64.s[2]) + ((uint64_t) conv64.s[3]);
-	conv64.ll = ((uint64_t) conv64.s[0]) + ((uint64_t) conv64.s[1]) + ((uint64_t) conv64.s[2]) + ((uint64_t) conv64.s[3]);
+	uint64_t tbuf;
+	tbuf = ((uint64_t) conv64.s[0]) + ((uint64_t) conv64.s[1]) + ((uint64_t) conv64.s[2]) + ((uint64_t) conv64.s[3]); // Чтобы статический анализатор не ругался
+	conv64.ll = tbuf;
+	tbuf = ((uint64_t) conv64.s[0]) + ((uint64_t) conv64.s[1]) + ((uint64_t) conv64.s[2]) + ((uint64_t) conv64.s[3]);
+	conv64.ll = tbuf;
 	update = (uint16_t) conv64.ll;
 
 	while (end_part.size > 0) {

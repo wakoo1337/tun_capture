@@ -1,5 +1,6 @@
 #include <stdint.h>
 #include <stdbool.h>
+#include <string.h>
 #include <netinet/in.h>
 #include "IPv4HeaderData.h"
 #include "ChecksumContext.h"
@@ -10,7 +11,7 @@
 #include "get32Bit.h"
 
 #include "parseIPv4Header.h"
-unsigned int parseIPv4Header(struct IPv4HeaderData *hdr, void *packet, unsigned int length, uint8_t pseudo[12]) {
+unsigned int parseIPv4Header(struct IPv4HeaderData *hdr, uint8_t *packet, unsigned int length, uint8_t pseudo[12]) {
 	if (length < 20) return 1;
 	if ((((uint8_t *) packet)[0] >> 4) != 4) return 1;
 	hdr->len = 4 * (((uint8_t *) packet)[0] & 15);

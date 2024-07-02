@@ -1,1 +1,1 @@
-uint32_t get32Bit(void *p);
+uint32_t get32Bit(const void *p);

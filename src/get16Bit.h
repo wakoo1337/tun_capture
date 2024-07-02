@@ -1,1 +1,1 @@
-uint16_t get16Bit(void *p);
+uint16_t get16Bit(const void *p);

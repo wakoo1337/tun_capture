@@ -34,7 +34,7 @@ struct UDPBinding *findUDPBinding(struct CaptureContext *context, const struct s
 			return NULL;
 		};
 		struct sockaddr bind_addr = {0}; // Это будет любой адрес
-		((struct sockaddr_in *) &bind_addr)->sin_family = sa->sa_family;
+		bind_addr.sa_family = sa->sa_family;
 		if (-1 == bind(binding->sock, &bind_addr, sizeof(struct sockaddr))) {
 			pthread_mutex_unlock(&context->udp_mutex);
 			close(binding->sock);

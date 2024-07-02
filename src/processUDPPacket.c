@@ -9,7 +9,8 @@
 #include "CaptureContext.h"
 #include "IPPacketPayload.h"
 #include "SrcDstSockaddrs.h"
-#include "UDPNetworkProtocolStrategy.h"
+#include "IPFragmentMetadata.h"
+#include "NetworkProtocolStrategy.h"
 #include "UDPHeaderData.h"
 #include "UDPQueueItem.h"
 #include "ChecksumContext.h"
@@ -23,14 +24,14 @@
 #include "udpCallback.h"
 
 #include "processUDPPacket.h"
-unsigned int processUDPPacket(struct CaptureContext *context, const struct IPPacketPayload *payload, const struct UDPNetworkProtocolStrategy *strategy, struct SrcDstSockaddrs *addrs) {
+unsigned int processUDPPacket(struct CaptureContext *context, const struct IPPacketPayload *payload, const struct NetworkProtocolStrategy *strategy, struct SrcDstSockaddrs *addrs) {
 	struct UDPHeaderData hdr;
 	if (payload->count < 8) return 1;
 	hdr.src_port = ntohs(get16Bit(&payload->packet[0]));
 	hdr.dst_port = ntohs(get16Bit(&payload->packet[2]));
 	hdr.length = ntohs(get16Bit(&payload->packet[4]));
 	if (hdr.length != payload->count) return 1;
-	hdr.checksum = get16Bit(&payload->packet[6]); // На little-endian машинах порядок байтов менять не нужно -- он уже поменян при вычислении контрольной суммы
+	hdr.checksum = get16Bit(&payload->packet[6]); // На little-endian машинах порядок байтов менять не нужно — он уже поменян при вычислении контрольной суммы
 	struct ChecksumContext ctx;
 	uint16_t computed_cs;
 	if ((hdr.checksum == 0) || (

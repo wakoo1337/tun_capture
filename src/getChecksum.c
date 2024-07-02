@@ -3,6 +3,6 @@
 #include "ChecksumContext.h"
 
 #include "getChecksum.h"
-uint16_t getChecksum(struct ChecksumContext *context) {
+uint16_t getChecksum(const struct ChecksumContext *context) {
 	return ~(context->acc);
 };

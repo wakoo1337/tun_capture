@@ -2,6 +2,7 @@
 #include <stdbool.h>
 #include <netinet/in.h>
 #include <stdlib.h>
+#include <stdint.h>
 #include <time.h>
 #include <event2/event.h>
 #include "contrib/avl.h"
@@ -24,9 +25,12 @@ unsigned int doCapture(const struct CaptureSettings *settings) {
 	context = malloc(sizeof(struct CaptureContext));
 	if (NULL == context) return 1;
 	context->settings = settings;
+	context->ipv4_id = 0;
+	context->ipv6_id = 0;
 	pthread_mutex_init(&context->queue_mutex, NULL);
 	pthread_cond_init(&context->queue_cond, NULL);
 	context->captured_stack = NULL;
+	context->send_stack = NULL;
 	context->ipv4_fragments = avl_create(&compareIPv4FragmentsIdsSources, NULL, NULL);
 	pq_status_t pq_status;
 	context->ipv4_fragq = pq_new_queue(0, &compareIPv4Queue, &pq_status);
@@ -44,7 +48,7 @@ unsigned int doCapture(const struct CaptureSettings *settings) {
 		free(context);
 		return 1;
 	};
-	context->iface_event = event_new(context->event_base, settings->fd, EV_READ | EV_PERSIST, &tunCallback, context);
+	context->iface_event = event_new(context->event_base, settings->fd_getter(settings->user), EV_READ | EV_PERSIST, &tunCallback, context);
 	if (NULL == context->iface_event) {
 		event_base_free(context->event_base);
 		free(context->threads);
@@ -65,5 +69,4 @@ unsigned int doCapture(const struct CaptureSettings *settings) {
 	event_base_free(context->event_base);
 	free(context);
 	return 0;
-
 };

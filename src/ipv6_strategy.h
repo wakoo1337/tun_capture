@@ -1,0 +1,1 @@
+const struct NetworkProtocolStrategy ipv6_strategy;

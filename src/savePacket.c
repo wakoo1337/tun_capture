@@ -4,8 +4,8 @@
 #include <stdint.h>
 #include "set32Bit.h"
 
-#include "saveCallback.h"
-void saveCallback(unsigned int count, void *bytes, bool direction, void *user) {
+#include "savePacket.h"
+void savePacket(FILE *cap_file, void *bytes, unsigned int count) {
 	struct timespec ts;
 	clock_gettime(CLOCK_REALTIME, &ts);
 	unsigned char header[16];
@@ -13,7 +13,7 @@ void saveCallback(unsigned int count, void *bytes, bool direction, void *user) {
 	set32Bit(&header[4],  (uint32_t) (ts.tv_nsec / 1000));
 	set32Bit(&header[8],  (uint32_t) count);
 	set32Bit(&header[12], (uint32_t) count);
-	fwrite(header, sizeof(unsigned char), 16, (FILE *) user);
-	fwrite(bytes,  sizeof(unsigned char), count, (FILE *) user);
-	fflush((FILE *) user);
+	fwrite(header, sizeof(unsigned char),    16, cap_file);
+	fwrite(bytes,  sizeof(unsigned char), count, cap_file);
+	fflush(cap_file);
 };

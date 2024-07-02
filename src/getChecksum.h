@@ -1,1 +1,1 @@
-uint16_t getChecksum(struct ChecksumContext *context);
+uint16_t getChecksum(const struct ChecksumContext *context);

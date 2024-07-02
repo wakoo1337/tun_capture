@@ -13,10 +13,10 @@ void *threadWorker(void *arg) {
 	while (true) {
 		dequeuePacket(context, &packet);
 		if (packet->count == 0) {
-			free(packet->data);
+			free(packet->free_me);
 			free(packet);
 		};
-		if (packet->processor(context, packet->data, packet->count, packet->arg)) free(packet->data);
+		if (packet->processor(context, packet->data, packet->count, packet->arg)) free(packet->free_me);
 		free(packet);
 	};
 };

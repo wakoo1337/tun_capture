@@ -1,0 +1,1 @@
+extern const struct NetworkProtocolStrategy ipv4_strategy;
