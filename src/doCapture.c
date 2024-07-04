@@ -14,10 +14,11 @@
 #include "tunCallback.h"
 #include "threadWorker.h"
 #include "compareIPv4FragmentsIdsSources.h"
-#include "compareIPv4Queue.h"
+#include "compareTimeoutItems.h"
 #include "compareUDPBindings.h"
 #include "UDPBinding.h"
 #include "udpCallback.h"
+#include "timerCallback.h"
 
 #include "doCapture.h"
 unsigned int doCapture(const struct CaptureSettings *settings) {
@@ -28,12 +29,13 @@ unsigned int doCapture(const struct CaptureSettings *settings) {
 	context->ipv4_id = 0;
 	context->ipv6_id = 0;
 	pthread_mutex_init(&context->queue_mutex, NULL);
+	pthread_mutex_init(&context->timeout_mutex, NULL);
 	pthread_cond_init(&context->queue_cond, NULL);
 	context->captured_stack = NULL;
 	context->send_stack = NULL;
 	context->ipv4_fragments = avl_create(&compareIPv4FragmentsIdsSources, NULL, NULL);
 	pq_status_t pq_status;
-	context->ipv4_fragq = pq_new_queue(0, &compareIPv4Queue, &pq_status);
+	context->timeout_queue = pq_new_queue(0, &compareTimeoutItems, &pq_status);
 	context->threads = malloc(context->settings->threads_count * sizeof(pthread_t));
 	for (unsigned int i=0;i < context->settings->threads_count;i++) {
 		if (pthread_create(&context->threads[i], NULL, &threadWorker, context)) {
@@ -56,6 +58,14 @@ unsigned int doCapture(const struct CaptureSettings *settings) {
 		return 1;
 	};
 	if (-1 == event_add(context->iface_event, NULL)) {
+		event_free(context->iface_event);
+		event_base_free(context->event_base);
+		free(context->threads);
+		free(context);
+		return 1;
+	};
+	context->timeout_event = event_new(context->event_base, -1, 0, &timerCallback, context);
+	if (NULL == context->timeout_event) {
 		event_free(context->iface_event);
 		event_base_free(context->event_base);
 		free(context->threads);

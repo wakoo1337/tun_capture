@@ -8,7 +8,9 @@ struct CaptureContext {
 	struct event_base *event_base;
 	struct event *iface_event;
 	struct avl_table *ipv4_fragments; // Фрагменты пакетов IPv4
-	pq_t ipv4_fragq; // Очередь с приоритетом фрагментов IPv4, нужна для удаления просроченных
+	struct event *timeout_event;
+	pq_t timeout_queue; // Очередь с приоритетом для таймаутов
+	pthread_mutex_t timeout_mutex;
 	pthread_mutex_t udp_mutex; // Мьютекс для контроля над привязками UDP
 	struct avl_table *udp_bindings; // Таблица с привязками UDP
 	uint16_t ipv4_id;
