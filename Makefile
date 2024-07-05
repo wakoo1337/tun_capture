@@ -5,8 +5,8 @@ CC := cc
 CFLAGS := -O0 -g -Wall -std=gnu11
 .PHONY: all
 all: bin/tun_capture
-bin/tun_capture: bin/tun_capture.o bin/openInterface.o bin/doCapture.o bin/tunCallback.o bin/set16Bit.o bin/set32Bit.o bin/savePacket.o bin/dequeuePacket.o bin/threadWorker.o bin/compareIPv4FragmentsIdsSources.o bin/compareTimeoutItems.o bin/processIPv4Packet.o bin/compareTimeval.o bin/get16Bit.o bin/get32Bit.o bin/parseIPv4Header.o bin/addShortWithCarry.o bin/udpCallback.o bin/compareUDPBindings.o bin/processUDPPacket.o bin/setIPv4SockaddrPort.o bin/findUDPBinding.o bin/packetsProcessor.o bin/udpGenerator.o bin/computeIPv4FragmentsCount.o bin/ipv4_strategy.o bin/fillIPv4FragmentMetadatas.o bin/createIPv4PseudoHdr.o bin/writeIPv4Headers.o bin/getIPv4SockaddrPort.o bin/readPacket.o bin/writePacket.o bin/getFdFromUser.o bin/cleanDeletedTimeoutItems.o bin/addTimeval.o bin/subTimeval.o bin/getMonotonicTimeval.o bin/timerCallback.o bin/checksum.a bin/avl.o bin/PQ.o
-	$(CC) $(CFLAGS) -o bin/tun_capture bin/tun_capture.o bin/openInterface.o bin/doCapture.o bin/tunCallback.o bin/set16Bit.o bin/set32Bit.o bin/savePacket.o bin/dequeuePacket.o bin/threadWorker.o bin/compareIPv4FragmentsIdsSources.o bin/compareTimeoutItems.o bin/compareTimeval.o bin/processIPv4Packet.o bin/get16Bit.o bin/get32Bit.o bin/parseIPv4Header.o bin/addShortWithCarry.o bin/udpCallback.o bin/compareUDPBindings.o bin/processUDPPacket.o bin/setIPv4SockaddrPort.o bin/findUDPBinding.o bin/packetsProcessor.o bin/udpGenerator.o bin/computeIPv4FragmentsCount.o bin/ipv4_strategy.o bin/fillIPv4FragmentMetadatas.o bin/createIPv4PseudoHdr.o bin/writeIPv4Headers.o bin/getIPv4SockaddrPort.o bin/readPacket.o bin/writePacket.o bin/getFdFromUser.o bin/cleanDeletedTimeoutItems.o bin/addTimeval.o bin/subTimeval.o bin/getMonotonicTimeval.o bin/timerCallback.o bin/checksum.a bin/avl.o bin/PQ.o $(LIBEVENT_LIBS)
+bin/tun_capture: bin/tun_capture.o bin/openInterface.o bin/doCapture.o bin/tunCallback.o bin/set16Bit.o bin/set32Bit.o bin/savePacket.o bin/dequeuePacket.o bin/threadWorker.o bin/compareIPv4FragmentsIdsSources.o bin/compareTimeoutItems.o bin/processIPv4Packet.o bin/compareTimeval.o bin/get16Bit.o bin/get32Bit.o bin/parseIPv4Header.o bin/addShortWithCarry.o bin/udpCallback.o bin/compareUDPBindings.o bin/processUDPPacket.o bin/setIPv4SockaddrPort.o bin/findUDPBinding.o bin/packetsProcessor.o bin/udpGenerator.o bin/computeIPv4FragmentsCount.o bin/ipv4_strategy.o bin/fillIPv4FragmentMetadatas.o bin/createIPv4PseudoHdr.o bin/writeIPv4Headers.o bin/getIPv4SockaddrPort.o bin/readPacket.o bin/writePacket.o bin/getFdFromUser.o bin/addTimeval.o bin/subTimeval.o bin/getMonotonicTimeval.o bin/timerCallback.o bin/startTimer.o bin/checksum.a bin/avl.o bin/PQ.o
+	$(CC) $(CFLAGS) -o bin/tun_capture bin/tun_capture.o bin/openInterface.o bin/doCapture.o bin/tunCallback.o bin/set16Bit.o bin/set32Bit.o bin/savePacket.o bin/dequeuePacket.o bin/threadWorker.o bin/compareIPv4FragmentsIdsSources.o bin/compareTimeoutItems.o bin/compareTimeval.o bin/processIPv4Packet.o bin/get16Bit.o bin/get32Bit.o bin/parseIPv4Header.o bin/addShortWithCarry.o bin/udpCallback.o bin/compareUDPBindings.o bin/processUDPPacket.o bin/setIPv4SockaddrPort.o bin/findUDPBinding.o bin/packetsProcessor.o bin/udpGenerator.o bin/computeIPv4FragmentsCount.o bin/ipv4_strategy.o bin/fillIPv4FragmentMetadatas.o bin/createIPv4PseudoHdr.o bin/writeIPv4Headers.o bin/getIPv4SockaddrPort.o bin/readPacket.o bin/writePacket.o bin/getFdFromUser.o bin/addTimeval.o bin/subTimeval.o bin/getMonotonicTimeval.o bin/timerCallback.o bin/startTimer.o bin/checksum.a bin/avl.o bin/PQ.o $(LIBEVENT_LIBS)
 bin/tun_capture.o: src/tun_capture.c src/ForwardingMappingIPv4.h src/ForwardingMappingIPv6.h src/UserData.h src/CaptureSettings.h src/openInterface.h src/doCapture.h src/set32Bit.h src/set16Bit.h src/getFdFromUser.h src/readPacket.h src/writePacket.h
 	$(CC) $(CFLAGS) -c -o bin/tun_capture.o src/tun_capture.c
 bin/openInterface.o: src/openInterface.c src/openInterface.h
@@ -81,9 +81,7 @@ bin/writePacket.o: src/writePacket.c src/writePacket.h src/UserData.h src/savePa
 	$(CC) $(CFLAGS) -c -o bin/writePacket.o src/writePacket.c
 bin/getFdFromUser.o: src/getFdFromUser.c src/getFdFromUser.h src/UserData.h
 	$(CC) $(CFLAGS) -c -o bin/getFdFromUser.o src/getFdFromUser.c
-bin/cleanDeletedTimeoutItems.o: src/cleanDeletedTimeoutItems.c src/cleanDeletedTimeoutItems.h src/contrib/C-Collections/pqlib/PQ.h src/TimeoutItem.h src/CaptureContext.h
-	$(CC) $(CFLAGS) -c -o bin/cleanDeletedTimeoutItems.o src/cleanDeletedTimeoutItems.c
-bin/timerCallback.o: src/timerCallback.c src/timerCallback.h src/contrib/C-Collections/pqlib/PQ.h src/TimeoutItem.h src/CaptureContext.h src/cleanDeletedTimeoutItems.h src/subTimeval.h src/getMonotonicTimeval.h src/compareTimeval.h
+bin/timerCallback.o: src/timerCallback.c src/timerCallback.h src/contrib/C-Collections/pqlib/PQ.h src/TimeoutItem.h src/CaptureContext.h src/getMonotonicTimeval.h src/compareTimeval.h src/startTimer.h
 	$(CC) $(CFLAGS) -c -o bin/timerCallback.o src/timerCallback.c
 bin/addTimeval.o: src/addTimeval.c src/addTimeval.h
 	$(CC) $(CFLAGS) -c -o bin/addTimeval.o src/addTimeval.c
@@ -91,6 +89,8 @@ bin/subTimeval.o: src/subTimeval.c src/subTimeval.h
 	$(CC) $(CFLAGS) -c -o bin/subTimeval.o src/subTimeval.c
 bin/getMonotonicTimeval.o: src/getMonotonicTimeval.c src/getMonotonicTimeval.h
 	$(CC) $(CFLAGS) -c -o bin/getMonotonicTimeval.o src/getMonotonicTimeval.c
+bin/startTimer.o: src/startTimer.c src/startTimer.h src/contrib/C-Collections/pqlib/PQ.h src/TimeoutItem.h src/CaptureContext.h src/getMonotonicTimeval.h src/subTimeval.h
+	$(CC) $(CFLAGS) -c -o bin/startTimer.o src/startTimer.c
 bin/avl.o: src/contrib/avl.c src/contrib/avl.h
 	$(CC) $(CFLAGS) -c -o bin/avl.o src/contrib/avl.c
 bin/PQ.o: src/contrib/C-Collections/pqlib/PQ.c src/contrib/C-Collections/pqlib/PQ.h
