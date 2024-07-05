@@ -4,7 +4,7 @@
 #include "addShortWithCarry.h"
 
 #include "computeChecksum.h"
-void computeChecksum(struct ChecksumContext *context, uint8_t *data, unsigned int length) {
+void computeChecksum(struct ChecksumContext *context, const uint8_t *data, unsigned int length) {
 	union {
 		uint8_t b[2];
 		uint16_t s;
@@ -21,7 +21,7 @@ void computeChecksum(struct ChecksumContext *context, uint8_t *data, unsigned in
 
 	const bool aligned = !(((uintptr_t) data) & 7);
 	struct {
-		uint8_t *data;
+		const uint8_t *data;
 		unsigned long int size;
 	} begin_part, mid_part, end_part;
 

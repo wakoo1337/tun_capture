@@ -1,1 +1,1 @@
-void computeChecksum(struct ChecksumContext *context, uint8_t *data, unsigned int length);
+void computeChecksum(struct ChecksumContext *context, const uint8_t *data, unsigned int length);
