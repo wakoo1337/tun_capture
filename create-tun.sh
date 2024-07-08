@@ -21,6 +21,7 @@ ethtool -K ${VETH_PREFIX}_int rx-checksumming off
 
 ip link set dev ${VETH_PREFIX}_int netns $NETNS_NAME
 ip -n $NETNS_NAME link set dev ${VETH_PREFIX}_int up
+ip -n $NETNS_NAME link set dev lo up
 
 ip address add local ${EXTERNAL_V4} peer ${INTERNAL_V4} dev ${VETH_PREFIX}_ext scope global
 ip address add local ${EXTERNAL_V6} peer ${INTERNAL_V6} dev ${VETH_PREFIX}_ext scope global
