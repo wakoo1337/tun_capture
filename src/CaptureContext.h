@@ -13,6 +13,8 @@ struct CaptureContext {
 	pthread_mutex_t timeout_mutex;
 	pthread_mutex_t udp_mutex; // Мьютекс для контроля над привязками UDP
 	struct avl_table *udp_bindings; // Таблица с привязками UDP
+	pthread_mutex_t tcp_mutex; // Мьютекс для контроля над соединениями TCP
+	struct avl_table *tcp_connections;
 	uint16_t ipv4_id;
 	uint32_t ipv6_id;
 };

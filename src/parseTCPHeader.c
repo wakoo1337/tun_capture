@@ -14,7 +14,7 @@ unsigned int parseTCPHeader(struct TCPHeaderData *hdr, uint8_t *packet, unsigned
 	if (count < 20) return 1;
 	*hdr = (struct TCPHeaderData) {0};
 	hdr->src_port = ntohs(get16Bit(&packet[0]));
-	hdr->src_port = ntohs(get16Bit(&packet[2]));
+	hdr->dst_port = ntohs(get16Bit(&packet[2]));
 	hdr->seq_num = ntohl(get32Bit(&packet[4]));
 	hdr->ack_num = ntohl(get32Bit(&packet[8]));
 	hdr->data_offset = (packet[12] & 240) >> 2;

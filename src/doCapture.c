@@ -19,6 +19,7 @@
 #include "UDPBinding.h"
 #include "udpCallback.h"
 #include "timerCallback.h"
+#include "compareTCPConnections.h"
 
 #include "doCapture.h"
 unsigned int doCapture(const struct CaptureSettings *settings) {
@@ -73,7 +74,9 @@ unsigned int doCapture(const struct CaptureSettings *settings) {
 		return 1;
 	};
 	pthread_mutex_init(&context->udp_mutex, NULL);
-	context->udp_bindings = avl_create(&compareUDPBindings, NULL, NULL);	
+	context->udp_bindings = avl_create(&compareUDPBindings, NULL, NULL);
+	pthread_mutex_init(&context->tcp_mutex, NULL);
+	context->tcp_connections = avl_create(&compareTCPConnections, NULL, NULL);
 	int loop_result;
 	loop_result = event_base_loop(context->event_base, EVLOOP_NO_EXIT_ON_EMPTY);
 	event_base_free(context->event_base);
