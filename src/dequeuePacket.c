@@ -6,8 +6,8 @@
 
 #include "dequeuePacket.h"
 unsigned int dequeuePacket(struct CaptureContext *context, struct PacketQueueItem **item) {
-	pthread_mutex_lock(&context->queue_mutex);
 	while (true) {
+		pthread_mutex_lock(&context->queue_mutex);
 		if (context->captured_stack) {
 			*item = context->captured_stack;
 			context->captured_stack = context->captured_stack->next;
@@ -16,5 +16,5 @@ unsigned int dequeuePacket(struct CaptureContext *context, struct PacketQueueIte
 		};
 		pthread_cond_wait(&context->queue_cond, &context->queue_mutex);
 	};
-	return 0;
+	return 1; // Если исполнение вываливается из бесконечного цикла, это точно ошибка
 };
