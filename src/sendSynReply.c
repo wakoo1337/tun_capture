@@ -28,8 +28,8 @@
 #include "sendSynReply.h"
 unsigned int sendSynReply(struct TCPConnection *connection) {
 	struct TCPHeaderData hdr;
-	hdr.src_port = connection->strategy->port_getter(&connection->addrs.src);
-	hdr.dst_port = connection->strategy->port_getter(&connection->addrs.dst);
+	hdr.src_port = connection->strategy->port_getter(&connection->addrs.dst);
+	hdr.dst_port = connection->strategy->port_getter(&connection->addrs.src);
 	hdr.seq_num = connection->our_seq;
 	hdr.ack_num = connection->first_desired;
 	hdr.urg = hdr.psh = hdr.rst = hdr.fin = false;
