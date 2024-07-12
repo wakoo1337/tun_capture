@@ -22,6 +22,7 @@
 #include "sendTCPPacket.h"
 #include "getMonotonicTimeval.h"
 #include "addTimeval.h"
+#include "computeTCPDataOffset.h"
 #include "retry_delay.h"
 #include "HEADERS_RESERVE.h"
 
@@ -45,6 +46,7 @@ unsigned int sendSynReply(struct TCPConnection *connection) {
 	if (NULL == packet) return 1;
 	uint8_t *pseudo;
 	pseudo = alloca(connection->strategy->pseudo_length);
+	hdr.data_offset = computeTCPDataOffset(&hdr);
 	connection->strategy->create_pseudo(pseudo, &connection->addrs.dst, &connection->addrs.src, 6, hdr.data_offset);
 	writeTCPHeader(&packet[HEADERS_RESERVE], 0, &hdr, pseudo, connection->strategy->pseudo_length);
 	unsigned int frags;
