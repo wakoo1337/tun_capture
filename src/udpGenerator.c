@@ -1,4 +1,5 @@
 #include <stdint.h>
+#include <stdbool.h>
 #include <pthread.h>
 #include <stdlib.h>
 #include <assert.h>
@@ -7,7 +8,7 @@
 #include <alloca.h>
 #include <string.h>
 #include <event2/event.h>
-#include "contrib/C-Collections/pqlib/PQ.h"
+#include "contrib/heap.h"
 #include "ForwardingMappingIPv4.h"
 #include "ForwardingMappingIPv6.h"
 #include "CaptureSettings.h"

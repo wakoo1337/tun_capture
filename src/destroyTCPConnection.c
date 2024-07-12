@@ -1,10 +1,12 @@
 #include <pthread.h>
 #include <assert.h>
+#include <stdint.h>
+#include <stdbool.h>
 #include <sys/socket.h>
 #include <stdlib.h>
 #include <unistd.h>
-#include "contrib/C-Collections/pqlib/PQ.h"
 #include "contrib/avl.h"
+#include "contrib/heap.h"
 #include "SrcDstSockaddrs.h"
 #include "CaptureContext.h"
 #include "TCPConnection.h"

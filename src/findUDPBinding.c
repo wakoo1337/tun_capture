@@ -5,7 +5,7 @@
 #include <unistd.h>
 #include <fcntl.h>
 #include "contrib/avl.h"
-#include "contrib/C-Collections/pqlib/PQ.h"
+#include "contrib/heap.h"
 #include "CaptureContext.h"
 #include "UDPBinding.h"
 #include "udpCallback.h"

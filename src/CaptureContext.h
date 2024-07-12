@@ -9,8 +9,8 @@ struct CaptureContext {
 	struct event *iface_event;
 	struct avl_table *ipv4_fragments; // Фрагменты пакетов IPv4
 	struct event *timeout_event;
-	pq_t timeout_queue; // Очередь с приоритетом для таймаутов
-	pthread_mutex_t timeout_mutex;
+	heap_t *timeout_queue; // Очередь с приоритетом для таймаутов
+	pthread_mutex_t timeout_mutex; // Мьютекс для таймеров
 	pthread_mutex_t udp_mutex; // Мьютекс для контроля над привязками UDP
 	struct avl_table *udp_bindings; // Таблица с привязками UDP
 	pthread_mutex_t tcp_mutex; // Мьютекс для контроля над соединениями TCP

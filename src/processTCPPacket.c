@@ -1,14 +1,15 @@
 #include <pthread.h>
 #include <assert.h>
-#include <sys/socket.h>
 #include <stdint.h>
+#include <stdbool.h>
 #include <stdlib.h>
+#include <sys/socket.h>
 #include <fcntl.h>
 #include <unistd.h>
 #include <errno.h>
 #include <event2/event.h>
-#include "contrib/C-Collections/pqlib/PQ.h"
 #include "contrib/avl.h"
+#include "contrib/heap.h"
 #include "CaptureContext.h"
 #include "IPPacketPayload.h"
 #include "IPFragmentMetadata.h"
@@ -71,6 +72,14 @@ unsigned int processTCPPacket(struct CaptureContext *context, const struct IPPac
 			free(connection);
 			return 1;
 		};
+		connection->site_queue = NULL;
+		connection->app_queue = NULL;
+		connection->app_last = &connection->app_queue;
+		connection->our_seq = 0;
+		connection->first_desired = hdr.seq_num + 1;
+		connection->scaling_enabled = hdr.winscale_present;
+		connection->remote_scale = hdr.winscale_value;
+		connection->our_scale = 0; // TODO сделать масштабирование
 		pthread_mutex_lock(&context->tcp_mutex);
 		void **probe;
 		probe = avl_probe(context->tcp_connections, connection);
@@ -82,6 +91,7 @@ unsigned int processTCPPacket(struct CaptureContext *context, const struct IPPac
 			return 1;
 		};
 		pthread_mutex_unlock(&context->tcp_mutex);
+		free(payload->free_me); // TODO убрать, и в первом пакете могут быть данные
 		return 0;
 	};
 	// Попытаться обнаружить соединение и обработать пакет его обработчиком. Если соединение найти не удастся, послать RST

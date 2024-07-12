@@ -1,10 +1,12 @@
 #include <pthread.h>
+#include <stdbool.h>
 #include <assert.h>
 #include <sys/socket.h>
 #include <event2/event.h>
 #include "SrcDstSockaddrs.h"
 #include "TCPConnection.h"
 #include "destroyTCPConnection.h"
+#include "tcpstate_synack_send.h"
 
 #include "tcpConnwaitEventCallback.h"
 void tcpConnwaitEventCallback(evutil_socket_t fd, short what, void *arg) {
@@ -19,6 +21,10 @@ void tcpConnwaitEventCallback(evutil_socket_t fd, short what, void *arg) {
 			return;
 		};
 		assert(sl == sizeof(int));
+		event_free(connection->event);
+		connection->event = NULL;
+		connection->state = &tcpstate_synack_send;
+		sendSynReply(connection);
 		pthread_mutex_unlock(&connection->mutex);
 	};
 };

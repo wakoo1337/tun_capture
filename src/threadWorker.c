@@ -1,7 +1,8 @@
 #include <pthread.h>
+#include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "contrib/C-Collections/pqlib/PQ.h"
+#include "contrib/heap.h"
 #include "CaptureContext.h"
 #include "PacketQueueItem.h"
 #include "dequeuePacket.h"

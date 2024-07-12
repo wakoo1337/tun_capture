@@ -6,7 +6,7 @@
 #include <time.h>
 #include <event2/event.h>
 #include "contrib/avl.h"
-#include "contrib/C-Collections/pqlib/PQ.h"
+#include "contrib/heap.h"
 #include "ForwardingMappingIPv4.h"
 #include "ForwardingMappingIPv6.h"
 #include "CaptureContext.h"
@@ -35,8 +35,7 @@ unsigned int doCapture(const struct CaptureSettings *settings) {
 	context->captured_stack = NULL;
 	context->send_stack = NULL;
 	context->ipv4_fragments = avl_create(&compareIPv4FragmentsIdsSources, NULL, NULL);
-	pq_status_t pq_status;
-	context->timeout_queue = pq_new_queue(0, &compareTimeoutItems, &pq_status);
+	context->timeout_queue = heap_new(&compareTimeoutItems, NULL);
 	context->threads = malloc(context->settings->threads_count * sizeof(pthread_t));
 	for (unsigned int i=0;i < context->settings->threads_count;i++) {
 		if (pthread_create(&context->threads[i], NULL, &threadWorker, context)) {

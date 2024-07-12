@@ -1,1 +1,1 @@
-bool compareTimeoutItems(pq_data_t a_data, pq_data_t b_data);
+int compareTimeoutItems(const void *a_data, const void *b_data, const void *);

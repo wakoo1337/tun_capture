@@ -6,4 +6,5 @@ struct NetworkProtocolStrategy {
 	void (*fill_metadatas)(struct IPFragmentMetadata *, unsigned int, unsigned int, const unsigned int);
 	void (*create_pseudo)(void *, const struct sockaddr *, const struct sockaddr *, uint8_t, unsigned int);
 	void (*write_headers)(struct CaptureContext *, struct IPFragmentMetadata *, unsigned int, uint8_t, const struct sockaddr *, const struct sockaddr *);
+	unsigned int (*compute_mss)(struct CaptureContext *);
 };

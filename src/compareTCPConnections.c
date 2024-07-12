@@ -1,4 +1,6 @@
 #include <pthread.h>
+#include <stdint.h>
+#include <stdbool.h>
 #include <sys/socket.h>
 #include <string.h>
 #include "SrcDstSockaddrs.h"

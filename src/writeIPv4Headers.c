@@ -1,9 +1,10 @@
 #include <stdint.h>
+#include <stdbool.h>
 #include <pthread.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <string.h>
-#include "contrib/C-Collections/pqlib/PQ.h"
+#include "contrib/heap.h"
 #include "ForwardingMappingIPv4.h"
 #include "ForwardingMappingIPv6.h"
 #include "CaptureSettings.h"

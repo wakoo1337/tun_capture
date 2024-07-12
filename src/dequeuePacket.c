@@ -1,13 +1,14 @@
 #include <pthread.h>
+#include <stdint.h>
 #include <stdbool.h>
-#include "contrib/C-Collections/pqlib/PQ.h"
+#include "contrib/heap.h"
 #include "CaptureContext.h"
 #include "PacketQueueItem.h"
 
 #include "dequeuePacket.h"
 unsigned int dequeuePacket(struct CaptureContext *context, struct PacketQueueItem **item) {
+	pthread_mutex_lock(&context->queue_mutex);
 	while (true) {
-		pthread_mutex_lock(&context->queue_mutex);
 		if (context->captured_stack) {
 			*item = context->captured_stack;
 			context->captured_stack = context->captured_stack->next;

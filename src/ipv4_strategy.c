@@ -1,7 +1,7 @@
 #include <sys/socket.h>
 #include <stdint.h>
 #include <pthread.h>
-#include "contrib/C-Collections/pqlib/PQ.h"
+#include "contrib/heap.h"
 #include "CaptureContext.h"
 #include "IPFragmentMetadata.h"
 #include "NetworkProtocolStrategy.h"
@@ -11,6 +11,7 @@
 #include "fillIPv4FragmentMetadatas.h"
 #include "createIPv4PseudoHdr.h"
 #include "writeIPv4Headers.h"
+#include "computeIPv4MSS.h"
 
 #include "ipv4_strategy.h"
 const struct NetworkProtocolStrategy ipv4_strategy = {
@@ -20,5 +21,6 @@ const struct NetworkProtocolStrategy ipv4_strategy = {
 	.compute_fragcount = &computeIPv4FragmentsCount,
 	.fill_metadatas = &fillIPv4FragmentMetadatas,
 	.create_pseudo = &createIPv4PseudoHdr,
-	.write_headers = &writeIPv4Headers
+	.write_headers = &writeIPv4Headers,
+	.compute_mss = &computeIPv4MSS
 };

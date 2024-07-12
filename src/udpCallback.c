@@ -5,7 +5,7 @@
 #include <stdlib.h>
 #include <sys/socket.h>
 #include <errno.h>
-#include "contrib/C-Collections/pqlib/PQ.h"
+#include "contrib/heap.h"
 #include "UDPQueueItem.h"
 #include "UDPBinding.h"
 #include "UDPParameters.h"

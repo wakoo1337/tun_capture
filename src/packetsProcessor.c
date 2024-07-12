@@ -1,6 +1,7 @@
 #include <pthread.h>
 #include <stdlib.h>
-#include "contrib/C-Collections/pqlib/PQ.h"
+#include <stdint.h>
+#include "contrib/heap.h"
 #include "CaptureContext.h"
 #include "processIPv4Packet.h"
 

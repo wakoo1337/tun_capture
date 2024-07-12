@@ -6,7 +6,7 @@
 #include <stdbool.h>
 #include <netinet/in.h>
 #include <errno.h>
-#include "contrib/C-Collections/pqlib/PQ.h"
+#include "contrib/heap.h"
 #include "ForwardingMappingIPv4.h"
 #include "ForwardingMappingIPv6.h"
 #include "CaptureSettings.h"
