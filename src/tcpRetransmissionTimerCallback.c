@@ -36,6 +36,6 @@ void tcpRetransmissionTimerCallback(void *arg) {
 			current = current->next;
 		};
 		connection->timer = enqueueTimeout(connection->context, &nearest, &tcpRetransmissionTimerCallback, connection);
-	};
+	} else connection->timer = NULL;
 	pthread_mutex_unlock(&connection->mutex);
 };

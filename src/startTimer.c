@@ -13,7 +13,7 @@
 unsigned int startTimer(struct CaptureContext *context) {
 	struct TimeoutItem *item;
 	item = heap_peek(context->timeout_queue);
-	if ((item != NULL)) {
+	if (item != NULL) {
 		struct timeval tv, delta;
 		getMonotonicTimeval(&tv);
 		subTimeval(&item->expiration, &tv, &delta);
