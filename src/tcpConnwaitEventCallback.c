@@ -6,6 +6,7 @@
 #include "SrcDstSockaddrs.h"
 #include "TCPConnection.h"
 #include "destroyTCPConnection.h"
+#include "sendSynReply.h"
 #include "tcpstate_synack_send.h"
 
 #include "tcpConnwaitEventCallback.h"

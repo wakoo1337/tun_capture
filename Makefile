@@ -101,7 +101,7 @@ bin/tcpCallback.o: src/tcpCallback.c src/tcpCallback.h src/SrcDstSockaddrs.h src
 	$(CC) $(CFLAGS) -c -o bin/tcpCallback.o src/tcpCallback.c
 bin/tcpstate_connwait.o: src/tcpstate_connwait.c src/tcpstate_connwait.h src/SrcDstSockaddrs.h src/IPPacketPayload.h src/TCPHeaderData.h src/TCPState.h src/tcpConnwaitEventCallback.h src/tcpConnwaitPacketsProcessor.h
 	$(CC) $(CFLAGS) -c -o bin/tcpstate_connwait.o src/tcpstate_connwait.c
-bin/tcpConnwaitEventCallback.o: src/tcpConnwaitEventCallback.c src/tcpConnwaitEventCallback.h src/SrcDstSockaddrs.h src/TCPConnection.h src/destroyTCPConnection.h src/tcpstate_synack_send.h
+bin/tcpConnwaitEventCallback.o: src/tcpConnwaitEventCallback.c src/tcpConnwaitEventCallback.h src/SrcDstSockaddrs.h src/TCPConnection.h src/destroyTCPConnection.h src/sendSynReply.h src/tcpstate_synack_send.h
 	$(CC) $(CFLAGS) -c -o bin/tcpConnwaitEventCallback.o src/tcpConnwaitEventCallback.c
 bin/destroyTCPConnection.o: src/destroyTCPConnection.c src/destroyTCPConnection.h src/contrib/avl.h src/contrib/heap.h src/SrcDstSockaddrs.h src/CaptureContext.h src/TCPConnection.h
 	$(CC) $(CFLAGS) -c -o bin/destroyTCPConnection.o src/destroyTCPConnection.c
