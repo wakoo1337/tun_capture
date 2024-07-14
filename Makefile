@@ -61,7 +61,7 @@ bin/findUDPBinding.o: src/findUDPBinding.c src/findUDPBinding.h src/contrib/avl.
 	$(CC) $(CFLAGS) -c -o bin/findUDPBinding.o src/findUDPBinding.c
 bin/packetsProcessor.o: src/packetsProcessor.c src/packetsProcessor.h src/contrib/heap.h src/CaptureContext.h src/processIPv4Packet.h
 	$(CC) $(CFLAGS) -c -o bin/packetsProcessor.o src/packetsProcessor.c
-bin/udpGenerator.o: src/udpGenerator.c src/udpGenerator.h src/contrib/heap.h src/ForwardingMappingIPv4.h src/ForwardingMappingIPv6.h src/CaptureSettings.h src/CaptureContext.h src/UDPParameters.h src/UDPBinding.h src/ChecksumContext.h src/IPFragmentMetadata.h src/NetworkProtocolStrategy.h src/PacketQueueItem.h src/initChecksum.h src/computeChecksum.h src/getChecksum.h src/tunCallback.h src/HEADERS_RESERVE.h src/ipv4_strategy.h src/ipv6_strategy.h
+bin/udpGenerator.o: src/udpGenerator.c src/udpGenerator.h src/contrib/heap.h src/ForwardingMappingIPv4.h src/ForwardingMappingIPv6.h src/CaptureSettings.h src/CaptureContext.h src/UDPParameters.h src/UDPBinding.h src/ChecksumContext.h src/IPFragmentMetadata.h src/NetworkProtocolStrategy.h src/PacketQueueItem.h src/initChecksum.h src/computeChecksum.h src/getChecksum.h src/tunCallback.h src/set16Bit.h src/HEADERS_RESERVE.h src/ipv4_strategy.h src/ipv6_strategy.h
 	$(CC) $(CFLAGS) -c -o bin/udpGenerator.o src/udpGenerator.c
 bin/computeIPv4FragmentsCount.o: src/computeIPv4FragmentsCount.c src/computeIPv4FragmentsCount.h
 	$(CC) $(CFLAGS) -c -o bin/computeIPv4FragmentsCount.o src/computeIPv4FragmentsCount.c
@@ -71,7 +71,7 @@ bin/fillIPv4FragmentMetadatas.o: src/fillIPv4FragmentMetadatas.c src/fillIPv4Fra
 	$(CC) $(CFLAGS) -c -o bin/fillIPv4FragmentMetadatas.o src/fillIPv4FragmentMetadatas.c
 bin/createIPv4PseudoHdr.o: src/createIPv4PseudoHdr.c src/createIPv4PseudoHdr.h
 	$(CC) $(CFLAGS) -c -o bin/createIPv4PseudoHdr.o src/createIPv4PseudoHdr.c
-bin/writeIPv4Headers.o: src/writeIPv4Headers.c src/writeIPv4Headers.h src/contrib/heap.h src/ForwardingMappingIPv4.h src/ForwardingMappingIPv6.h src/CaptureSettings.h src/CaptureContext.h src/IPFragmentMetadata.h src/ChecksumContext.h src/initChecksum.h src/computeChecksum.h src/getChecksum.h
+bin/writeIPv4Headers.o: src/writeIPv4Headers.c src/writeIPv4Headers.h src/contrib/heap.h src/ForwardingMappingIPv4.h src/ForwardingMappingIPv6.h src/CaptureSettings.h src/CaptureContext.h src/IPFragmentMetadata.h src/ChecksumContext.h src/initChecksum.h src/computeChecksum.h src/getChecksum.h src/set16Bit.h
 	$(CC) $(CFLAGS) -c -o bin/writeIPv4Headers.o src/writeIPv4Headers.c
 bin/getIPv4SockaddrPort.o: src/getIPv4SockaddrPort.c src/getIPv4SockaddrPort.h
 	$(CC) $(CFLAGS) -c -o bin/getIPv4SockaddrPort.o src/getIPv4SockaddrPort.c

@@ -14,6 +14,7 @@
 #include "initChecksum.h"
 #include "computeChecksum.h"
 #include "getChecksum.h"
+#include "set16Bit.h"
 
 #include "writeIPv4Headers.h"
 void writeIPv4Headers(struct CaptureContext *context, struct IPFragmentMetadata *metadatas, unsigned int count, uint8_t protocol, const struct sockaddr *src, const struct sockaddr *dst) {
@@ -21,12 +22,12 @@ void writeIPv4Headers(struct CaptureContext *context, struct IPFragmentMetadata 
 		struct IPFragmentMetadata *metadata = &metadatas[i];
 		metadata->buffer[0] = 69; // IPv4 и заголовок в 20 байтов, грязный извращенец!
 		metadata->buffer[1] = 0;
-		((uint16_t *) metadata->buffer)[1] = htons(metadata->header_size + metadata->data_size);
-		((uint16_t *) metadata->buffer)[2] = htons(context->ipv4_id);
-		((uint16_t *) metadata->buffer)[3] = htons(((metadata->fragment_offset / 8) & 8191) | ((i != (count-1)) ? 8192 : 0));
+		set16Bit(&metadata->buffer[2], htons(metadata->header_size + metadata->data_size));
+		set16Bit(&metadata->buffer[4], htons(context->ipv4_id));
+		set16Bit(&metadata->buffer[6], htons(((metadata->fragment_offset / 8) & 8191) | ((i != (count-1)) ? 8192 : 0)));
 		metadata->buffer[8] = context->settings->ttl;
 		metadata->buffer[9] = protocol;
-		((uint16_t *) metadata->buffer)[5] = 0;
+		set16Bit(&metadata->buffer[10], 0);
 		memcpy(&metadata->buffer[12], &((struct sockaddr_in *) src)->sin_addr, sizeof(struct in_addr));
 		memcpy(&metadata->buffer[16], &((struct sockaddr_in *) dst)->sin_addr, sizeof(struct in_addr));
 		struct ChecksumContext context;

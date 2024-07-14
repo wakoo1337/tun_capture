@@ -23,6 +23,7 @@
 #include "computeChecksum.h"
 #include "getChecksum.h"
 #include "tunCallback.h"
+#include "set16Bit.h"
 #include "HEADERS_RESERVE.h"
 #include "ipv4_strategy.h"
 #include "ipv6_strategy.h"
@@ -36,16 +37,11 @@ unsigned int udpGenerator(struct CaptureContext *context, uint8_t *packet, unsig
 	struct IPFragmentMetadata *frag_metadata;
 	frag_metadata = alloca(fragment_count * sizeof(struct IPFragmentMetadata));
 	uint8_t *udp_header;
-	uint16_t value;
 	udp_header = &packet[-8];
-	value = htons(strategy->port_getter(&parameters->from));
-	memcpy(&udp_header[0], &value, sizeof(uint16_t));
-	value = htons(strategy->port_getter(&parameters->binding->internal_addr));
-	memcpy(&udp_header[2], &value, sizeof(uint16_t));
-	value = htons(size + 8);
-	memcpy(&udp_header[4], &value, sizeof(uint16_t));
-	value = 0;
-	memcpy(&udp_header[6], &value, sizeof(uint16_t));
+	set16Bit(&udp_header[0], htons(strategy->port_getter(&parameters->from)));
+	set16Bit(&udp_header[2], htons(strategy->port_getter(&parameters->binding->internal_addr)));
+	set16Bit(&udp_header[4], htons(size + 8));
+	set16Bit(&udp_header[6], 0);
 	uint8_t *pseudo;
 	pseudo = alloca(strategy->pseudo_length);
 	strategy->create_pseudo(pseudo, &parameters->from, &parameters->binding->internal_addr, 17, size + 8);
@@ -53,9 +49,7 @@ unsigned int udpGenerator(struct CaptureContext *context, uint8_t *packet, unsig
 	initChecksum(&checksum);
 	computeChecksum(&checksum, pseudo, strategy->pseudo_length);
 	computeChecksum(&checksum, udp_header, size + 8);
-	value = getChecksum(&checksum);
-	if (value == 0) value = 0xFFFF;
-	memcpy(&udp_header[6], &value, sizeof(uint16_t));
+	if (getChecksum(&checksum) == 0) set16Bit(&udp_header[6], 0xFFFF);
 	strategy->fill_metadatas(frag_metadata, fragment_count, size + 8, context->settings->mtu);
 	if (fragment_count == 1) {
 		frag_metadata->buffer = &packet[(signed int) -(frag_metadata->header_size+8)];
