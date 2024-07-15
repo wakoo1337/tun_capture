@@ -7,7 +7,7 @@ struct TCPConnection {
 	struct CaptureContext *context;
 	struct event *event;
 	struct TimeoutItem *timer;
-	struct TCPSiteQueueItem *site_queue;
+	struct TCPSiteQueueItem *site_queue, **site_last;
 	struct TCPAppQueueItem *app_queue, **app_last;
 	uint32_t our_seq; // Наш номер последовательности, увеличивается с каждым следующим байтом
 	uint32_t first_desired; // Номер первого байта, который мы желаем получить

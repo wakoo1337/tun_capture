@@ -16,8 +16,8 @@
 #include "NetworkProtocolStrategy.h"
 #include "SrcDstSockaddrs.h"
 #include "TCPHeaderData.h"
-#include "TCPState.h"
 #include "TCPConnection.h"
+#include "TCPState.h"
 #include "parseTCPHeader.h"
 #include "tcpCallback.h"
 #include "tcpstate_connwait.h"
@@ -75,6 +75,7 @@ unsigned int processTCPPacket(struct CaptureContext *context, const struct IPPac
 		connection->site_queue = NULL;
 		connection->app_queue = NULL;
 		connection->app_last = &connection->app_queue;
+		connection->site_last = &connection->site_queue;
 		connection->our_seq = 0;
 		connection->first_desired = hdr.seq_num + 1;
 		connection->scaling_enabled = hdr.winscale_present;
@@ -95,5 +96,19 @@ unsigned int processTCPPacket(struct CaptureContext *context, const struct IPPac
 		return 0;
 	};
 	// Попытаться обнаружить соединение и обработать пакет его обработчиком. Если соединение найти не удастся, послать RST
+	pthread_mutex_lock(&context->tcp_mutex);
+	struct TCPConnection *connection;
+	connection = avl_find(context->tcp_connections, addrs);
+	if (connection) {
+		pthread_mutex_lock(&connection->mutex);
+		pthread_mutex_unlock(&context->tcp_mutex);
+		unsigned int result;
+		result = connection->state->packets_processor(connection, payload, &hdr);
+		pthread_mutex_unlock(&connection->mutex);
+		return result;
+	} else {
+		// TODO послать RST
+		pthread_mutex_unlock(&context->tcp_mutex);
+	};
 	return 0;
 };

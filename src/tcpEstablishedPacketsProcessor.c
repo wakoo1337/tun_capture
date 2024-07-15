@@ -4,12 +4,12 @@
 #include <pthread.h>
 #include <sys/socket.h>
 #include "IPPacketPayload.h"
-#include "TCPHeaderData.h"
 #include "SrcDstSockaddrs.h"
 #include "TCPConnection.h"
+#include "TCPHeaderData.h"
 
-#include "tcpConnwaitPacketsProcessor.h"
-unsigned int tcpConnwaitPacketsProcessor(struct TCPConnection *connection, const struct IPPacketPayload *payload, const struct TCPHeaderData *header) {
+#include "tcpEstablishedPacketsProcessor.h"
+unsigned int tcpEstablishedPacketsProcessor(struct TCPConnection *connection, const struct IPPacketPayload *payload, const struct TCPHeaderData *header) {
 	free(payload->free_me);
 	return 0;
 };

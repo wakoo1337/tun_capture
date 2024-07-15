@@ -4,6 +4,7 @@
 #include <event2/event.h>
 #include "SrcDstSockaddrs.h"
 #include "IPPacketPayload.h"
+#include "TCPConnection.h"
 #include "TCPHeaderData.h"
 #include "TCPState.h"
 #include "tcpSynackSendEventCallback.h"

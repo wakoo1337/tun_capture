@@ -13,11 +13,9 @@
 void tcpConnwaitEventCallback(evutil_socket_t fd, short what, void *arg) {
 	struct TCPConnection *connection = (struct TCPConnection *) arg;
 	if (what & EV_WRITE) {
-		pthread_mutex_lock(&connection->mutex);
 		int err;
 		socklen_t sl = sizeof(int);
 		if ((-1 == getsockopt(connection->sock, SOL_SOCKET, SO_ERROR, &err, &sl)) || err) {
-			pthread_mutex_unlock(&connection->mutex);
 			destroyTCPConnection(connection);
 			return;
 		};
@@ -26,6 +24,6 @@ void tcpConnwaitEventCallback(evutil_socket_t fd, short what, void *arg) {
 		connection->event = NULL;
 		connection->state = &tcpstate_synack_send;
 		sendSynReply(connection);
-		pthread_mutex_unlock(&connection->mutex);
 	};
+	pthread_mutex_unlock(&connection->mutex);
 };
