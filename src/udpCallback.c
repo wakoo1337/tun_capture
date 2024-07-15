@@ -14,6 +14,7 @@
 #include "HEADERS_RESERVE.h"
 #include "MAX_UDP_PAYLOAD.h"
 #include "udpGenerator.h"
+#include "enqueuePacket.h"
 
 #include "udpCallback.h"
 void udpCallback(evutil_socket_t fd, short what, void *arg) {
@@ -55,8 +56,7 @@ void udpCallback(evutil_socket_t fd, short what, void *arg) {
 		params->binding = binding;
 		queue_item->arg = params;
 		pthread_mutex_lock(&binding->context->queue_mutex);
-		queue_item->next = binding->context->captured_stack;
-		binding->context->captured_stack = queue_item;
+		enqueuePacket(binding->context, queue_item);
 		pthread_mutex_unlock(&binding->context->queue_mutex);
 		pthread_cond_signal(&binding->context->queue_cond);
 	};

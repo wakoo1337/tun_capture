@@ -32,7 +32,8 @@ unsigned int doCapture(const struct CaptureSettings *settings) {
 	pthread_mutex_init(&context->queue_mutex, NULL);
 	pthread_mutex_init(&context->timeout_mutex, NULL);
 	pthread_cond_init(&context->queue_cond, NULL);
-	context->captured_stack = NULL;
+	context->captured_begin = NULL;
+	context->captured_end = &context->captured_begin;
 	context->send_stack = NULL;
 	context->ipv4_fragments = avl_create(&compareIPv4FragmentsIdsSources, NULL, NULL);
 	context->timeout_queue = heap_new(&compareTimeoutItems, NULL);

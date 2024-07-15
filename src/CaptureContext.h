@@ -3,7 +3,7 @@ struct CaptureContext {
 	pthread_t *threads; // Потоки, их количество указывается в структуре настроек
 	pthread_mutex_t queue_mutex; // Мьютекс извлечения пакетов из стека
 	pthread_cond_t queue_cond; // Условная переменная для извлечения пакетов из стека
-	struct PacketQueueItem *captured_stack; // Стек захваченных пакетов
+	struct PacketQueueItem *captured_begin, **captured_end; // Начало и конец очереди захваченных пакетов. captured_end указывает либо на next последнего пакета, либо на captured_begin, если очередь пуста
 	struct PacketQueueItem *send_stack; // Стек подлежащих отправке пакетов
 	struct event_base *event_base;
 	struct event *iface_event;

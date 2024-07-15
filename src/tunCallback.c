@@ -13,6 +13,7 @@
 #include "CaptureContext.h"
 #include "PacketQueueItem.h"
 #include "packetsProcessor.h"
+#include "enqueuePacket.h"
 
 #include "tunCallback.h"
 void tunCallback(evutil_socket_t fd, short what, void *arg) {
@@ -39,8 +40,7 @@ void tunCallback(evutil_socket_t fd, short what, void *arg) {
 		queue_item->processor = &packetsProcessor;
 		queue_item->arg = NULL;
 		pthread_mutex_lock(&context->queue_mutex);
-		queue_item->next = context->captured_stack;
-		context->captured_stack = queue_item;
+		enqueuePacket(context, queue_item);
 		pthread_mutex_unlock(&context->queue_mutex);
 		pthread_cond_signal(&context->queue_cond);
 	};
