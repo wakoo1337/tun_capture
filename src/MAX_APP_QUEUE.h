@@ -1,0 +1,1 @@
+#define MAX_APP_QUEUE 2097152

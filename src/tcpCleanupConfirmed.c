@@ -9,7 +9,7 @@
 #include "TCPConnection.h"
 
 #include "tcpCleanupConfirmed.h"
-void tcpCleanupConfirmed(struct TCPConnection *connection, uint32_t ack) {
+void tcpCleanupConfirmed(struct TCPConnection *connection, uint32_t ack, unsigned int window) {
 	struct TCPAppQueueItem *found = NULL, *current = connection->app_queue;
 	while (current) {
 		if (current->confirm_ack == ack) found = current;
@@ -18,16 +18,20 @@ void tcpCleanupConfirmed(struct TCPConnection *connection, uint32_t ack) {
 	if (found) {
 		struct TCPAppQueueItem *next;
 		current = connection->app_queue;
-		while (current != found) {
+		while ((current != found) && current) {
 			next = current->next;
 			free(current->free_me);
 			free(current);
 			current = next;
 		};
-		next = current->next;
-		free(current->free_me);
-		free(current);
-		connection->app_queue = next;
+		if (current) {
+			next = current->next;
+			free(current->free_me);
+			free(current);
+			connection->app_queue = next;
+			connection->latest_ack = ack;
+			connection->app_window = window << (connection->scaling_enabled ? connection->remote_scale : 0);
+		};
 	};
 	if (NULL == connection->app_queue) connection->app_last = &connection->app_queue;
 };

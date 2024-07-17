@@ -7,10 +7,16 @@ struct TCPConnection {
 	struct CaptureContext *context;
 	struct event *event;
 	struct TimeoutItem *timer;
+	unsigned int max_pktdata; // Максимальный размер данных в отправляемом пакете
+	struct heap_t *prequeue_heap;
+	struct avl_table *site_prequeue;
 	struct TCPSiteQueueItem *site_queue, **site_last;
 	struct TCPAppQueueItem *app_queue, **app_last;
+	unsigned int site_scheduled, app_scheduled; // Сколько данных запланировано на отправку в каждую сторону
 	uint32_t our_seq; // Наш номер последовательности, увеличивается с каждым следующим байтом
-	uint32_t first_desired; // Номер первого байта, который мы желаем получить
+	uint32_t first_desired; // Номер первого байта, который мы желаем получить, от него считается наше окно
+	uint32_t latest_ack; // Последний ACK от приложения, от него считается окно приложения
+	unsigned int app_window; // Размер окна приложения, с учётом масштабирования
 	bool scaling_enabled; // Включено ли масштабирование окна?
 	unsigned int our_scale, remote_scale; // Показатели масштабирования
 };

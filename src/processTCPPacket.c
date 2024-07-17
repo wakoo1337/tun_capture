@@ -20,6 +20,7 @@
 #include "TCPState.h"
 #include "parseTCPHeader.h"
 #include "tcpCallback.h"
+#include "compareTCPSitePrequeueItems.h"
 #include "tcpstate_connwait.h"
 
 #include "processTCPPacket.h"
@@ -72,10 +73,18 @@ unsigned int processTCPPacket(struct CaptureContext *context, const struct IPPac
 			free(connection);
 			return 1;
 		};
+		if (hdr.mss_present) {
+			connection->max_pktdata = hdr.mss_value; // Это без учёта дополнительных опций, которые могут ещё появиться
+		} else {
+			if (addrs->src.sa_family == AF_INET) connection->max_pktdata = 536;
+			else if (addrs->src.sa_family == AF_INET) connection->max_pktdata = 1220; 
+		};
 		connection->site_queue = NULL;
 		connection->app_queue = NULL;
+		connection->site_prequeue = avl_create(&compareTCPSitePrequeueItems, NULL, NULL);
 		connection->app_last = &connection->app_queue;
 		connection->site_last = &connection->site_queue;
+		connection->site_scheduled = connection->app_scheduled = 0;
 		connection->our_seq = 0;
 		connection->first_desired = hdr.seq_num + 1;
 		connection->scaling_enabled = hdr.winscale_present;
