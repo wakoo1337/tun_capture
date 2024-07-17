@@ -12,7 +12,7 @@
 
 #include "tcpUpdateEvent.h"
 unsigned int tcpUpdateEvent(struct TCPConnection *connection) {
-	event_free(connection->event);
+	if (connection->event) event_free(connection->event);
 	connection->event = event_new(connection->context->event_base, connection->sock, EV_PERSIST | ((connection->site_scheduled) ? EV_WRITE : 0) | ((connection->app_scheduled < MAX_APP_QUEUE) ? EV_READ : 0), &tcpCallback, connection);
 	if (NULL == connection->event) return 1;
 	if (event_add(connection->event, NULL)) {

@@ -4,6 +4,7 @@
 #include "SrcDstSockaddrs.h"
 #include "IPPacketPayload.h"
 #include "TCPHeaderData.h"
+#include "TCPConnection.h"
 #include "TCPState.h"
 #include "tcpConnwaitEventCallback.h"
 #include "tcpConnwaitPacketsProcessor.h"
