@@ -54,7 +54,7 @@ unsigned int tcpEstablishedPacketsProcessor(struct TCPConnection *connection, co
 		pthread_mutex_lock(&connection->context->timeout_mutex);
 		startTimer(connection->context);
 		pthread_mutex_unlock(&connection->context->timeout_mutex);
-	} else return 1;
+	} else free(payload->free_me);
 	struct TCPSitePrequeueItem *found_prequeue;
 	found_prequeue = avl_find(connection->site_prequeue, &connection->first_desired);
 	if (found_prequeue) {
