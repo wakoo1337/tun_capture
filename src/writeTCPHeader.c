@@ -1,4 +1,5 @@
 #include <assert.h>
+#include <pthread.h>
 #include <stdint.h>
 #include <stdbool.h>
 #include <arpa/inet.h>
@@ -11,7 +12,7 @@
 #include "set32Bit.h"
 
 #include "writeTCPHeader.h"
-void writeTCPHeader(uint8_t *data, unsigned int length, struct TCPHeaderData *hdr, uint8_t *pseudo, unsigned int pseudo_len) {
+void writeTCPHeader(uint8_t *data, unsigned int length, struct TCPHeaderData *hdr, uint8_t *pseudo, unsigned int pseudo_len, pthread_mutex_t *unlock_mutex) {
 	uint8_t *header = &data[(signed int) -(hdr->data_offset)];
 	set16Bit(&header[0], htons(hdr->src_port));
 	set16Bit(&header[2], htons(hdr->dst_port));
@@ -44,7 +45,9 @@ void writeTCPHeader(uint8_t *data, unsigned int length, struct TCPHeaderData *hd
 	assert(options_offset == hdr->data_offset);
 	struct ChecksumContext checksum;
 	initChecksum(&checksum);
+	if (unlock_mutex) pthread_mutex_unlock(unlock_mutex);
 	computeChecksum(&checksum, pseudo, pseudo_len);
 	computeChecksum(&checksum, header, hdr->data_offset + length);
+	if (unlock_mutex) pthread_mutex_lock(unlock_mutex);
 	set16Bit(&header[16], getChecksum(&checksum));
 };

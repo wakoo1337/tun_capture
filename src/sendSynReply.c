@@ -48,7 +48,7 @@ unsigned int sendSynReply(struct TCPConnection *connection) {
 	pseudo = alloca(connection->strategy->pseudo_length);
 	hdr.data_offset = computeTCPDataOffset(&hdr);
 	connection->strategy->create_pseudo(pseudo, &connection->addrs.dst, &connection->addrs.src, 6, hdr.data_offset);
-	writeTCPHeader(&packet[HEADERS_RESERVE], 0, &hdr, pseudo, connection->strategy->pseudo_length);
+	writeTCPHeader(&packet[HEADERS_RESERVE], 0, &hdr, pseudo, connection->strategy->pseudo_length, &connection->mutex);
 	unsigned int frags;
 	frags = connection->strategy->compute_fragcount(hdr.data_offset, connection->context->settings->mtu);
 	assert(frags == 1);
