@@ -21,6 +21,7 @@
 #include "tcpUpdateEvent.h"
 #include "cancelTimeout.h"
 #include "startTimer.h"
+#include "sendTCPAcknowledgement.h"
 #include "segexpire_delay.h"
 #include "MAX_SITE_QUEUE.h"
 
@@ -56,11 +57,12 @@ unsigned int tcpEstablishedPacketsProcessor(struct TCPConnection *connection, co
 		pthread_mutex_unlock(&connection->context->timeout_mutex);
 	} else free(payload->free_me);
 	struct TCPSitePrequeueItem *found_prequeue;
-	found_prequeue = avl_find(connection->site_prequeue, &connection->first_desired);
-	if (found_prequeue) {
+	while ((found_prequeue = avl_find(connection->site_prequeue, &connection->first_desired)), found_prequeue) {
 		cancelTimeout(connection->context, &found_prequeue->timeout);
+		connection->first_desired = found_prequeue->seq + found_prequeue->urgent_count + found_prequeue->data_count;
 		enqueueSiteDataFromPrequeueItem(connection, found_prequeue);
 		tcpUpdateEvent(connection);
 	};
+	sendTCPAcknowledgement(connection);
 	return 0;
 };
