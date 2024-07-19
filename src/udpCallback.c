@@ -69,6 +69,7 @@ void udpCallback(evutil_socket_t fd, short what, void *arg) {
 			result = sendto(binding->sock, binding->queue->send_me, binding->queue->size, 0, &binding->queue->dst, sizeof(struct sockaddr));
 			if (-1 == result) {
 				if ((errno == EAGAIN) || (errno == EWOULDBLOCK)) {
+					pthread_mutex_unlock(&binding->mutex);
 					return;
 				} else {
 					free(binding->queue->free_me);
