@@ -102,7 +102,10 @@ void tcpEstablishedEventCallback(evutil_socket_t fd, short what, void *arg) {
 			(*last)->next = NULL;
 			last = &((*last)->next);
 		};
+		pthread_mutex_lock(&connection->context->queue_mutex);
 		*(connection->context->captured_end) = queue;
+		pthread_mutex_unlock(&connection->context->queue_mutex);
+		pthread_cond_broadcast(&connection->context->queue_cond);
 	};
 	pthread_mutex_lock(&connection->mutex);
 	if (what & EV_WRITE) {
