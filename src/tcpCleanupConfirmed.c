@@ -11,6 +11,7 @@
 #include "tcpCleanupConfirmed.h"
 void tcpCleanupConfirmed(struct TCPConnection *connection, uint32_t ack, unsigned int window) {
 	struct TCPAppQueueItem *found = NULL, *current = connection->app_queue;
+	if (ack == connection->latest_ack) connection->app_window = window << (connection->scaling_enabled ? connection->remote_scale : 0);
 	while (current) {
 		if (current->confirm_ack == ack) found = current;
 		current = current->next;
