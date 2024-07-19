@@ -17,7 +17,8 @@ unsigned int tcpSynackSendPacketsProcessor(struct TCPConnection *connection, con
 		connection->state = &tcpstate_established;
 		connection->our_seq++;
 		cancelTimeout(connection->context, &connection->timer);
-		tcpCleanupConfirmed(connection, header->ack_num, header->raw_window);
+		connection->latest_ack = header->ack_num;
+		tcpCleanupConfirmed(connection);
 	};
 	free(payload->free_me); // TODO убрать, тут тоже могут быть данные
 	return 0;

@@ -22,6 +22,7 @@
 #include "cancelTimeout.h"
 #include "startTimer.h"
 #include "sendTCPAcknowledgement.h"
+#include "tcpCleanupConfirmed.h"
 #include "segexpire_delay.h"
 #include "MAX_SITE_QUEUE.h"
 
@@ -45,6 +46,8 @@ unsigned int tcpEstablishedPacketsProcessor(struct TCPConnection *connection, co
 		};
 		item->data = payload->packet + header->data_offset;
 		item->urgent_count = header->urg ? header->urgent_ptr : 0;
+		item->packet_ack = header->ack_num;
+		item->window = header->raw_window << (connection->scaling_enabled ? connection->remote_scale : 0);
 		item->data_count = payload->count - header->data_offset - header->urgent_ptr;
 		item->connection = connection;
 		struct timeval now, timeout;
@@ -60,9 +63,12 @@ unsigned int tcpEstablishedPacketsProcessor(struct TCPConnection *connection, co
 	while ((found_prequeue = avl_find(connection->site_prequeue, &connection->first_desired)), found_prequeue) {
 		cancelTimeout(connection->context, &found_prequeue->timeout);
 		connection->first_desired = found_prequeue->seq + found_prequeue->urgent_count + found_prequeue->data_count;
+		connection->latest_ack = found_prequeue->packet_ack;
+		connection->app_window = found_prequeue->window;
 		enqueueSiteDataFromPrequeueItem(connection, found_prequeue);
 		tcpUpdateEvent(connection);
 	};
+	tcpCleanupConfirmed(connection);
 	sendTCPAcknowledgement(connection);
 	return 0;
 };

@@ -29,7 +29,7 @@ void tcpRetransmissionTimerCallback(void *arg) {
 			struct timeval now;
 			getMonotonicTimeval(&now);
 			if (compareTimeval(&now, &current->retry) >= 0) {
-				sendTCPPacket(connection->context, current);
+				sendTCPPacket(connection->context, current, false);
 				addTimeval(&now, &retry_delay, &current->retry);
 			};
 			if (compareTimeval(&current->retry, &nearest) < 0) nearest = current->retry;
