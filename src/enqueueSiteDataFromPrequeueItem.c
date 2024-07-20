@@ -22,6 +22,7 @@ unsigned int enqueueSiteDataFromPrequeueItem(struct TCPConnection *connection, s
 	q_item->free_me = pq_item->free_me;
 	q_item->next = NULL;
 	*connection->site_last = q_item;
+	connection->site_last = &q_item->next;
 	struct TCPSitePrequeueItem *deleted;
 	deleted = avl_delete(connection->site_prequeue, pq_item);
 	assert(deleted == pq_item);
