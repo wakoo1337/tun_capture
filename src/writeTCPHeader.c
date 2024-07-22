@@ -18,7 +18,7 @@ void writeTCPHeader(uint8_t *data, unsigned int length, struct TCPHeaderData *hd
 	set16Bit(&header[2], htons(hdr->dst_port));
 	set32Bit(&header[4], htonl(hdr->seq_num));
 	set32Bit(&header[8], htonl(hdr->ack_num));
-	header[12] = (hdr->data_offset << 2) & 240; // hdr->data_offset задаётся отдельной функцией computeTCPDataOffset
+	header[12] = (hdr->data_offset << 2) & 240; // hdr->data_offset задаётся отдельной функцией computeTCPDataOffset()
 	header[13] = (hdr->urg ? 32 : 0) |
 		(hdr->ack ? 16 : 0) |
 		(hdr->psh ?  8 : 0) |

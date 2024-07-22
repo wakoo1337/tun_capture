@@ -52,9 +52,9 @@ unsigned int sendTCPAcknowledgement(struct TCPConnection *connection) {
 	queue_item.ip_size = header.data_offset + metadata.header_size;
 	queue_item.tcp_packet = &packet[HEADERS_RESERVE - header.data_offset];
 	queue_item.tcp_size = header.data_offset;
-	queue_item.retry.tv_sec = 0;
-	queue_item.retry.tv_usec = 0;
+	queue_item.data_size = 0;
 	queue_item.confirm_ack = 0;
+	queue_item.connection = connection;
 	queue_item.free_me = packet;
 	queue_item.next = NULL;
 	return sendTCPPacket(connection->context, &queue_item, true);

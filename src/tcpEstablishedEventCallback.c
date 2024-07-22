@@ -15,99 +15,59 @@
 #include "tcpUpdateEvent.h"
 #include "processTCPUrgentData.h"
 #include "processTCPData.h"
+#include "enqueuePacket.h"
 #include "HEADERS_RESERVE.h"
+#include "MAX_APP_QUEUE.h"
 
 #include "tcpEstablishedEventCallback.h"
 void tcpEstablishedEventCallback(evutil_socket_t fd, short what, void *arg) {
 	struct TCPConnection *connection = (struct TCPConnection *) arg;
-	pthread_mutex_unlock(&connection->mutex);
 	if (what & EV_READ) {
-		struct PacketQueueItem *queue, **last;
-		last = &queue;
-		while (true) {
-			(*last) = malloc(sizeof(struct PacketQueueItem));
-			if (NULL == (*last)) break;
+		while (connection->app_scheduled < MAX_APP_QUEUE) {
+			pthread_mutex_unlock(&connection->mutex);
+			struct PacketQueueItem *item;
+			item = malloc(sizeof(struct PacketQueueItem));
+			if (NULL == item) break;
 			uint8_t *buffer;
 			buffer = malloc(HEADERS_RESERVE + connection->max_pktdata);
 			if (NULL == buffer) {
-				free(*last);
-				(*last) = NULL;
+				free(item);
 				break;
 			};
-			urgent_rx_retry:
-			ssize_t readed;
-			readed = recv(connection->sock, &buffer[HEADERS_RESERVE], connection->max_pktdata, MSG_OOB);
-			if (readed == -1) {
-				if ((errno == EAGAIN) || (errno == EWOULDBLOCK)) {
-					free(*last);
-					(*last) = NULL;
-					free(buffer);
-					break;
-				} else if (errno == EINTR) goto urgent_rx_retry;
-				else {
-					// TODO обработать ошибку
-				};
-			};
-			if (readed == 0) {
-				free(*last);
-				(*last) = NULL;
-				free(buffer);
-				break;
-			};
-			buffer = realloc(buffer, HEADERS_RESERVE + readed);
-			(*last)->data = &buffer[HEADERS_RESERVE];
-			(*last)->count = readed;
-			(*last)->processor = NULL;
-			(*last)->free_me = buffer;
-			(*last)->arg = connection;
-			(*last)->next = NULL;
-			last = &((*last)->next);
-		};
-		while (true) {
-			(*last) = malloc(sizeof(struct PacketQueueItem));
-			if (NULL == (*last)) break;
-			uint8_t *buffer;
-			buffer = malloc(HEADERS_RESERVE + connection->max_pktdata);
-			if (NULL == buffer) {
-				free(*last);
-				(*last) = NULL;
-				break;
-			};
+			ssize_t received;
 			data_rx_retry:
-			ssize_t readed;
-			readed = recv(connection->sock, &buffer[HEADERS_RESERVE], connection->max_pktdata, 0);
-			if (readed == -1) {
+			received = recv(connection->sock, &buffer[HEADERS_RESERVE], connection->max_pktdata, 0);
+			if (received < 0) {
 				if ((errno == EAGAIN) || (errno == EWOULDBLOCK)) {
-					free(*last);
-					(*last) = NULL;
 					free(buffer);
+					free(item);
 					break;
 				} else if (errno == EINTR) goto data_rx_retry;
 				else {
-					// TODO обработать ошибку
+					free(buffer);
+					free(item);
+					break; // TODO обработать ошибку
 				};
-			};
-			if (readed == 0) {
-				free(*last);
-				(*last) = NULL;
+			} else if (received > 0) {
+				buffer = realloc(buffer, HEADERS_RESERVE + received);
+				item->data = &buffer[HEADERS_RESERVE];
+				item->count = received;
+				item->processor = &processTCPData;
+				item->free_me = buffer;
+				item->arg = connection;
+				pthread_mutex_lock(&connection->mutex); // Разблокировать не надо, он будет нужен либо на следующей итерации цикла, либо на следующем этапе
+				connection->app_scheduled += received;
+				pthread_mutex_lock(&connection->context->queue_mutex);
+				enqueuePacket(connection->context, item);
+				pthread_mutex_unlock(&connection->context->queue_mutex);
+				pthread_cond_signal(&connection->context->queue_cond);
+			} else {
 				free(buffer);
-				break;
+				free(item);
+				break; // TODO сменить состояние
 			};
-			buffer = realloc(buffer, HEADERS_RESERVE + readed);
-			(*last)->data = &buffer[HEADERS_RESERVE];
-			(*last)->count = readed;
-			(*last)->processor = NULL;
-			(*last)->free_me = buffer;
-			(*last)->arg = connection;
-			(*last)->next = NULL;
-			last = &((*last)->next);
 		};
-		pthread_mutex_lock(&connection->context->queue_mutex);
-		*(connection->context->captured_end) = queue;
-		pthread_mutex_unlock(&connection->context->queue_mutex);
-		pthread_cond_broadcast(&connection->context->queue_cond);
 	};
-	pthread_mutex_lock(&connection->mutex);
 	if (what & EV_WRITE) {
 		struct TCPSiteQueueItem *item;
 		while (true) {

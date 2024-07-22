@@ -48,7 +48,7 @@ unsigned int tcpEstablishedPacketsProcessor(struct TCPConnection *connection, co
 		item->urgent_count = header->urg ? header->urgent_ptr : 0;
 		item->packet_ack = header->ack_num;
 		item->window = header->raw_window << (connection->scaling_enabled ? connection->remote_scale : 0);
-		item->data_count = payload->count - header->data_offset - header->urgent_ptr;
+		item->data_count = payload->count - header->data_offset - item->urgent_count;
 		item->connection = connection;
 		struct timeval now, timeout;
 		getMonotonicTimeval(&now);

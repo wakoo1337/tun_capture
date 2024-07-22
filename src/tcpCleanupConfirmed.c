@@ -7,6 +7,7 @@
 #include "SrcDstSockaddrs.h"
 #include "TCPAppQueueItem.h"
 #include "TCPConnection.h"
+#include "cancelTimeout.h"
 
 #include "tcpCleanupConfirmed.h"
 void tcpCleanupConfirmed(struct TCPConnection *connection) {
@@ -20,13 +21,17 @@ void tcpCleanupConfirmed(struct TCPConnection *connection) {
 		current = connection->app_queue;
 		while ((current != found) && current) {
 			next = current->next;
+			cancelTimeout(connection->context, &current->timeout);
 			free(current->free_me);
+			connection->app_scheduled -= current->data_size;
 			free(current);
 			current = next;
 		};
 		if (current) {
 			next = current->next;
+			cancelTimeout(connection->context, &current->timeout);
 			free(current->free_me);
+			connection->app_scheduled -= current->data_size;
 			free(current);
 			connection->app_queue = next;
 		};

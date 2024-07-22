@@ -52,6 +52,7 @@ unsigned int udpGenerator(struct CaptureContext *context, uint8_t *packet, unsig
 	computeChecksum(&checksum, udp_header, size + 8);
 	pthread_mutex_lock(&parameters->binding->mutex);
 	if (getChecksum(&checksum) == 0) set16Bit(&udp_header[6], 0xFFFF);
+	else set16Bit(&udp_header[6], getChecksum(&checksum));
 	strategy->fill_metadatas(frag_metadata, fragment_count, size + 8, context->settings->mtu);
 	if (fragment_count == 1) {
 		frag_metadata->buffer = &packet[(signed int) -(frag_metadata->header_size+8)];

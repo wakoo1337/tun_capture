@@ -6,7 +6,6 @@ struct TCPConnection {
 	const struct NetworkProtocolStrategy *strategy;
 	struct CaptureContext *context;
 	struct event *event;
-	struct TimeoutItem *timer;
 	unsigned int max_pktdata; // Максимальный размер данных в отправляемом пакете
 	struct avl_table *site_prequeue;
 	struct TCPSiteQueueItem *site_queue, **site_last;
