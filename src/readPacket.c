@@ -12,7 +12,7 @@ ssize_t readPacket(void *bytes, size_t count, void *user) {
 	if (result == -1) {
 		return -1;
 	} else {
-		savePacket(((struct UserData *) user)->cap_file, bytes, count);
+		savePacket(((struct UserData *) user)->cap_file, bytes, result);
 		return result;
 	};
 };
