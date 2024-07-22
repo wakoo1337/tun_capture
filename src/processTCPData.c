@@ -25,6 +25,7 @@
 #include "enqueueTimeout.h"
 #include "startTimer.h"
 #include "retry_delay.h"
+#include "HEADERS_RESERVE.h"
 
 #include "processTCPData.h"
 unsigned int processTCPData(struct CaptureContext *context, uint8_t *packet, unsigned int count, void *arg) {
@@ -67,9 +68,9 @@ unsigned int processTCPData(struct CaptureContext *context, uint8_t *packet, uns
 	item->data_size = count;
 	item->confirm_ack = header.seq_num + count;
 	item->connection = connection;
-	item->free_me = packet;
+	item->free_me = &packet[-HEADERS_RESERVE];
 	item->next = NULL;
-	if (checkByteInWindow(connection->latest_ack, connection->app_window, item->confirm_ack - item->data_size + 1) && checkByteInWindow(connection->latest_ack, connection->app_window, item->confirm_ack)) sendTCPPacket(context, item, false);
+	if (checkByteInWindow(connection->latest_ack, connection->app_window, item->confirm_ack - item->data_size) && checkByteInWindow(connection->latest_ack, connection->app_window, item->confirm_ack)) sendTCPPacket(context, item, false);
 	struct timeval now, expire;
 	getMonotonicTimeval(&now);
 	addTimeval(&now, &retry_delay, &expire);
@@ -79,5 +80,6 @@ unsigned int processTCPData(struct CaptureContext *context, uint8_t *packet, uns
 	pthread_mutex_lock(&context->timeout_mutex);
 	startTimer(context);
 	pthread_mutex_unlock(&context->timeout_mutex);
+	pthread_mutex_unlock(&connection->mutex);
 	return 0;
 };
