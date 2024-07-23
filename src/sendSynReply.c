@@ -73,7 +73,7 @@ unsigned int sendSynReply(struct TCPConnection *connection) {
 	queue_item->next = NULL;
 	*connection->app_last = queue_item;
 	connection->app_last = &queue_item->next;
-	sendTCPPacket(connection->context, queue_item, false);
+	sendTCPPacket(connection, queue_item, false);
 	struct timeval now, timeout;
 	getMonotonicTimeval(&now);
 	addTimeval(&now, &retry_delay, &timeout);

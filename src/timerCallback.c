@@ -28,6 +28,7 @@ void timerCallback(evutil_socket_t socket, short what, void *arg) {
 				pthread_mutex_lock(&context->timeout_mutex);
 			};
 			free(item);
+			getMonotonicTimeval(&tv);
 		};
 		startTimer(context);
 		pthread_mutex_unlock(&context->timeout_mutex);

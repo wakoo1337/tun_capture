@@ -57,5 +57,5 @@ unsigned int sendTCPAcknowledgement(struct TCPConnection *connection) {
 	queue_item.connection = connection;
 	queue_item.free_me = packet;
 	queue_item.next = NULL;
-	return sendTCPPacket(connection->context, &queue_item, true);
+	return sendTCPPacket(connection, &queue_item, true);
 };

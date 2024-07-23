@@ -47,10 +47,8 @@ unsigned int udpGenerator(struct CaptureContext *context, uint8_t *packet, unsig
 	strategy->create_pseudo(pseudo, &parameters->from, &parameters->binding->internal_addr, 17, size + 8);
 	struct ChecksumContext checksum;
 	initChecksum(&checksum);
-	pthread_mutex_unlock(&parameters->binding->mutex); // На время вычисления контрольной суммы мьютекс разблокируется
 	computeChecksum(&checksum, pseudo, strategy->pseudo_length);
 	computeChecksum(&checksum, udp_header, size + 8);
-	pthread_mutex_lock(&parameters->binding->mutex);
 	if (getChecksum(&checksum) == 0) set16Bit(&udp_header[6], 0xFFFF);
 	else set16Bit(&udp_header[6], getChecksum(&checksum));
 	strategy->fill_metadatas(frag_metadata, fragment_count, size + 8, context->settings->mtu);

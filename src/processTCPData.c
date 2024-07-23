@@ -31,7 +31,7 @@
 unsigned int processTCPData(struct CaptureContext *context, uint8_t *packet, unsigned int count, void *arg) {
 	struct TCPConnection *connection;
 	connection = (struct TCPConnection *) arg;
-	pthread_mutex_lock(&connection->mutex);
+	assert(context == connection->context);
 	struct TCPHeaderData header;
 	header.src_port = connection->strategy->port_getter(&connection->addrs.dst);
 	header.dst_port = connection->strategy->port_getter(&connection->addrs.src);
@@ -70,7 +70,7 @@ unsigned int processTCPData(struct CaptureContext *context, uint8_t *packet, uns
 	item->connection = connection;
 	item->free_me = &packet[-HEADERS_RESERVE];
 	item->next = NULL;
-	if (checkByteInWindow(connection->latest_ack, connection->app_window, item->confirm_ack - item->data_size) && checkByteInWindow(connection->latest_ack, connection->app_window, item->confirm_ack)) sendTCPPacket(context, item, false);
+	if (checkByteInWindow(connection->latest_ack, connection->app_window, item->confirm_ack - item->data_size) && checkByteInWindow(connection->latest_ack, connection->app_window, item->confirm_ack)) sendTCPPacket(connection, item, false);
 	struct timeval now, expire;
 	getMonotonicTimeval(&now);
 	addTimeval(&now, &retry_delay, &expire);

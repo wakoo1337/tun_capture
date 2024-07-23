@@ -38,6 +38,7 @@ void tunCallback(evutil_socket_t fd, short what, void *arg) {
 		queue_item->free_me = queue_item->data = packet_buffer;
 		queue_item->count = readed;
 		queue_item->processor = &packetsProcessor;
+		queue_item->mutex = NULL;
 		queue_item->arg = NULL;
 		pthread_mutex_lock(&context->queue_mutex);
 		enqueuePacket(context, queue_item);

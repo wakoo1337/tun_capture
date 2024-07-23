@@ -53,14 +53,15 @@ void tcpEstablishedEventCallback(evutil_socket_t fd, short what, void *arg) {
 				item->data = &buffer[HEADERS_RESERVE];
 				item->count = received;
 				item->processor = &processTCPData;
+				item->mutex = &connection->mutex;
 				item->free_me = buffer;
 				item->arg = connection;
-				pthread_mutex_lock(&connection->mutex); // Разблокировать не надо, он будет нужен либо на следующей итерации цикла, либо на следующем этапе
-				connection->app_scheduled += received;
 				pthread_mutex_lock(&connection->context->queue_mutex);
 				enqueuePacket(connection->context, item);
 				pthread_mutex_unlock(&connection->context->queue_mutex);
 				pthread_cond_signal(&connection->context->queue_cond);
+				pthread_mutex_lock(&connection->mutex); // Разблокировать не надо, он будет нужен либо на следующей итерации цикла, либо на следующем этапе
+				connection->app_scheduled += received;
 			} else {
 				free(buffer);
 				free(item);
@@ -81,6 +82,7 @@ void tcpEstablishedEventCallback(evutil_socket_t fd, short what, void *arg) {
 					if ((errno == EAGAIN) || (errno == EWOULDBLOCK)) break;
 					else if (errno == EINTR) goto urgent_tx_retry;
 					else {
+						break;
 						// TODO обработать ошибку
 					};
 				} else {
@@ -95,6 +97,7 @@ void tcpEstablishedEventCallback(evutil_socket_t fd, short what, void *arg) {
 					if ((errno == EAGAIN) || (errno == EWOULDBLOCK)) break;
 					else if (errno == EINTR) goto data_tx_retry;
 					else {
+						break;
 						// TODO обработать ошибку
 					};
 				} else {

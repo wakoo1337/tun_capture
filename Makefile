@@ -127,7 +127,7 @@ bin/retry_delay.o: src/retry_delay.c src/retry_delay.h
 	$(CC) $(CFLAGS) -c -o bin/retry_delay.o src/retry_delay.c
 bin/enqueueTimeout.o: src/enqueueTimeout.c src/enqueueTimeout.h src/contrib/heap.h src/CaptureContext.h src/TimeoutItem.h
 	$(CC) $(CFLAGS) -c -o bin/enqueueTimeout.o src/enqueueTimeout.c
-bin/sendTCPPacket.o: src/sendTCPPacket.c src/sendTCPPacket.h src/contrib/heap.h src/CaptureSettings.h src/CaptureContext.h src/PacketQueueItem.h src/TCPAppQueueItem.h src/tunCallback.h
+bin/sendTCPPacket.o: src/sendTCPPacket.c src/sendTCPPacket.h src/contrib/heap.h src/CaptureSettings.h src/CaptureContext.h src/PacketQueueItem.h src/TCPAppQueueItem.h src/SrcDstSockaddrs.h src/TCPConnection.h src/tunCallback.h
 	$(CC) $(CFLAGS) $(LIBEVENT_CFLAGS) -c -o bin/sendTCPPacket.o src/sendTCPPacket.c
 bin/tcpRetransmissionTimerCallback.o: src/tcpRetransmissionTimerCallback.c src/tcpRetransmissionTimerCallback.h src/contrib/heap.h src/SrcDstSockaddrs.h src/CaptureContext.h src/TCPConnection.h src/TCPAppQueueItem.h src/getMonotonicTimeval.h src/compareTimeval.h src/sendTCPPacket.h src/addTimeval.h src/checkByteInWindow.h src/enqueueTimeout.h src/retry_delay.h
 	$(CC) $(CFLAGS) -c -o bin/tcpRetransmissionTimerCallback.o src/tcpRetransmissionTimerCallback.c
