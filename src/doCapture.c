@@ -5,6 +5,7 @@
 #include <stdint.h>
 #include <time.h>
 #include <event2/event.h>
+#include <event2/thread.h>
 #include "contrib/avl.h"
 #include "contrib/heap.h"
 #include "ForwardingMappingIPv4.h"
@@ -44,6 +45,11 @@ unsigned int doCapture(const struct CaptureSettings *settings) {
 			free(context);
 			return 1;
 		};
+	};
+	if (evthread_use_pthreads()) {
+		free(context->threads); // TODO остановить ставшие ненужными потоки
+		free(context);
+		return 1;
 	};
 	context->event_base = event_base_new();
 	if (NULL == context->event_base) {

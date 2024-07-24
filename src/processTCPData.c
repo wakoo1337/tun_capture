@@ -58,7 +58,6 @@ unsigned int processTCPData(struct CaptureContext *context, uint8_t *packet, uns
 	struct TCPAppQueueItem *item;
 	item = malloc(sizeof(struct TCPAppQueueItem));
 	if (NULL == item) {
-		pthread_mutex_unlock(&connection->mutex);
 		return 1;
 	};
 	item->ip_packet = &packet[(signed int) -(header.data_offset + metadata.header_size)];
@@ -80,6 +79,5 @@ unsigned int processTCPData(struct CaptureContext *context, uint8_t *packet, uns
 	pthread_mutex_lock(&context->timeout_mutex);
 	startTimer(context);
 	pthread_mutex_unlock(&context->timeout_mutex);
-	pthread_mutex_unlock(&connection->mutex);
 	return 0;
 };

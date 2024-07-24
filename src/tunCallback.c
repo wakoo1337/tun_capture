@@ -42,8 +42,8 @@ void tunCallback(evutil_socket_t fd, short what, void *arg) {
 		queue_item->arg = NULL;
 		pthread_mutex_lock(&context->queue_mutex);
 		enqueuePacket(context, queue_item);
-		pthread_mutex_unlock(&context->queue_mutex);
 		pthread_cond_signal(&context->queue_cond);
+		pthread_mutex_unlock(&context->queue_mutex);
 	};
 	if (what & EV_WRITE) {
 		pthread_mutex_lock(&context->queue_mutex);

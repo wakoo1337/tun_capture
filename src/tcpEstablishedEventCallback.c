@@ -32,6 +32,7 @@ void tcpEstablishedEventCallback(evutil_socket_t fd, short what, void *arg) {
 			buffer = malloc(HEADERS_RESERVE + connection->max_pktdata);
 			if (NULL == buffer) {
 				free(item);
+				pthread_mutex_lock(&connection->mutex);
 				break;
 			};
 			ssize_t received;
@@ -41,11 +42,13 @@ void tcpEstablishedEventCallback(evutil_socket_t fd, short what, void *arg) {
 				if ((errno == EAGAIN) || (errno == EWOULDBLOCK)) {
 					free(buffer);
 					free(item);
+					pthread_mutex_lock(&connection->mutex);
 					break;
 				} else if (errno == EINTR) goto data_rx_retry;
 				else {
 					free(buffer);
 					free(item);
+					pthread_mutex_lock(&connection->mutex);
 					break; // TODO обработать ошибку
 				};
 			} else if (received > 0) {
@@ -58,13 +61,14 @@ void tcpEstablishedEventCallback(evutil_socket_t fd, short what, void *arg) {
 				item->arg = connection;
 				pthread_mutex_lock(&connection->context->queue_mutex);
 				enqueuePacket(connection->context, item);
-				pthread_mutex_unlock(&connection->context->queue_mutex);
 				pthread_cond_signal(&connection->context->queue_cond);
+				pthread_mutex_unlock(&connection->context->queue_mutex);
 				pthread_mutex_lock(&connection->mutex); // Разблокировать не надо, он будет нужен либо на следующей итерации цикла, либо на следующем этапе
 				connection->app_scheduled += received;
 			} else {
 				free(buffer);
 				free(item);
+				pthread_mutex_lock(&connection->mutex);
 				break; // TODO сменить состояние
 			};
 		};
