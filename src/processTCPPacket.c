@@ -56,18 +56,24 @@ unsigned int processTCPPacket(struct CaptureContext *context, const struct IPPac
 			free(connection);
 			return 1;
 		};
+		pthread_mutex_lock(&context->tcp_mutex);
 		pthread_mutex_init(&connection->mutex, NULL);
+		pthread_mutex_lock(&connection->mutex);
 		connection->state = &tcpstate_connwait;
 		connection->strategy = strategy;
 		connection->context = context;
 		connection->event = event_new(context->event_base, connection->sock, EV_WRITE, &tcpCallback, connection);
 		if (NULL == connection->event) {
+			pthread_mutex_unlock(&context->tcp_mutex);
+			pthread_mutex_unlock(&connection->mutex);
 			pthread_mutex_destroy(&connection->mutex);
 			close(connection->sock);
 			free(connection);
 			return 1;
 		};
 		if (-1 == event_add(connection->event, NULL)) {
+			pthread_mutex_unlock(&context->tcp_mutex);
+			pthread_mutex_unlock(&connection->mutex);
 			pthread_mutex_destroy(&connection->mutex);
 			close(connection->sock);
 			free(connection);
@@ -77,7 +83,7 @@ unsigned int processTCPPacket(struct CaptureContext *context, const struct IPPac
 			connection->max_pktdata = hdr.mss_value; // Это без учёта дополнительных опций, которые могут ещё появиться
 		} else {
 			if (addrs->src.sa_family == AF_INET) connection->max_pktdata = 536;
-			else if (addrs->src.sa_family == AF_INET) connection->max_pktdata = 1220; 
+			else if (addrs->src.sa_family == AF_INET6) connection->max_pktdata = 1220; 
 		};
 		connection->site_queue = NULL;
 		connection->app_queue = NULL;
@@ -90,17 +96,18 @@ unsigned int processTCPPacket(struct CaptureContext *context, const struct IPPac
 		connection->scaling_enabled = hdr.winscale_present;
 		connection->remote_scale = hdr.winscale_value;
 		connection->our_scale = 0; // TODO сделать масштабирование
-		pthread_mutex_lock(&context->tcp_mutex);
 		void **probe;
 		probe = avl_probe(context->tcp_connections, connection);
 		if ((NULL == probe) || ((*probe) != connection)) {
+			pthread_mutex_unlock(&context->tcp_mutex);
+			pthread_mutex_unlock(&connection->mutex);
 			pthread_mutex_destroy(&connection->mutex);
 			close(connection->sock);
 			free(connection);
-			pthread_mutex_unlock(&context->tcp_mutex);
 			return 1;
 		};
 		pthread_mutex_unlock(&context->tcp_mutex);
+		pthread_mutex_unlock(&connection->mutex);
 		free(payload->free_me); // TODO убрать, и в первом пакете могут быть данные
 		return 0;
 	};
