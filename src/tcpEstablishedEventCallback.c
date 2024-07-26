@@ -59,10 +59,10 @@ void tcpEstablishedEventCallback(evutil_socket_t fd, short what, void *arg) {
 				item->mutex = &connection->mutex;
 				item->free_me = buffer;
 				item->arg = connection;
-				pthread_mutex_lock(&connection->context->queue_mutex);
+				pthread_mutex_lock(&connection->context->rx_mutex);
 				enqueuePacket(connection->context, item);
-				pthread_cond_signal(&connection->context->queue_cond);
-				pthread_mutex_unlock(&connection->context->queue_mutex);
+				pthread_cond_signal(&connection->context->rx_cond);
+				pthread_mutex_unlock(&connection->context->rx_mutex);
 				pthread_mutex_lock(&connection->mutex); // Разблокировать не надо, он будет нужен либо на следующей итерации цикла, либо на следующем этапе
 				connection->app_scheduled += received;
 			} else {

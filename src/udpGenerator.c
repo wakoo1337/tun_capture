@@ -63,19 +63,22 @@ unsigned int udpGenerator(struct CaptureContext *context, uint8_t *packet, unsig
 		queue_item->processor = NULL;
 		queue_item->free_me = &packet[-HEADERS_RESERVE];
 		queue_item->arg = NULL;
-		pthread_mutex_lock(&context->queue_mutex);
-		queue_item->next = context->send_stack;
-		context->send_stack = queue_item;
+		pthread_mutex_lock(&context->tx_mutex);
+		queue_item->next = context->tx_stack;
+		context->tx_stack = queue_item;
 		event_free(context->iface_event);
 		context->iface_event = event_new(context->event_base, context->settings->fd_getter(context->settings->user), EV_READ | EV_WRITE | EV_PERSIST, &tunCallback, context);
 		if (NULL == context->iface_event) {
+			pthread_mutex_unlock(&context->tx_mutex);
 			return 1;
 		};
 		if (-1 == event_add(context->iface_event, NULL)) {
+			pthread_mutex_unlock(&context->tx_mutex);
 			return 1;
 		};
-		pthread_mutex_unlock(&context->queue_mutex);
+		pthread_mutex_unlock(&context->tx_mutex);
 	} else {
+		// TODO написать создание нескольких сегментов
 	};
 	free(parameters);
 	return 0;

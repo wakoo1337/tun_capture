@@ -56,10 +56,10 @@ void udpCallback(evutil_socket_t fd, short what, void *arg) {
 		params->from = sender_sa;
 		params->binding = binding;
 		queue_item->arg = params;
-		pthread_mutex_lock(&binding->context->queue_mutex);
+		pthread_mutex_lock(&binding->context->rx_mutex);
 		enqueuePacket(binding->context, queue_item);
-		pthread_cond_signal(&binding->context->queue_cond);
-		pthread_mutex_unlock(&binding->context->queue_mutex);
+		pthread_cond_signal(&binding->context->rx_cond);
+		pthread_mutex_unlock(&binding->context->rx_mutex);
 	};
 	if (what & EV_WRITE) {
 		pthread_mutex_lock(&binding->mutex);

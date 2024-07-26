@@ -31,7 +31,7 @@ int main(int argc, char **argv) {
 	if (-1 == user.fd) return 1;
 	settings.mtu = 1500;
 	settings.ttl = 100;
-	settings.threads_count = 8;
+	settings.threads_count = 128;
 	struct timespec ts;
 	clock_gettime(CLOCK_REALTIME, &ts);
 	struct tm broken_time;

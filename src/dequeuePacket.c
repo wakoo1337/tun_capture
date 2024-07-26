@@ -7,18 +7,18 @@
 
 #include "dequeuePacket.h"
 unsigned int dequeuePacket(struct CaptureContext *context, struct PacketQueueItem **item) {
-	pthread_mutex_lock(&context->queue_mutex);
+	pthread_mutex_lock(&context->rx_mutex);
 	while (true) {
-		if (context->captured_begin) {
-			*item = context->captured_begin;
-			context->captured_begin = context->captured_begin->next;
-			if (NULL == context->captured_begin) context->captured_end = &context->captured_begin;
+		if (context->rx_begin) {
+			*item = context->rx_begin;
+			context->rx_begin = context->rx_begin->next;
+			if (NULL == context->rx_begin) context->rx_end = &context->rx_begin;
 			if ((*item)->mutex != NULL) pthread_mutex_lock((*item)->mutex);
-			pthread_mutex_unlock(&context->queue_mutex);
+			pthread_mutex_unlock(&context->rx_mutex);
 			return 0;
 		} else {
-			context->captured_end = &context->captured_begin;
-			pthread_cond_wait(&context->queue_cond, &context->queue_mutex);
+			context->rx_end = &context->rx_begin;
+			pthread_cond_wait(&context->rx_cond, &context->rx_mutex);
 		};
 	};
 	return 1; // Если исполнение вываливается из бесконечного цикла, это точно ошибка
