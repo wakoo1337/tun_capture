@@ -67,9 +67,10 @@ unsigned int udpGenerator(struct CaptureContext *context, uint8_t *packet, unsig
 		queue_item->processor = NULL;
 		queue_item->free_me = &packet[-HEADERS_RESERVE];
 		queue_item->arg = NULL;
+		free(parameters);
 		return enqueueTxPacket(context, queue_item);
 	} else {
+		free(parameters);
 	};
-	free(parameters);
 	return 0;
 };

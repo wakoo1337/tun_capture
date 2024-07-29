@@ -15,5 +15,5 @@ unsigned int enqueueTxPacket(struct CaptureContext *context, struct PacketQueueI
 	int result;
 	result = event_add(context->tx_event, NULL);
 	pthread_mutex_unlock(&context->tx_mutex);
-	return (result != -1);
+	return (unsigned int) result;
 };

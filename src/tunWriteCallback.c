@@ -26,6 +26,7 @@ void tunWriteCallback(evutil_socket_t fd, short what, void *arg) {
 			};
 			free(item->free_me);
 			free(item);
+			dequeueTxPacket(context, &item);
 		};
 		pthread_mutex_lock(&context->tx_mutex);
 		if ((NULL == context->tx_begin) && (-1 == event_del(context->tx_event))) event_base_loopbreak(context->event_base);
