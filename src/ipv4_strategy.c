@@ -1,5 +1,6 @@
 #include <sys/socket.h>
 #include <stdint.h>
+#include <stdbool.h>
 #include <pthread.h>
 #include "contrib/heap.h"
 #include "CaptureContext.h"

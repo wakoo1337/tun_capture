@@ -8,11 +8,13 @@
 #include "TCPHeaderData.h"
 #include "TCPConnection.h"
 #include "TCPState.h"
-#include "tcpEstablishedEventCallback.h"
+#include "tcpEstablishedReadCallback.h"
+#include "tcpEstablishedWriteCallback.h"
 #include "tcpEstablishedPacketsProcessor.h"
 
 #include "tcpstate_established.h"
 const struct TCPState tcpstate_established = {
-	.event_callback = &tcpEstablishedEventCallback,
+	.read_callback = &tcpEstablishedReadCallback,
+	.write_callback = &tcpEstablishedWriteCallback,
 	.packets_processor = &tcpEstablishedPacketsProcessor
 };

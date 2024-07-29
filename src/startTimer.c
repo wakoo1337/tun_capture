@@ -17,6 +17,10 @@ unsigned int startTimer(struct CaptureContext *context) {
 		struct timeval tv, delta;
 		getMonotonicTimeval(&tv);
 		subTimeval(&item->expiration, &tv, &delta);
+		if (delta.tv_sec < 0) {
+			delta.tv_sec = 0;
+			delta.tv_usec = 0;
+		};
 		event_add(context->timeout_event, &delta);
 	};
 	return 0;

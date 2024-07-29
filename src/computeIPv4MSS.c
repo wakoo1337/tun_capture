@@ -1,5 +1,6 @@
 #include <pthread.h>
 #include <stdint.h>
+#include <stdbool.h>
 #include <sys/types.h>
 #include "contrib/heap.h"
 #include "CaptureSettings.h"

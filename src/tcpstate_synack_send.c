@@ -7,11 +7,13 @@
 #include "TCPConnection.h"
 #include "TCPHeaderData.h"
 #include "TCPState.h"
-#include "tcpSynackSendEventCallback.h"
+#include "tcpSynackSendReadCallback.h"
+#include "tcpSynackSendWriteCallback.h"
 #include "tcpSynackSendPacketsProcessor.h"
 
 #include "tcpstate_synack_send.h"
 const struct TCPState tcpstate_synack_send = {
-	.event_callback = &tcpSynackSendEventCallback,
+	.read_callback = &tcpSynackSendReadCallback,
+	.write_callback = &tcpSynackSendWriteCallback,
 	.packets_processor = &tcpSynackSendPacketsProcessor
 };

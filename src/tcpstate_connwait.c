@@ -6,11 +6,13 @@
 #include "TCPHeaderData.h"
 #include "TCPConnection.h"
 #include "TCPState.h"
-#include "tcpConnwaitEventCallback.h"
+#include "tcpConnwaitReadCallback.h"
+#include "tcpConnwaitWriteCallback.h"
 #include "tcpConnwaitPacketsProcessor.h"
 
 #include "tcpstate_connwait.h"
 const struct TCPState tcpstate_connwait = {
-	.event_callback = &tcpConnwaitEventCallback,
+	.read_callback = &tcpConnwaitReadCallback,
+	.write_callback = &tcpConnwaitWriteCallback,
 	.packets_processor = &tcpConnwaitPacketsProcessor
 };

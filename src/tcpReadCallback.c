@@ -8,11 +8,14 @@
 #include "TCPHeaderData.h"
 #include "TCPConnection.h"
 #include "TCPState.h"
+#include "emergencyStop.h"
 
-#include "tcpCallback.h"
-void tcpCallback(evutil_socket_t fd, short what, void *arg) {
+#include "tcpReadCallback.h"
+void tcpReadCallback(evutil_socket_t fd, short what, void *arg) {
 	struct TCPConnection *conn;
 	conn = (struct TCPConnection *) arg;
 	pthread_mutex_lock(&conn->mutex);
-	conn->state->event_callback(fd, what, arg);
+	if (conn->state->read_callback(fd, what, arg)) {
+		emergencyStop(conn->context);
+	};
 };

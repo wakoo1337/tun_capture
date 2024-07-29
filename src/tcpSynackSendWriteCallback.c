@@ -6,8 +6,9 @@
 #include "SrcDstSockaddrs.h"
 #include "TCPConnection.h"
 
-#include "tcpSynackSendEventCallback.h"
-void tcpSynackSendEventCallback(evutil_socket_t fd, short what, void *arg) {
+#include "tcpSynackSendWriteCallback.h"
+unsigned int tcpSynackSendWriteCallback(evutil_socket_t fd, short what, void *arg) {
 	struct TCPConnection *connection = (struct TCPConnection *) arg;
 	pthread_mutex_unlock(&connection->mutex);
+	return 0;
 };

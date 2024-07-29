@@ -19,8 +19,9 @@
 #include "TCPConnection.h"
 #include "TCPState.h"
 #include "parseTCPHeader.h"
-#include "tcpCallback.h"
 #include "compareTCPSitePrequeueItems.h"
+#include "tcpReadCallback.h"
+#include "tcpWriteCallback.h"
 #include "tcpstate_connwait.h"
 
 #include "processTCPPacket.h"
@@ -51,6 +52,7 @@ unsigned int processTCPPacket(struct CaptureContext *context, const struct IPPac
 			free(connection);
 			return 1;
 		};
+		errno = 0;
 		if ((-1 == connect(connection->sock, &addrs->dst, sizeof(struct sockaddr))) && (errno != EINPROGRESS)) {
 			close(connection->sock);
 			free(connection);
@@ -62,8 +64,8 @@ unsigned int processTCPPacket(struct CaptureContext *context, const struct IPPac
 		connection->state = &tcpstate_connwait;
 		connection->strategy = strategy;
 		connection->context = context;
-		connection->event = event_new(context->event_base, connection->sock, EV_WRITE, &tcpCallback, connection);
-		if (NULL == connection->event) {
+		connection->read_event = event_new(context->event_base, connection->sock, EV_READ | EV_PERSIST, &tcpReadCallback, connection);
+		if (NULL == connection->read_event) {
 			pthread_mutex_unlock(&context->tcp_mutex);
 			pthread_mutex_unlock(&connection->mutex);
 			pthread_mutex_destroy(&connection->mutex);
@@ -71,7 +73,19 @@ unsigned int processTCPPacket(struct CaptureContext *context, const struct IPPac
 			free(connection);
 			return 1;
 		};
-		if (-1 == event_add(connection->event, NULL)) {
+		connection->write_event = event_new(context->event_base, connection->sock, EV_WRITE | EV_PERSIST, &tcpWriteCallback, connection);
+		if (NULL == connection->write_event) {
+			event_free(connection->read_event);
+			pthread_mutex_unlock(&context->tcp_mutex);
+			pthread_mutex_unlock(&connection->mutex);
+			pthread_mutex_destroy(&connection->mutex);
+			close(connection->sock);
+			free(connection);
+			return 1;
+		};
+		if (-1 == event_add(connection->write_event, NULL)) {
+			event_free(connection->write_event);
+			event_free(connection->read_event);
 			pthread_mutex_unlock(&context->tcp_mutex);
 			pthread_mutex_unlock(&connection->mutex);
 			pthread_mutex_destroy(&connection->mutex);
@@ -86,10 +100,10 @@ unsigned int processTCPPacket(struct CaptureContext *context, const struct IPPac
 			else if (addrs->src.sa_family == AF_INET6) connection->max_pktdata = 1220; 
 		};
 		connection->site_queue = NULL;
-		connection->app_queue = NULL;
-		connection->site_prequeue = avl_create(&compareTCPSitePrequeueItems, NULL, NULL);
-		connection->app_last = &connection->app_queue;
 		connection->site_last = &connection->site_queue;
+		connection->app_queue = NULL;
+		connection->app_last = &connection->app_queue;
+		connection->site_prequeue = avl_create(&compareTCPSitePrequeueItems, NULL, NULL);
 		connection->site_scheduled = connection->app_scheduled = 0;
 		connection->our_seq = 0;
 		connection->first_desired = hdr.seq_num + 1;
@@ -99,6 +113,8 @@ unsigned int processTCPPacket(struct CaptureContext *context, const struct IPPac
 		void **probe;
 		probe = avl_probe(context->tcp_connections, connection);
 		if ((NULL == probe) || ((*probe) != connection)) {
+			event_free(connection->write_event);
+			event_free(connection->read_event);
 			pthread_mutex_unlock(&context->tcp_mutex);
 			pthread_mutex_unlock(&connection->mutex);
 			pthread_mutex_destroy(&connection->mutex);

@@ -12,7 +12,7 @@
 #include "IPFragmentMetadata.h"
 #include "NetworkProtocolStrategy.h"
 #include "UDPHeaderData.h"
-#include "UDPQueueItem.h"
+#include "UDPStackItem.h"
 #include "ChecksumContext.h"
 #include "UDPBinding.h"
 #include "get16Bit.h"
@@ -21,16 +21,21 @@
 #include "computeChecksum.h"
 #include "getChecksum.h"
 #include "findUDPBinding.h"
-#include "udpCallback.h"
 
 #include "processUDPPacket.h"
 unsigned int processUDPPacket(struct CaptureContext *context, const struct IPPacketPayload *payload, const struct NetworkProtocolStrategy *strategy, struct SrcDstSockaddrs *addrs) {
 	struct UDPHeaderData hdr;
-	if (payload->count < 8) return 1;
+	if (payload->count < 8) {
+		free(payload->free_me);
+		return 0;
+	};
 	hdr.src_port = ntohs(get16Bit(&payload->packet[0]));
 	hdr.dst_port = ntohs(get16Bit(&payload->packet[2]));
 	hdr.length = ntohs(get16Bit(&payload->packet[4]));
-	if (hdr.length != payload->count) return 1;
+	if (hdr.length != payload->count) {
+		free(payload->free_me);
+		return 0;
+	};
 	hdr.checksum = get16Bit(&payload->packet[6]); // На little-endian машинах порядок байтов менять не нужно — он уже поменян при вычислении контрольной суммы
 	struct ChecksumContext ctx;
 	uint16_t computed_cs;
@@ -48,25 +53,30 @@ unsigned int processUDPPacket(struct CaptureContext *context, const struct IPPac
 		struct UDPBinding *binding;
 		binding = findUDPBinding(context, &addrs->src);
 		if (binding == NULL) {
+			free(payload->free_me);
 			return 1;
 		};
-		struct UDPQueueItem *queue_item;
-		queue_item = malloc(sizeof(struct UDPQueueItem));
-		if (NULL == queue_item) {
+		struct UDPStackItem *item;
+		item = malloc(sizeof(struct UDPStackItem));
+		if (NULL == item) {
+			pthread_mutex_unlock(&binding->mutex);
+			free(payload->free_me);
+			return 1;
+		};
+		item->send_me = payload->packet + 8;
+		item->size = payload->count - 8;
+		item->free_me = payload->free_me;
+		item->dst = addrs->dst;
+		item->next = binding->stack;
+		binding->stack = item;
+		if (-1 == event_add(binding->write_event, NULL)) {
 			pthread_mutex_unlock(&binding->mutex);
 			return 1;
 		};
-		queue_item->send_me = payload->packet + 8;
-		queue_item->size = payload->count - 8;
-		queue_item->free_me = payload->free_me;
-		queue_item->dst = addrs->dst;
-		queue_item->next = binding->queue;
-		binding->queue = queue_item;
-		event_free(binding->sock_event);
-		binding->sock_event = event_new(context->event_base, binding->sock, EV_READ | EV_WRITE | EV_PERSIST, &udpCallback, binding);
-		event_add(binding->sock_event, NULL);
 		pthread_mutex_unlock(&binding->mutex);
 		return 0;
+	} else {
+		free(payload->free_me);
+		return 0;
 	};
-	return 1;
 };

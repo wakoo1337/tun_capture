@@ -1,5 +1,6 @@
 #include <stdint.h>
 #include <stdbool.h>
+#include <stdlib.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <pthread.h>
@@ -20,8 +21,10 @@
 unsigned int processIPv4Packet(struct CaptureContext *context, void *data, unsigned int count) {
 	struct IPv4HeaderData hdr;
 	uint8_t pseudo[12];
-	if (parseIPv4Header(&hdr, data, count, pseudo)) return 1;
-	if (hdr.total_length != count) return 1;
+	if (parseIPv4Header(&hdr, data, count, pseudo) || (hdr.total_length != count)) {
+		free(data);
+		return 0;
+	};
 	if ((hdr.fragment_offset == 0) && (!hdr.mf)) {
 		struct SrcDstSockaddrs srcdst = {0};
 		((struct sockaddr_in *) &(srcdst.src))->sin_family = AF_INET;
@@ -44,6 +47,7 @@ unsigned int processIPv4Packet(struct CaptureContext *context, void *data, unsig
 		return 0;
 	} else {
 		// Пакет фрагментирован. TODO: реализовать дефрагментацию
-		return 1;
+		free(data);
+		return 0;
 	};
 };
