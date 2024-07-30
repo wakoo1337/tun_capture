@@ -12,7 +12,7 @@
 #include "TCPConnection.h"
 #include "PacketQueueItem.h"
 #include "dequeueSiteQueueItem.h"
-#include "tcpUpdateEvent.h"
+#include "tcpUpdateEventUnlocked.h"
 #include "processTCPUrgentData.h"
 #include "processTCPData.h"
 #include "enqueueRxPacket.h"
@@ -68,7 +68,7 @@ unsigned int tcpEstablishedReadCallback(evutil_socket_t fd, short what, void *ar
 			};
 		};
 	};
-	tcpUpdateEvent(connection);
+	tcpUpdateEventUnlocked(connection);
 	pthread_mutex_unlock(&connection->mutex);
 	return 0;
 };

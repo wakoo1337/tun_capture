@@ -4,6 +4,7 @@ struct CaptureContext {
 	bool running;
 	pthread_mutex_t rx_mutex, tx_mutex; // Мьютексы очередей
 	pthread_cond_t rx_cond; // Условная переменная для извлечения пакетов из очереди приёма
+	pthread_mutex_t event_mutex; // Общий мьютекс для операций с libevent
 	struct PacketQueueItem *rx_begin, **rx_end; // Начало и конец очереди захваченных пакетов. captured_end указывает либо на next последнего пакета, либо на captured_begin, если очередь пуста
 	struct PacketQueueItem *tx_begin, **tx_end; // Начало и конец очереди подлежащих отправке пакетов
 	struct event_base *event_base;

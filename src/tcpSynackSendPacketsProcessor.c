@@ -11,6 +11,7 @@
 #include "TimeoutItem.h"
 #include "cancelTimeout.h"
 #include "tcpCleanupConfirmed.h"
+#include "tcpUpdateEvent.h"
 #include "tcpstate_established.h"
 
 #include "tcpSynackSendPacketsProcessor.h"
@@ -21,6 +22,7 @@ unsigned int tcpSynackSendPacketsProcessor(struct TCPConnection *connection, con
 		tcpCleanupConfirmed(connection);
 		connection->our_seq++;
 		connection->state = &tcpstate_established;
+		tcpUpdateEvent(connection);
 	};
 	free(payload->free_me); // TODO убрать, тут тоже могут быть данные
 	return 0;

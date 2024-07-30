@@ -57,5 +57,6 @@ unsigned int tcpEstablishedWriteCallback(evutil_socket_t fd, short what, void *a
 			item = dequeueSiteQueueItem(connection);
 		};
 	};
+	pthread_mutex_unlock(&connection->mutex);
 	return 0;
 };

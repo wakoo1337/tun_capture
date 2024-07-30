@@ -1,8 +1,11 @@
 #include <pthread.h>
 #include <stdint.h>
+#include <stdbool.h>
 #include <stdlib.h>
 #include <sys/socket.h>
 #include <event2/event.h>
+#include "contrib/heap.h"
+#include "CaptureContext.h"
 #include "UDPBinding.h"
 #include "UDPStackItem.h"
 #include "emergencyStop.h"
@@ -11,6 +14,7 @@
 void udpWriteCallback(evutil_socket_t fd, short what, void *arg) {
 	struct UDPBinding *binding;
 	binding = (struct UDPBinding *) arg;
+	pthread_mutex_lock(&binding->context->event_mutex);
 	if (what & EV_WRITE) {
 		pthread_mutex_lock(&binding->mutex);
 		while (binding->stack) {
@@ -21,6 +25,7 @@ void udpWriteCallback(evutil_socket_t fd, short what, void *arg) {
 			if (-1 == result) {
 				if ((errno == EAGAIN) || (errno == EWOULDBLOCK)) {
 					pthread_mutex_unlock(&binding->mutex);
+					pthread_mutex_unlock(&binding->context->event_mutex);
 					return;
 				} else {
 					free(binding->stack->free_me);
@@ -36,8 +41,10 @@ void udpWriteCallback(evutil_socket_t fd, short what, void *arg) {
 		if ((NULL == binding->stack) && (-1 == event_del(binding->write_event))) {
 			pthread_mutex_unlock(&binding->mutex);
 			emergencyStop(binding->context);
+			pthread_mutex_unlock(&binding->context->event_mutex);
 			return;
 		};
 		pthread_mutex_unlock(&binding->mutex);
 	};
+	pthread_mutex_unlock(&binding->context->event_mutex);
 };

@@ -35,6 +35,7 @@ unsigned int doCapture(const struct CaptureSettings *settings) {
 	pthread_mutex_init(&context->tx_mutex, NULL);
 	context->running = true;
 	pthread_mutex_init(&context->timeout_mutex, NULL);
+	pthread_mutex_init(&context->event_mutex, NULL);
 	context->rx_begin = NULL;
 	context->rx_end = &context->rx_begin;
 	context->tx_begin = NULL;
