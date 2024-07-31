@@ -67,11 +67,11 @@ void computeChecksum(struct ChecksumContext *context, const uint8_t *data, unsig
 		uint64_t ll;
 	} conv64;
 	conv64.ll = acc;
-	uint64_t tbuf;
-	tbuf = ((uint64_t) conv64.s[0]) + ((uint64_t) conv64.s[1]) + ((uint64_t) conv64.s[2]) + ((uint64_t) conv64.s[3]); // Чтобы статический анализатор не ругался
-	conv64.ll = tbuf;
-	tbuf = ((uint64_t) conv64.s[0]) + ((uint64_t) conv64.s[1]) + ((uint64_t) conv64.s[2]) + ((uint64_t) conv64.s[3]);
-	conv64.ll = tbuf;
+	for (unsigned int i=0;i<3;i++) {
+		uint64_t tbuf;
+		tbuf = ((uint64_t) conv64.s[0]) + ((uint64_t) conv64.s[1]) + ((uint64_t) conv64.s[2]) + ((uint64_t) conv64.s[3]); // Чтобы статический анализатор не ругался
+		conv64.ll = tbuf;
+	};
 	update = (uint16_t) conv64.ll;
 	while (end_part.size > 0) {
 		conv16.b[0] = end_part.data[0];
