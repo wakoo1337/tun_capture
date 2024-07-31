@@ -28,7 +28,8 @@
 
 #include "tcpEstablishedPacketsProcessor.h"
 unsigned int tcpEstablishedPacketsProcessor(struct TCPConnection *connection, const struct IPPacketPayload *payload, const struct TCPHeaderData *header) {
-	uint32_t last = header->seq_num + (payload->count - header->data_offset) - ((payload->count - header->data_offset) ? 1 : 0);
+	const uint32_t last = header->seq_num + (payload->count - header->data_offset) - ((payload->count - header->data_offset) ? 1 : 0);
+	const uint32_t old_first = connection->first_desired;
 	if (checkByteInWindow(connection->first_desired, MAX_SITE_QUEUE - connection->site_scheduled, header->seq_num) && checkByteInWindow(connection->first_desired, MAX_SITE_QUEUE - connection->site_scheduled, last)) {
 		struct TCPSitePrequeueItem *item;
 		item = malloc(sizeof(struct TCPSitePrequeueItem));
@@ -65,6 +66,6 @@ unsigned int tcpEstablishedPacketsProcessor(struct TCPConnection *connection, co
 		tcpUpdateEvent(connection);
 	};
 	tcpCleanupConfirmed(connection);
-	sendTCPAcknowledgement(connection);
+	if (old_first != connection->first_desired) sendTCPAcknowledgement(connection);
 	return 0;
 };

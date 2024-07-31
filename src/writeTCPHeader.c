@@ -44,8 +44,8 @@ void writeTCPHeader(uint8_t *data, unsigned int length, struct TCPHeaderData *hd
 	};
 	assert(options_offset == hdr->data_offset);
 	struct ChecksumContext checksum;
-	initChecksum(&checksum);
 	if (unlock_mutex) pthread_mutex_unlock(unlock_mutex);
+	initChecksum(&checksum);
 	computeChecksum(&checksum, pseudo, pseudo_len);
 	computeChecksum(&checksum, header, hdr->data_offset + length);
 	if (unlock_mutex) pthread_mutex_lock(unlock_mutex);

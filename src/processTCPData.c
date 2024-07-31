@@ -47,6 +47,8 @@ unsigned int processTCPData(struct CaptureContext *context, uint8_t *packet, uns
 	uint8_t *pseudo;
 	pseudo = alloca(connection->strategy->pseudo_length);
 	connection->strategy->create_pseudo(pseudo, &connection->addrs.dst, &connection->addrs.src, 6, header.data_offset + count);
+	const uint32_t latest_ack = connection->latest_ack;
+	const unsigned int app_window = connection->app_window; // Копируем, т.к. в writeTCPHeader() на время вычисления контрольной суммы освобождается мьютекс
 	writeTCPHeader(packet, count, &header, pseudo, connection->strategy->pseudo_length, &connection->mutex);
 	unsigned int frags;
 	frags = connection->strategy->compute_fragcount(header.data_offset + count, connection->context->settings->mtu);
@@ -69,7 +71,7 @@ unsigned int processTCPData(struct CaptureContext *context, uint8_t *packet, uns
 	item->connection = connection;
 	item->free_me = &packet[-HEADERS_RESERVE];
 	item->next = NULL;
-	if (checkByteInWindow(connection->latest_ack, connection->app_window, item->confirm_ack - item->data_size) && checkByteInWindow(connection->latest_ack, connection->app_window, item->confirm_ack)) sendTCPPacket(connection, item, false);
+	if (checkByteInWindow(latest_ack, app_window, item->confirm_ack - item->data_size) && checkByteInWindow(latest_ack, app_window, item->confirm_ack)) sendTCPPacket(connection, item, false);
 	struct timeval now, expire;
 	getMonotonicTimeval(&now);
 	addTimeval(&now, &retry_delay, &expire);
