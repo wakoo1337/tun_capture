@@ -26,8 +26,8 @@ void tcpCleanupConfirmed(struct TCPConnection *connection) {
 			pthread_mutex_unlock(&connection->mutex);
 			cancelTimeout(connection->context, &current->timeout);
 			pthread_mutex_lock(&connection->mutex);
-			free(current->free_me);
 			connection->app_scheduled -= current->data_size;
+			free(current->free_me);
 			free(current);
 			current = next;
 		};
@@ -36,11 +36,11 @@ void tcpCleanupConfirmed(struct TCPConnection *connection) {
 			pthread_mutex_unlock(&connection->mutex);
 			cancelTimeout(connection->context, &current->timeout);
 			pthread_mutex_lock(&connection->mutex);
-			free(current->free_me);
 			connection->app_scheduled -= current->data_size;
+			free(current->free_me);
 			free(current);
-			connection->app_queue = next;
-		} else connection->app_queue = NULL;
+		};
+		connection->app_queue = next;
 	};
 	if (NULL == connection->app_queue) connection->app_last = &connection->app_queue;
 };

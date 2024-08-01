@@ -28,18 +28,25 @@
 
 #include "tcpEstablishedPacketsProcessor.h"
 unsigned int tcpEstablishedPacketsProcessor(struct TCPConnection *connection, const struct IPPacketPayload *payload, const struct TCPHeaderData *header) {
-	const uint32_t last = header->seq_num + (payload->count - header->data_offset) - ((payload->count - header->data_offset) ? 1 : 0);
+	const uint32_t last = header->seq_num + (payload->count - header->data_offset);
 	const uint32_t old_first = connection->first_desired;
-	if (checkByteInWindow(connection->first_desired, MAX_SITE_QUEUE - connection->site_scheduled, header->seq_num) && checkByteInWindow(connection->first_desired, MAX_SITE_QUEUE - connection->site_scheduled, last)) {
+	if (checkByteInWindow(connection->first_desired, MAX_SITE_QUEUE - connection->site_scheduled, header->seq_num) &&
+		checkByteInWindow(connection->first_desired, MAX_SITE_QUEUE - connection->site_scheduled, last) &&
+		(payload->count - header->data_offset)) {
 		struct TCPSitePrequeueItem *item;
 		item = malloc(sizeof(struct TCPSitePrequeueItem));
 		if (NULL == item) return 1;
 		item->seq = header->seq_num;
 		void **probe;
 		probe = avl_probe(connection->site_prequeue, item);
-		if ((probe == NULL) || ((*probe) != item)) {
+		if (probe == NULL) {
 			free(item);
+			free(payload->free_me);
 			return 1;
+		} else if ((*probe) != item) {
+			free(item);
+			free(payload->free_me);
+			return 0;
 		};
 		item->data = payload->packet + header->data_offset;
 		item->urgent_count = header->urg ? header->urgent_ptr : 0;
@@ -57,7 +64,13 @@ unsigned int tcpEstablishedPacketsProcessor(struct TCPConnection *connection, co
 		startTimer(connection->context);
 		pthread_mutex_lock(&connection->mutex);
 		pthread_mutex_unlock(&connection->context->timeout_mutex);
-	} else free(payload->free_me);
+	} else {
+		if (checkByteInWindow(connection->latest_ack, connection->app_scheduled, header->ack_num)) connection->latest_ack = header->ack_num;
+		tcpCleanupConfirmed(connection);
+		tcpUpdateEvent(connection);
+		free(payload->free_me);
+		return 0;
+	};
 	struct TCPSitePrequeueItem *found_prequeue;
 	while ((found_prequeue = avl_find(connection->site_prequeue, &connection->first_desired)), found_prequeue) {
 		pthread_mutex_unlock(&connection->mutex);
@@ -67,9 +80,9 @@ unsigned int tcpEstablishedPacketsProcessor(struct TCPConnection *connection, co
 		connection->latest_ack = found_prequeue->packet_ack;
 		connection->app_window = found_prequeue->window;
 		enqueueSiteDataFromPrequeueItem(connection, found_prequeue);
-		tcpUpdateEvent(connection);
 	};
 	tcpCleanupConfirmed(connection);
+	tcpUpdateEvent(connection);
 	if (old_first != connection->first_desired) sendTCPAcknowledgement(connection);
 	return 0;
 };

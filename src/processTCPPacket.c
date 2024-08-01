@@ -27,7 +27,10 @@
 #include "processTCPPacket.h"
 unsigned int processTCPPacket(struct CaptureContext *context, const struct IPPacketPayload *payload, const struct NetworkProtocolStrategy *strategy, struct SrcDstSockaddrs *addrs) {
 	struct TCPHeaderData hdr;
-	if (parseTCPHeader(&hdr, payload->packet, payload->count, payload->pseudo, strategy->pseudo_length)) return 1;
+	if (parseTCPHeader(&hdr, payload->packet, payload->count, payload->pseudo, strategy->pseudo_length)) {
+		free(payload->free_me);
+		return 0;
+	};
 	strategy->port_setter(&addrs->src, hdr.src_port);
 	strategy->port_setter(&addrs->dst, hdr.dst_port);
 	if (hdr.rst) {
@@ -40,22 +43,28 @@ unsigned int processTCPPacket(struct CaptureContext *context, const struct IPPac
 		struct TCPConnection *connection;
 		assert(addrs->src.sa_family == addrs->dst.sa_family);
 		connection = malloc(sizeof(struct TCPConnection));
-		if (NULL == connection) return 1;
+		if (NULL == connection) {
+			free(payload->free_me);
+			return 1;
+		};
 		connection->addrs = *addrs;
 		connection->sock = socket(addrs->src.sa_family, SOCK_STREAM, 0);
 		if (-1 == connection->sock) {
 			free(connection);
+			free(payload->free_me);
 			return 1;
 		};
 		if (-1 == fcntl(connection->sock, F_SETFL, O_NONBLOCK)) {
 			close(connection->sock);
 			free(connection);
+			free(payload->free_me);
 			return 1;
 		};
 		errno = 0;
 		if ((-1 == connect(connection->sock, &addrs->dst, sizeof(struct sockaddr))) && (errno != EINPROGRESS)) {
 			close(connection->sock);
 			free(connection);
+			free(payload->free_me);
 			return 1;
 		};
 		pthread_mutex_lock(&context->tcp_mutex);
@@ -71,6 +80,7 @@ unsigned int processTCPPacket(struct CaptureContext *context, const struct IPPac
 			pthread_mutex_destroy(&connection->mutex);
 			close(connection->sock);
 			free(connection);
+			free(payload->free_me);
 			return 1;
 		};
 		connection->write_event = event_new(context->event_base, connection->sock, EV_WRITE | EV_PERSIST, &tcpWriteCallback, connection);
@@ -81,6 +91,7 @@ unsigned int processTCPPacket(struct CaptureContext *context, const struct IPPac
 			pthread_mutex_destroy(&connection->mutex);
 			close(connection->sock);
 			free(connection);
+			free(payload->free_me);
 			return 1;
 		};
 		if (-1 == event_add(connection->write_event, NULL)) {
@@ -91,6 +102,7 @@ unsigned int processTCPPacket(struct CaptureContext *context, const struct IPPac
 			pthread_mutex_destroy(&connection->mutex);
 			close(connection->sock);
 			free(connection);
+			free(payload->free_me);
 			return 1;
 		};
 		if (hdr.mss_present) {
@@ -120,6 +132,7 @@ unsigned int processTCPPacket(struct CaptureContext *context, const struct IPPac
 			pthread_mutex_destroy(&connection->mutex);
 			close(connection->sock);
 			free(connection);
+			free(payload->free_me);
 			return 1;
 		};
 		pthread_mutex_unlock(&context->tcp_mutex);
@@ -141,6 +154,7 @@ unsigned int processTCPPacket(struct CaptureContext *context, const struct IPPac
 	} else {
 		// TODO послать RST
 		pthread_mutex_unlock(&context->tcp_mutex);
+		free(payload->free_me);
 	};
 	return 0;
 };

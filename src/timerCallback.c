@@ -17,9 +17,9 @@ void timerCallback(evutil_socket_t socket, short what, void *arg) {
 	if (what & EV_TIMEOUT) {
 		pthread_mutex_lock(&context->timeout_mutex);
 		struct timeval tv;
-		getMonotonicTimeval(&tv);
 		struct TimeoutItem *item;
 		while ((item = heap_peek(context->timeout_queue)),
+			getMonotonicTimeval(&tv),
 			((item != NULL) && (item->is_del || (compareTimeval(&item->expiration, &tv) <= 0)))) {
 			item = heap_poll(context->timeout_queue);
 			if (!item->is_del) {	
@@ -30,7 +30,6 @@ void timerCallback(evutil_socket_t socket, short what, void *arg) {
 				pthread_mutex_lock(&context->timeout_mutex);
 			};
 			free(item);
-			getMonotonicTimeval(&tv);
 		};
 		startTimer(context);
 		pthread_mutex_unlock(&context->timeout_mutex);
