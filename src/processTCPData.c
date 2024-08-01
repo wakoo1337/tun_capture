@@ -75,11 +75,13 @@ unsigned int processTCPData(struct CaptureContext *context, uint8_t *packet, uns
 	struct timeval now, expire;
 	getMonotonicTimeval(&now);
 	addTimeval(&now, &retry_delay, &expire);
-	item->timeout = enqueueTimeout(context, &expire, &tcpRetransmissionTimerCallback, item);
+	pthread_mutex_unlock(&connection->mutex);
+	pthread_mutex_lock(&context->timeout_mutex);
+	item->timeout = enqueueTimeout(context, &expire, &tcpRetransmissionTimerCallback, item, &connection->mutex);
+	startTimer(context);
+	pthread_mutex_lock(&connection->mutex);
+	pthread_mutex_unlock(&context->timeout_mutex);
 	*(connection->app_last) = item;
 	connection->app_last = &(item->next);
-	pthread_mutex_lock(&context->timeout_mutex);
-	startTimer(context);
-	pthread_mutex_unlock(&context->timeout_mutex);
 	return 0;
 };

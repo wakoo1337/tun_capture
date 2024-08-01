@@ -4,7 +4,9 @@
 #include <stdlib.h>
 #include <sys/time.h>
 #include <sys/socket.h>
+#include "contrib/heap.h"
 #include "SrcDstSockaddrs.h"
+#include "CaptureContext.h"
 #include "TCPAppQueueItem.h"
 #include "TCPConnection.h"
 #include "cancelTimeout.h"
@@ -21,7 +23,9 @@ void tcpCleanupConfirmed(struct TCPConnection *connection) {
 		current = connection->app_queue;
 		while ((current != found) && current) {
 			next = current->next;
+			pthread_mutex_unlock(&connection->mutex);
 			cancelTimeout(connection->context, &current->timeout);
+			pthread_mutex_lock(&connection->mutex);
 			free(current->free_me);
 			connection->app_scheduled -= current->data_size;
 			free(current);
@@ -29,12 +33,14 @@ void tcpCleanupConfirmed(struct TCPConnection *connection) {
 		};
 		if (current) {
 			next = current->next;
+			pthread_mutex_unlock(&connection->mutex);
 			cancelTimeout(connection->context, &current->timeout);
+			pthread_mutex_lock(&connection->mutex);
 			free(current->free_me);
 			connection->app_scheduled -= current->data_size;
 			free(current);
 			connection->app_queue = next;
-		};
+		} else connection->app_queue = NULL;
 	};
 	if (NULL == connection->app_queue) connection->app_last = &connection->app_queue;
 };

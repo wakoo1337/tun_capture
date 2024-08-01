@@ -9,7 +9,6 @@
 #include "TCPConnection.h"
 #include "TCPHeaderData.h"
 #include "TimeoutItem.h"
-#include "cancelTimeout.h"
 #include "tcpCleanupConfirmed.h"
 #include "tcpUpdateEvent.h"
 #include "tcpstate_established.h"

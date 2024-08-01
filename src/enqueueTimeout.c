@@ -8,18 +8,17 @@
 #include "TimeoutItem.h"
 
 #include "enqueueTimeout.h"
-struct TimeoutItem *enqueueTimeout(struct CaptureContext *context, const struct timeval *timeout, void (*callback)(void *), void *arg) {
+struct TimeoutItem *enqueueTimeout(struct CaptureContext *context, const struct timeval *timeout, void (*callback)(void *), void *arg, pthread_mutex_t *mutex) {
 	struct TimeoutItem *item;
 	item = malloc(sizeof(struct TimeoutItem));
 	if (NULL == item) return NULL;
 	item->expiration = *timeout;
 	item->callback = callback;
 	item->arg = arg;
+	item->mutex = mutex;
 	item->is_del = false;
 	int result;
-	pthread_mutex_lock(&context->timeout_mutex);
 	result = heap_offer(&context->timeout_queue, item);
-	pthread_mutex_unlock(&context->timeout_mutex);
 	if (result) {
 		free(item);
 		return NULL;

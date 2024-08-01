@@ -77,9 +77,11 @@ unsigned int sendSynReply(struct TCPConnection *connection) {
 	struct timeval now, timeout;
 	getMonotonicTimeval(&now);
 	addTimeval(&now, &retry_delay, &timeout);
-	queue_item->timeout = enqueueTimeout(connection->context, &timeout, &tcpRetransmissionTimerCallback, queue_item);
+	pthread_mutex_unlock(&connection->mutex);
 	pthread_mutex_lock(&connection->context->timeout_mutex);
+	queue_item->timeout = enqueueTimeout(connection->context, &timeout, &tcpRetransmissionTimerCallback, queue_item, &connection->mutex);
 	startTimer(connection->context);
+	pthread_mutex_lock(&connection->mutex);
 	pthread_mutex_unlock(&connection->context->timeout_mutex);
 	return 0;
 };

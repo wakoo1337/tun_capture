@@ -20,11 +20,13 @@
 void tcpRetransmissionTimerCallback(void *arg) {
 	struct TCPAppQueueItem *item;
 	item = (struct TCPAppQueueItem *) arg;
-	pthread_mutex_lock(&item->connection->mutex);
 	struct timeval now, timeout;
 	if (checkByteInWindow(item->connection->latest_ack, item->connection->app_window, item->confirm_ack - item->data_size) && checkByteInWindow(item->connection->latest_ack, item->connection->app_window, item->confirm_ack)) sendTCPPacket(item->connection, item, false);
 	getMonotonicTimeval(&now);
 	addTimeval(&now, &retry_delay, &timeout);
-	item->timeout = enqueueTimeout(item->connection->context, &timeout, &tcpRetransmissionTimerCallback, item);
 	pthread_mutex_unlock(&item->connection->mutex);
+	pthread_mutex_lock(&item->connection->context->timeout_mutex);
+	item->timeout = enqueueTimeout(item->connection->context, &timeout, &tcpRetransmissionTimerCallback, item, &item->connection->mutex);
+	pthread_mutex_lock(&item->connection->mutex);
+	pthread_mutex_unlock(&item->connection->context->timeout_mutex);
 };

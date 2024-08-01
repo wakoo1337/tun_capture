@@ -115,7 +115,7 @@ bin/tcpSynackSendReadCallback.o: src/tcpSynackSendReadCallback.c src/tcpSynackSe
 	$(CC) $(CFLAGS) $(LIBEVENT_CFLAGS) -c -o bin/tcpSynackSendReadCallback.o src/tcpSynackSendReadCallback.c
 bin/tcpSynackSendWriteCallback.o: src/tcpSynackSendWriteCallback.c src/tcpSynackSendWriteCallback.h src/SrcDstSockaddrs.h src/TCPConnection.h
 	$(CC) $(CFLAGS) $(LIBEVENT_CFLAGS) -c -o bin/tcpSynackSendWriteCallback.o src/tcpSynackSendWriteCallback.c
-bin/tcpSynackSendPacketsProcessor.o: src/tcpSynackSendPacketsProcessor.c src/tcpSynackSendPacketsProcessor.h src/IPPacketPayload.h src/SrcDstSockaddrs.h src/TCPConnection.h src/TCPHeaderData.h src/TimeoutItem.h src/cancelTimeout.h src/tcpCleanupConfirmed.h src/tcpUpdateEvent.h src/tcpstate_established.h
+bin/tcpSynackSendPacketsProcessor.o: src/tcpSynackSendPacketsProcessor.c src/tcpSynackSendPacketsProcessor.h src/IPPacketPayload.h src/SrcDstSockaddrs.h src/TCPConnection.h src/TCPHeaderData.h src/TimeoutItem.h src/tcpCleanupConfirmed.h src/tcpUpdateEvent.h src/tcpstate_established.h
 	$(CC) $(CFLAGS) -c -o bin/tcpSynackSendPacketsProcessor.o src/tcpSynackSendPacketsProcessor.c
 bin/tcpstate_synack_send.o: src/tcpstate_synack_send.c src/tcpstate_synack_send.h src/SrcDstSockaddrs.h src/IPPacketPayload.h src/TCPConnection.h src/TCPHeaderData.h src/TCPState.h src/tcpSynackSendReadCallback.h src/tcpSynackSendWriteCallback.h src/tcpSynackSendPacketsProcessor.h
 	$(CC) $(CFLAGS) $(LIBEVENT_CFLAGS) -c -o bin/tcpstate_synack_send.o src/tcpstate_synack_send.c
@@ -149,7 +149,7 @@ bin/tcpEstablishedPacketsProcessor.o: src/tcpEstablishedPacketsProcessor.c src/t
 	$(CC) $(CFLAGS) -c -o bin/tcpEstablishedPacketsProcessor.o src/tcpEstablishedPacketsProcessor.c
 bin/cancelTimeout.o: src/cancelTimeout.c src/cancelTimeout.h src/contrib/heap.h src/CaptureContext.h src/TimeoutItem.h
 	$(CC) $(CFLAGS) -c -o bin/cancelTimeout.o src/cancelTimeout.c
-bin/tcpCleanupConfirmed.o: src/tcpCleanupConfirmed.c src/tcpCleanupConfirmed.h src/SrcDstSockaddrs.h src/TCPAppQueueItem.h src/TCPConnection.h src/cancelTimeout.h
+bin/tcpCleanupConfirmed.o: src/tcpCleanupConfirmed.c src/tcpCleanupConfirmed.h src/contrib/heap.h src/SrcDstSockaddrs.h src/CaptureContext.h src/TCPAppQueueItem.h src/TCPConnection.h src/cancelTimeout.h
 	$(CC) $(CFLAGS) -c -o bin/tcpCleanupConfirmed.o src/tcpCleanupConfirmed.c
 bin/tcpUpdateEvent.o: src/tcpUpdateEvent.c src/tcpUpdateEvent.h src/contrib/heap.h src/CaptureContext.h src/SrcDstSockaddrs.h src/TCPConnection.h src/MAX_APP_QUEUE.h
 	$(CC) $(CFLAGS) $(LIBEVENT_CFLAGS) -c -o bin/tcpUpdateEvent.o src/tcpUpdateEvent.c

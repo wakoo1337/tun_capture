@@ -50,15 +50,19 @@ unsigned int tcpEstablishedPacketsProcessor(struct TCPConnection *connection, co
 		struct timeval now, timeout;
 		getMonotonicTimeval(&now);
 		addTimeval(&segexpire_delay, &now, &timeout);
-		item->timeout = enqueueTimeout(connection->context, &timeout, &tcpDeleteExpiredSegment, item);
 		item->free_me = payload->free_me;
+		pthread_mutex_unlock(&connection->mutex);
 		pthread_mutex_lock(&connection->context->timeout_mutex);
+		item->timeout = enqueueTimeout(connection->context, &timeout, &tcpDeleteExpiredSegment, item, &connection->mutex);
 		startTimer(connection->context);
+		pthread_mutex_lock(&connection->mutex);
 		pthread_mutex_unlock(&connection->context->timeout_mutex);
 	} else free(payload->free_me);
 	struct TCPSitePrequeueItem *found_prequeue;
 	while ((found_prequeue = avl_find(connection->site_prequeue, &connection->first_desired)), found_prequeue) {
+		pthread_mutex_unlock(&connection->mutex);
 		cancelTimeout(connection->context, &found_prequeue->timeout);
+		pthread_mutex_lock(&connection->mutex);
 		connection->first_desired = found_prequeue->seq + found_prequeue->urgent_count + found_prequeue->data_count;
 		connection->latest_ack = found_prequeue->packet_ack;
 		connection->app_window = found_prequeue->window;

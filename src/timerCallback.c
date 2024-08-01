@@ -23,8 +23,10 @@ void timerCallback(evutil_socket_t socket, short what, void *arg) {
 			((item != NULL) && (item->is_del || (compareTimeval(&item->expiration, &tv) <= 0)))) {
 			item = heap_poll(context->timeout_queue);
 			if (!item->is_del) {	
+				pthread_mutex_lock(item->mutex);
 				pthread_mutex_unlock(&context->timeout_mutex);
 				item->callback(item->arg);
+				pthread_mutex_unlock(item->mutex);
 				pthread_mutex_lock(&context->timeout_mutex);
 			};
 			free(item);
