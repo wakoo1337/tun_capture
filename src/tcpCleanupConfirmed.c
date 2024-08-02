@@ -13,34 +13,22 @@
 
 #include "tcpCleanupConfirmed.h"
 void tcpCleanupConfirmed(struct TCPConnection *connection) {
-	struct TCPAppQueueItem *found = NULL, *current = connection->app_queue;
-	while (current) {
-		if (current->confirm_ack == connection->latest_ack) found = current;
-		current = current->next;
-	};
-	if (found) {
-		struct TCPAppQueueItem *next;
-		current = connection->app_queue;
-		while ((current != found) && current) {
-			next = current->next;
-			pthread_mutex_unlock(&connection->mutex);
+	struct TCPAppQueueItem **found = &connection->app_queue;
+	while ((*found) && ((*found)->confirm_ack != connection->latest_ack)) found = &((*found)->next);
+	if (*found) {
+		struct TCPAppQueueItem *current = connection->app_queue;
+		connection->app_queue = (*found)->next;
+		if (NULL == connection->app_queue) connection->app_last = &connection->app_queue;
+		if (*found) (*found)->next = NULL;
+		pthread_mutex_unlock(&connection->mutex);
+		while (current) {
+			struct TCPAppQueueItem *next = current->next;
 			cancelTimeout(connection->context, &current->timeout);
-			pthread_mutex_lock(&connection->mutex);
-			connection->app_scheduled -= current->data_size;
 			free(current->free_me);
 			free(current);
 			current = next;
 		};
-		if (current) {
-			next = current->next;
-			pthread_mutex_unlock(&connection->mutex);
-			cancelTimeout(connection->context, &current->timeout);
-			pthread_mutex_lock(&connection->mutex);
-			connection->app_scheduled -= current->data_size;
-			free(current->free_me);
-			free(current);
-		};
-		connection->app_queue = next;
+		pthread_mutex_lock(&connection->mutex);
 	};
 	if (NULL == connection->app_queue) connection->app_last = &connection->app_queue;
 };

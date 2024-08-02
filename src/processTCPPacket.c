@@ -68,6 +68,7 @@ unsigned int processTCPPacket(struct CaptureContext *context, const struct IPPac
 			return 1;
 		};
 		pthread_mutex_lock(&context->tcp_mutex);
+		pthread_mutex_lock(&context->event_mutex);
 		pthread_mutex_init(&connection->mutex, NULL);
 		pthread_mutex_lock(&connection->mutex);
 		connection->state = &tcpstate_connwait;
@@ -78,6 +79,7 @@ unsigned int processTCPPacket(struct CaptureContext *context, const struct IPPac
 			pthread_mutex_unlock(&context->tcp_mutex);
 			pthread_mutex_unlock(&connection->mutex);
 			pthread_mutex_destroy(&connection->mutex);
+			pthread_mutex_unlock(&context->event_mutex);
 			close(connection->sock);
 			free(connection);
 			free(payload->free_me);
@@ -89,6 +91,7 @@ unsigned int processTCPPacket(struct CaptureContext *context, const struct IPPac
 			pthread_mutex_unlock(&context->tcp_mutex);
 			pthread_mutex_unlock(&connection->mutex);
 			pthread_mutex_destroy(&connection->mutex);
+			pthread_mutex_unlock(&context->event_mutex);
 			close(connection->sock);
 			free(connection);
 			free(payload->free_me);
@@ -100,11 +103,13 @@ unsigned int processTCPPacket(struct CaptureContext *context, const struct IPPac
 			pthread_mutex_unlock(&context->tcp_mutex);
 			pthread_mutex_unlock(&connection->mutex);
 			pthread_mutex_destroy(&connection->mutex);
+			pthread_mutex_unlock(&context->event_mutex);
 			close(connection->sock);
 			free(connection);
 			free(payload->free_me);
 			return 1;
 		};
+		pthread_mutex_unlock(&context->event_mutex);
 		if (hdr.mss_present) {
 			connection->max_pktdata = hdr.mss_value; // Это без учёта дополнительных опций, которые могут ещё появиться
 		} else {
