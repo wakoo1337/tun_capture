@@ -13,13 +13,14 @@
 
 #include "tcpCleanupConfirmed.h"
 void tcpCleanupConfirmed(struct TCPConnection *connection) {
-	struct TCPAppQueueItem **found = &connection->app_queue;
-	while ((*found) && ((*found)->confirm_ack != connection->latest_ack)) found = &((*found)->next);
-	if (*found) {
+	struct TCPAppQueueItem *found = connection->app_queue;
+	while (found && (found->confirm_ack != connection->latest_ack)) found = found->next;
+	if (found) {
+		struct TCPAppQueueItem *old_next = found->next;
 		struct TCPAppQueueItem *current = connection->app_queue;
-		connection->app_queue = (*found)->next;
+		found->next = NULL;
+		connection->app_queue = old_next;
 		if (NULL == connection->app_queue) connection->app_last = &connection->app_queue;
-		if (*found) (*found)->next = NULL;
 		pthread_mutex_unlock(&connection->mutex);
 		while (current) {
 			struct TCPAppQueueItem *next = current->next;

@@ -64,5 +64,6 @@ int main(int argc, char **argv) {
 	settings.read_function = &readPacket;
 	settings.write_function = &writePacket;
 	doCapture(&settings);
+	fclose(user.cap_file);
 	return 0;
 };
