@@ -17,8 +17,7 @@ unsigned int tcpEstablishedWriteCallback(evutil_socket_t fd, short what, void *a
 	struct TCPConnection *connection = (struct TCPConnection *) arg;
 	if (what & EV_WRITE) {
 		struct TCPSiteQueueItem *item;
-		item = dequeueSiteQueueItem(connection);
-		while (item) {
+		while ((item = dequeueSiteQueueItem(connection))) {
 			ssize_t written;
 			if (item->already_sent < item->urgent_count) {
 				urgent_tx_retry:
@@ -54,7 +53,6 @@ unsigned int tcpEstablishedWriteCallback(evutil_socket_t fd, short what, void *a
 				free(item->free_me);
 				free(item);
 			};
-			item = dequeueSiteQueueItem(connection);
 		};
 	};
 	pthread_mutex_unlock(&connection->mutex);
