@@ -64,8 +64,6 @@ unsigned int processTCPData(struct CaptureContext *context, uint8_t *packet, uns
 	};
 	item->ip_packet = &packet[(signed int) -(header.data_offset + metadata.header_size)];
 	item->ip_size = header.data_offset + metadata.header_size + count;
-	item->tcp_packet = &packet[(signed int) -header.data_offset];
-	item->tcp_size = header.data_offset + count;
 	item->data_size = count;
 	item->confirm_ack = header.seq_num + count;
 	item->connection = connection;

@@ -21,15 +21,18 @@ void tcpCleanupConfirmed(struct TCPConnection *connection) {
 		found->next = NULL;
 		connection->app_queue = old_next;
 		if (NULL == connection->app_queue) connection->app_last = &connection->app_queue;
-		pthread_mutex_unlock(&connection->mutex);
 		while (current) {
 			struct TCPAppQueueItem *next = current->next;
+			pthread_mutex_unlock(&connection->mutex);
 			cancelTimeout(connection->context, &current->timeout);
+			pthread_mutex_lock(&connection->mutex);
+			unsigned int new_app_scheduled;
+			new_app_scheduled = connection->app_scheduled - current->data_size;
+			if (new_app_scheduled < connection->app_scheduled) connection->app_scheduled = new_app_scheduled;
 			free(current->free_me);
 			free(current);
 			current = next;
 		};
-		pthread_mutex_lock(&connection->mutex);
 	};
 	if (NULL == connection->app_queue) connection->app_last = &connection->app_queue;
 };

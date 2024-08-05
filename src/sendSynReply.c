@@ -64,8 +64,6 @@ unsigned int sendSynReply(struct TCPConnection *connection) {
 	};
 	queue_item->ip_packet = &packet[HEADERS_RESERVE-metadata.header_size-metadata.data_size];
 	queue_item->ip_size = metadata.header_size + metadata.data_size;
-	queue_item->tcp_packet = &packet[HEADERS_RESERVE-metadata.data_size];
-	queue_item->tcp_size = metadata.data_size;
 	queue_item->data_size = 0;
 	queue_item->confirm_ack = connection->our_seq + 1;
 	queue_item->connection = connection;

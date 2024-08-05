@@ -30,12 +30,20 @@
 unsigned int tcpEstablishedPacketsProcessor(struct TCPConnection *connection, const struct IPPacketPayload *payload, const struct TCPHeaderData *header) {
 	const uint32_t last = header->seq_num + (payload->count - header->data_offset);
 	const uint32_t old_first = connection->first_desired;
-	if (checkByteInWindow(connection->first_desired, MAX_SITE_QUEUE - connection->site_scheduled, header->seq_num) &&
-		checkByteInWindow(connection->first_desired, MAX_SITE_QUEUE - connection->site_scheduled, last) &&
-		(payload->count - header->data_offset)) {
+	if (!(checkByteInWindow(connection->first_desired, MAX_SITE_QUEUE - connection->site_scheduled, header->seq_num) &&
+	checkByteInWindow(connection->first_desired, MAX_SITE_QUEUE - connection->site_scheduled, last))) {
+		// Если не все байты сегмента лежат в окне приёма, он игнорируется
+		free(payload->free_me);
+		return 0;
+	};
+	if (payload->count > header->data_offset) {
+		// Если в пакете есть данные
 		struct TCPSitePrequeueItem *item;
 		item = malloc(sizeof(struct TCPSitePrequeueItem));
-		if (NULL == item) return 1;
+		if (NULL == item) {
+			free(payload->free_me);
+			return 1;
+		};
 		item->seq = header->seq_num;
 		void **probe;
 		probe = avl_probe(connection->site_prequeue, item);
@@ -50,8 +58,6 @@ unsigned int tcpEstablishedPacketsProcessor(struct TCPConnection *connection, co
 		};
 		item->data = payload->packet + header->data_offset;
 		item->urgent_count = header->urg ? header->urgent_ptr : 0;
-		item->packet_ack = header->ack_num;
-		item->window = header->raw_window << (connection->scaling_enabled ? connection->remote_scale : 0);
 		item->data_count = payload->count - header->data_offset - item->urgent_count;
 		item->connection = connection;
 		struct timeval now, timeout;
@@ -64,12 +70,10 @@ unsigned int tcpEstablishedPacketsProcessor(struct TCPConnection *connection, co
 		startTimer(connection->context);
 		pthread_mutex_lock(&connection->mutex);
 		pthread_mutex_unlock(&connection->context->timeout_mutex);
-	} else {
-		if (checkByteInWindow(connection->latest_ack, connection->app_scheduled, header->ack_num)) connection->latest_ack = header->ack_num;
-		tcpCleanupConfirmed(connection);
-		tcpUpdateEvent(connection);
-		free(payload->free_me);
-		return 0;
+	}
+	if (checkByteInWindow(connection->latest_ack, connection->app_scheduled, header->ack_num)) { // Обновляем последний ACK и размер окна
+		connection->latest_ack = header->ack_num;
+		connection->app_window = header->raw_window << (connection->scaling_enabled ? connection->remote_scale : 0);
 	};
 	struct TCPSitePrequeueItem *found_prequeue;
 	while ((found_prequeue = avl_find(connection->site_prequeue, &connection->first_desired)), found_prequeue) {
@@ -77,8 +81,6 @@ unsigned int tcpEstablishedPacketsProcessor(struct TCPConnection *connection, co
 		cancelTimeout(connection->context, &found_prequeue->timeout);
 		pthread_mutex_lock(&connection->mutex);
 		connection->first_desired = found_prequeue->seq + found_prequeue->urgent_count + found_prequeue->data_count;
-		connection->latest_ack = found_prequeue->packet_ack;
-		connection->app_window = found_prequeue->window;
 		enqueueSiteDataFromPrequeueItem(connection, found_prequeue);
 	};
 	tcpCleanupConfirmed(connection);
