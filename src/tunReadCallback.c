@@ -14,7 +14,6 @@
 #include "tunReadCallback.h"
 void tunReadCallback(evutil_socket_t fd, short what, void *arg) {
 	struct CaptureContext *context = (struct CaptureContext *) arg;
-	pthread_mutex_lock(&context->event_mutex);
 	if (what & EV_READ) {
 		uint8_t *packet_buffer;
 		packet_buffer = malloc(context->settings->mtu * sizeof(uint8_t));
@@ -24,7 +23,6 @@ void tunReadCallback(evutil_socket_t fd, short what, void *arg) {
 		if (readed == -1) {
 			free(packet_buffer);
 			emergencyStop(context);
-			pthread_mutex_unlock(&context->event_mutex);
 			return;
 		};
 		packet_buffer = realloc(packet_buffer, readed * sizeof(uint8_t)); // Уменьшаем буфер под пакет
@@ -33,7 +31,6 @@ void tunReadCallback(evutil_socket_t fd, short what, void *arg) {
 		if (queue_item == NULL) {
 			free(packet_buffer);
 			emergencyStop(context);
-			pthread_mutex_unlock(&context->event_mutex);
 			return;
 		};
 		queue_item->free_me = queue_item->data = packet_buffer;
@@ -43,5 +40,4 @@ void tunReadCallback(evutil_socket_t fd, short what, void *arg) {
 		queue_item->arg = NULL;
 		enqueueRxPacket(context, queue_item);
 	};
-	pthread_mutex_unlock(&context->event_mutex);
 };

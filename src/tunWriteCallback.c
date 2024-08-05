@@ -14,7 +14,6 @@
 void tunWriteCallback(evutil_socket_t fd, short what, void *arg) {
 	struct CaptureContext *context;
 	context = (struct CaptureContext *) arg;
-	pthread_mutex_lock(&context->event_mutex);
 	if (what & EV_WRITE) {
 		struct PacketQueueItem *item;
 		while (dequeueTxPacket(context, &item), item) {
@@ -25,7 +24,6 @@ void tunWriteCallback(evutil_socket_t fd, short what, void *arg) {
 					break;
 				} else {
 					emergencyStop(context);
-					pthread_mutex_unlock(&context->event_mutex);
 					return;
 				};
 			};
@@ -36,5 +34,4 @@ void tunWriteCallback(evutil_socket_t fd, short what, void *arg) {
 		if ((NULL == context->tx_begin) && (-1 == event_del(context->tx_event))) event_base_loopbreak(context->event_base);
 		pthread_mutex_unlock(&context->tx_mutex);
 	};
-	pthread_mutex_unlock(&context->event_mutex);
 };

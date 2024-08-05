@@ -35,7 +35,6 @@ unsigned int doCapture(const struct CaptureSettings *settings) {
 	pthread_mutex_init(&context->tx_mutex, NULL);
 	context->running = true;
 	pthread_mutex_init(&context->timeout_mutex, NULL);
-	pthread_mutex_init(&context->event_mutex, NULL);
 	context->rx_begin = NULL;
 	context->rx_end = &context->rx_begin;
 	context->tx_begin = NULL;
@@ -57,7 +56,7 @@ unsigned int doCapture(const struct CaptureSettings *settings) {
 		free(context);
 		return 1;
 	};
-	context->tx_event = event_new(context->event_base, settings->fd_getter(settings->user), EV_WRITE | EV_PERSIST, &tunWriteCallback, context);
+	context->tx_event = event_new(context->event_base, settings->fd_getter(settings->user), EV_WRITE | EV_PERSIST | EV_FINALIZE, &tunWriteCallback, context);
 	if (NULL == context->tx_event) {
 		event_free(context->rx_event);
 		event_base_free(context->event_base);

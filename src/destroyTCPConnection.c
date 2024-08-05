@@ -10,6 +10,7 @@
 #include "SrcDstSockaddrs.h"
 #include "CaptureContext.h"
 #include "TCPConnection.h"
+#include "tcpDestroySitePrequeueItem.h"
 
 #include "destroyTCPConnection.h"
 void destroyTCPConnection(struct TCPConnection *connection) {
@@ -18,11 +19,12 @@ void destroyTCPConnection(struct TCPConnection *connection) {
 	void *del;
 	del = avl_delete(connection->context->tcp_connections, connection);
 	assert(del == connection);
-	pthread_mutex_unlock(&connection->context->tcp_mutex);
 	pthread_mutex_lock(&connection->mutex);
+	pthread_mutex_unlock(&connection->context->tcp_mutex);
 	pthread_mutex_unlock(&connection->mutex);
 	pthread_mutex_destroy(&connection->mutex);
 	close(connection->sock);
 	// TODO освободить очереди
+	avl_destroy(connection->site_prequeue, &tcpDestroySitePrequeueItem);
 	free(connection);
 }; 

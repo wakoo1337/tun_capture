@@ -41,7 +41,7 @@ struct UDPBinding *findUDPBinding(struct CaptureContext *context, const struct s
 		};
 		struct sockaddr bind_addr = {0}; // Это будет любой адрес
 		bind_addr.sa_family = sa->sa_family;
-		if (-1 == bind(binding->sock, &bind_addr, sizeof(struct sockaddr))) {
+		if (-1 == bind(binding->sock, &bind_addr, sizeof(struct sockaddr))) { // TODO не привязываться, если порт равен 0
 			pthread_mutex_unlock(&binding->mutex);
 			pthread_mutex_unlock(&context->udp_mutex);
 			close(binding->sock);
@@ -55,9 +55,18 @@ struct UDPBinding *findUDPBinding(struct CaptureContext *context, const struct s
 			free(binding);
 			return NULL;
 		};
-		binding->read_event = event_new(context->event_base, binding->sock, EV_READ | EV_PERSIST, &udpReadCallback, binding);
+		binding->read_event = event_new(context->event_base, binding->sock, EV_READ | EV_PERSIST | EV_FINALIZE, &udpReadCallback, binding);
 		if (NULL == binding->read_event) {
 			pthread_mutex_unlock(&binding->mutex);
+			pthread_mutex_unlock(&context->udp_mutex);
+			close(binding->sock);
+			free(binding);
+			return NULL;
+		};
+		binding->write_event = event_new(context->event_base, binding->sock, EV_WRITE | EV_PERSIST | EV_FINALIZE, &udpWriteCallback, binding);
+		if (NULL == binding->write_event) {
+			pthread_mutex_unlock(&binding->mutex);
+			event_free(binding->read_event);
 			pthread_mutex_unlock(&context->udp_mutex);
 			close(binding->sock);
 			free(binding);
@@ -66,15 +75,7 @@ struct UDPBinding *findUDPBinding(struct CaptureContext *context, const struct s
 		if (-1 == event_add(binding->read_event, NULL)) {
 			pthread_mutex_unlock(&binding->mutex);
 			event_free(binding->read_event);
-			pthread_mutex_unlock(&context->udp_mutex);
-			close(binding->sock);
-			free(binding);
-			return NULL;
-		};
-		binding->write_event = event_new(context->event_base, binding->sock, EV_WRITE | EV_PERSIST, &udpWriteCallback, binding);
-		if (NULL == binding->write_event) {
-			pthread_mutex_unlock(&binding->mutex);
-			event_free(binding->read_event);
+			event_free(binding->write_event);
 			pthread_mutex_unlock(&context->udp_mutex);
 			close(binding->sock);
 			free(binding);

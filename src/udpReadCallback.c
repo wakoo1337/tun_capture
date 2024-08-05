@@ -22,13 +22,11 @@ void udpReadCallback(evutil_socket_t fd, short what, void *arg) {
 	struct UDPBinding *binding;
 	binding = (struct UDPBinding *) arg;
 	assert(((int) fd) == binding->sock);
-	pthread_mutex_lock(&binding->context->event_mutex);
 	if (what & EV_READ) {
 		uint8_t *buffer;
 		buffer = malloc((HEADERS_RESERVE + MAX_UDP_PAYLOAD) * sizeof(uint8_t));
 		if (NULL == buffer) {
 			emergencyStop(binding->context);
-			pthread_mutex_unlock(&binding->context->event_mutex);
 			return;
 		};
 		struct sockaddr sender_sa = {0};
@@ -37,7 +35,6 @@ void udpReadCallback(evutil_socket_t fd, short what, void *arg) {
 		result = recvfrom(binding->sock, &buffer[HEADERS_RESERVE], MAX_UDP_PAYLOAD, 0, &sender_sa, &sl);
 		if (result == -1) {
 			free(buffer);
-			pthread_mutex_unlock(&binding->context->event_mutex);
 			return;
 		};
 		assert(sender_sa.sa_family == binding->internal_addr.sa_family);
@@ -48,7 +45,6 @@ void udpReadCallback(evutil_socket_t fd, short what, void *arg) {
 		if (NULL == queue_item) {
 			free(buffer);
 			emergencyStop(binding->context);
-			pthread_mutex_unlock(&binding->context->event_mutex);
 			return;
 		};
 		queue_item->data = &buffer[HEADERS_RESERVE];
@@ -61,7 +57,6 @@ void udpReadCallback(evutil_socket_t fd, short what, void *arg) {
 			free(buffer);
 			free(queue_item);
 			emergencyStop(binding->context);
-			pthread_mutex_unlock(&binding->context->event_mutex);
 			return;
 		};
 		params->from = sender_sa;
@@ -69,5 +64,4 @@ void udpReadCallback(evutil_socket_t fd, short what, void *arg) {
 		queue_item->arg = params;
 		enqueueRxPacket(binding->context, queue_item);
 	};
-	pthread_mutex_unlock(&binding->context->event_mutex);
 };

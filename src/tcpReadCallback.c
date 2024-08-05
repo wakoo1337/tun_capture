@@ -16,10 +16,8 @@
 void tcpReadCallback(evutil_socket_t fd, short what, void *arg) {
 	struct TCPConnection *conn;
 	conn = (struct TCPConnection *) arg;
-	pthread_mutex_lock(&conn->context->event_mutex);
 	pthread_mutex_lock(&conn->mutex);
 	if (conn->state->read_callback(fd, what, arg)) {
 		emergencyStop(conn->context);
 	};
-	pthread_mutex_unlock(&conn->context->event_mutex);
 };
