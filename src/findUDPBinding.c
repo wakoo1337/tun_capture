@@ -37,6 +37,7 @@ struct UDPBinding *findUDPBinding(struct CaptureContext *context, const struct N
 		binding->sock = socket(sa->sa_family, SOCK_DGRAM, 0);
 		if (-1 == binding->sock) {
 			pthread_mutex_unlock(&binding->mutex);
+			pthread_mutex_destroy(&binding->mutex);
 			pthread_mutex_unlock(&context->udp_mutex);
 			free(binding);
 			return NULL;
@@ -46,6 +47,7 @@ struct UDPBinding *findUDPBinding(struct CaptureContext *context, const struct N
 			bind_addr.sa_family = sa->sa_family;
 			if (-1 == bind(binding->sock, &bind_addr, sizeof(struct sockaddr))) {
 				pthread_mutex_unlock(&binding->mutex);
+				pthread_mutex_destroy(&binding->mutex);
 				pthread_mutex_unlock(&context->udp_mutex);
 				close(binding->sock);
 				free(binding);
@@ -54,6 +56,7 @@ struct UDPBinding *findUDPBinding(struct CaptureContext *context, const struct N
 		};
 		if (-1 == fcntl(binding->sock, F_SETFL, O_NONBLOCK)) {
 			pthread_mutex_unlock(&binding->mutex);
+			pthread_mutex_destroy(&binding->mutex);
 			pthread_mutex_unlock(&context->udp_mutex);
 			close(binding->sock);
 			free(binding);
@@ -62,6 +65,7 @@ struct UDPBinding *findUDPBinding(struct CaptureContext *context, const struct N
 		binding->read_event = event_new(context->event_base, binding->sock, EV_READ | EV_PERSIST | EV_FINALIZE, &udpReadCallback, binding);
 		if (NULL == binding->read_event) {
 			pthread_mutex_unlock(&binding->mutex);
+			pthread_mutex_destroy(&binding->mutex);
 			pthread_mutex_unlock(&context->udp_mutex);
 			close(binding->sock);
 			free(binding);
@@ -70,6 +74,7 @@ struct UDPBinding *findUDPBinding(struct CaptureContext *context, const struct N
 		binding->write_event = event_new(context->event_base, binding->sock, EV_WRITE | EV_PERSIST | EV_FINALIZE, &udpWriteCallback, binding);
 		if (NULL == binding->write_event) {
 			pthread_mutex_unlock(&binding->mutex);
+			pthread_mutex_destroy(&binding->mutex);
 			event_free(binding->read_event);
 			pthread_mutex_unlock(&context->udp_mutex);
 			close(binding->sock);
@@ -78,6 +83,7 @@ struct UDPBinding *findUDPBinding(struct CaptureContext *context, const struct N
 		};
 		if (-1 == event_add(binding->read_event, NULL)) {
 			pthread_mutex_unlock(&binding->mutex);
+			pthread_mutex_destroy(&binding->mutex);
 			event_free(binding->read_event);
 			event_free(binding->write_event);
 			pthread_mutex_unlock(&context->udp_mutex);
@@ -90,6 +96,7 @@ struct UDPBinding *findUDPBinding(struct CaptureContext *context, const struct N
 		probe = avl_probe(context->udp_bindings, binding);
 		if ((NULL == probe) || ((*probe) != binding)) {
 			pthread_mutex_unlock(&binding->mutex);
+			pthread_mutex_destroy(&binding->mutex);
 			event_free(binding->read_event);
 			event_free(binding->write_event);
 			pthread_mutex_unlock(&context->udp_mutex);
