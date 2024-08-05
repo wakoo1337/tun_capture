@@ -11,12 +11,15 @@
 #include "TCPSiteQueueItem.h"
 #include "TCPConnection.h"
 #include "dequeueSiteQueueItem.h"
+#include "getSendWindowSize.h"
+#include "sendTCPAcknowledgement.h"
 
 #include "tcpEstablishedWriteCallback.h"
 unsigned int tcpEstablishedWriteCallback(evutil_socket_t fd, short what, void *arg) {
 	struct TCPConnection *connection = (struct TCPConnection *) arg;
 	if (what & EV_WRITE) {
 		struct TCPSiteQueueItem *item;
+		uint16_t old_window = getSendWindowSize(connection);
 		while ((item = dequeueSiteQueueItem(connection))) {
 			ssize_t written;
 			if (item->already_sent < item->urgent_count) {
@@ -54,6 +57,7 @@ unsigned int tcpEstablishedWriteCallback(evutil_socket_t fd, short what, void *a
 				free(item);
 			};
 		};
+		if ((old_window == 0) && (getSendWindowSize(connection) != 0)) sendTCPAcknowledgement(connection);
 	};
 	pthread_mutex_unlock(&connection->mutex);
 	return 0;
