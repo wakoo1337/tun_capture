@@ -57,7 +57,7 @@ bin/processUDPPacket.o: src/processUDPPacket.c src/processUDPPacket.h src/contri
 	$(CC) $(CFLAGS) $(LIBEVENT_CFLAGS) -c -o bin/processUDPPacket.o src/processUDPPacket.c
 bin/setIPv4SockaddrPort.o: src/setIPv4SockaddrPort.c src/setIPv4SockaddrPort.h
 	$(CC) $(CFLAGS) -c -o bin/setIPv4SockaddrPort.o src/setIPv4SockaddrPort.c
-bin/findUDPBinding.o: src/findUDPBinding.c src/findUDPBinding.h src/contrib/avl.h src/contrib/heap.h src/CaptureContext.h src/UDPBinding.h src/udpReadCallback.h src/udpWriteCallback.h
+bin/findUDPBinding.o: src/findUDPBinding.c src/findUDPBinding.h src/contrib/avl.h src/contrib/heap.h src/CaptureContext.h src/IPFragmentMetadata.h src/NetworkProtocolStrategy.h src/UDPBinding.h src/udpReadCallback.h src/udpWriteCallback.h
 	$(CC) $(CFLAGS) $(LIBEVENT_CFLAGS) -c -o bin/findUDPBinding.o src/findUDPBinding.c
 bin/packetsProcessor.o: src/packetsProcessor.c src/packetsProcessor.h src/contrib/heap.h src/CaptureContext.h src/processIPv4Packet.h
 	$(CC) $(CFLAGS) -c -o bin/packetsProcessor.o src/packetsProcessor.c

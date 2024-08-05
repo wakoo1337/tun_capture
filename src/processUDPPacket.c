@@ -51,7 +51,7 @@ unsigned int processUDPPacket(struct CaptureContext *context, const struct IPPac
 		strategy->port_setter(&addrs->src, hdr.src_port);
 		strategy->port_setter(&addrs->dst, hdr.dst_port);
 		struct UDPBinding *binding;
-		binding = findUDPBinding(context, &addrs->src);
+		binding = findUDPBinding(context, strategy, &addrs->src);
 		if (binding == NULL) {
 			free(payload->free_me);
 			return 1;
