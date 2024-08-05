@@ -109,10 +109,7 @@ unsigned int processTCPPacket(struct CaptureContext *context, const struct IPPac
 		if (NULL == connection->write_event) {
 			connection->write_finalized = true;
 			event_free_finalize(0, connection->read_event, &tcpFinalizeRead);
-			avl_destroy(connection->site_prequeue, &tcpDestroySitePrequeueItem);
 			pthread_mutex_unlock(&context->tcp_mutex);
-			close(connection->sock);
-			connection->sock = -1;
 			pthread_mutex_unlock(&connection->mutex);
 			free(payload->free_me);
 			return 1;
@@ -120,10 +117,7 @@ unsigned int processTCPPacket(struct CaptureContext *context, const struct IPPac
 		if (-1 == event_add(connection->write_event, NULL)) {
 			event_free_finalize(0, connection->read_event, &tcpFinalizeRead);
 			event_free_finalize(0, connection->write_event, &tcpFinalizeWrite);
-			avl_destroy(connection->site_prequeue, &tcpDestroySitePrequeueItem);
 			pthread_mutex_unlock(&context->tcp_mutex);
-			close(connection->sock);
-			connection->sock = -1;
 			pthread_mutex_unlock(&connection->mutex);
 			free(payload->free_me);
 			return 1;
@@ -132,10 +126,7 @@ unsigned int processTCPPacket(struct CaptureContext *context, const struct IPPac
 		if ((-1 == connect(connection->sock, &addrs->dst, sizeof(struct sockaddr))) && (errno != EINPROGRESS)) {
 			event_free_finalize(0, connection->read_event, &tcpFinalizeRead);
 			event_free_finalize(0, connection->write_event, &tcpFinalizeWrite);
-			avl_destroy(connection->site_prequeue, &tcpDestroySitePrequeueItem);
 			pthread_mutex_unlock(&context->tcp_mutex);
-			close(connection->sock);
-			connection->sock = -1;
 			pthread_mutex_unlock(&connection->mutex);
 			free(payload->free_me);
 			return 1;
@@ -145,10 +136,7 @@ unsigned int processTCPPacket(struct CaptureContext *context, const struct IPPac
 		if ((NULL == probe) || ((*probe) != connection)) {
 			event_free_finalize(0, connection->read_event, &tcpFinalizeRead);
 			event_free_finalize(0, connection->write_event, &tcpFinalizeWrite);
-			avl_destroy(connection->site_prequeue, &tcpDestroySitePrequeueItem);
 			pthread_mutex_unlock(&context->tcp_mutex);
-			close(connection->sock);
-			connection->sock = -1;
 			pthread_mutex_unlock(&connection->mutex);
 			free(payload->free_me);
 			return (unsigned int) (NULL == probe);
