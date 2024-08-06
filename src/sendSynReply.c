@@ -68,6 +68,7 @@ unsigned int sendSynReply(struct TCPConnection *connection) {
 	queue_item->confirm_ack = connection->our_seq + 1;
 	queue_item->connection = connection;
 	queue_item->free_me = packet;
+	queue_item->is_filled = true;
 	queue_item->next = NULL;
 	*connection->app_last = queue_item;
 	connection->app_last = &queue_item->next;

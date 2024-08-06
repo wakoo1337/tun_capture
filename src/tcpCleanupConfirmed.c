@@ -14,8 +14,8 @@
 #include "tcpCleanupConfirmed.h"
 void tcpCleanupConfirmed(struct TCPConnection *connection) {
 	struct TCPAppQueueItem *found = connection->app_queue;
-	while (found && (found->confirm_ack != connection->latest_ack)) found = found->next;
-	if (found) {
+	while (found && found->is_filled && (found->confirm_ack != connection->latest_ack)) found = found->next;
+	if (found && found->is_filled) {
 		struct TCPAppQueueItem *old_next = found->next;
 		struct TCPAppQueueItem *current = connection->app_queue;
 		found->next = NULL;
