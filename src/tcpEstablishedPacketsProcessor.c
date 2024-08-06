@@ -24,6 +24,7 @@
 #include "sendTCPAcknowledgement.h"
 #include "tcpCleanupConfirmed.h"
 #include "segexpire_delay.h"
+#include "tcpstate_gotfin.h"
 #include "MAX_SITE_QUEUE.h"
 
 #include "tcpEstablishedPacketsProcessor.h"
@@ -70,21 +71,25 @@ unsigned int tcpEstablishedPacketsProcessor(struct TCPConnection *connection, co
 		startTimer(connection->context);
 		pthread_mutex_lock(&connection->mutex);
 		pthread_mutex_unlock(&connection->context->timeout_mutex);
-	}
-	if (checkByteInWindow(connection->latest_ack, connection->app_scheduled, header->ack_num)) { // Обновляем последний ACK и размер окна
+	};
+	if (checkByteInWindow(connection->latest_ack, connection->app_scheduled + 1, header->ack_num)) { // Обновляем последний ACK и размер окна
 		connection->latest_ack = header->ack_num;
 		connection->app_window = header->raw_window << (connection->scaling_enabled ? connection->remote_scale : 0);
 	};
 	struct TCPSitePrequeueItem *found_prequeue;
-	while ((found_prequeue = avl_find(connection->site_prequeue, &connection->first_desired)), found_prequeue) {
+	while ((found_prequeue = avl_find(connection->site_prequeue, &connection->first_desired))) {
 		pthread_mutex_unlock(&connection->mutex);
 		cancelTimeout(connection->context, &found_prequeue->timeout);
 		pthread_mutex_lock(&connection->mutex);
-		connection->first_desired = found_prequeue->seq + found_prequeue->urgent_count + found_prequeue->data_count;
+		connection->first_desired += found_prequeue->urgent_count + found_prequeue->data_count;
 		enqueueSiteDataFromPrequeueItem(connection, found_prequeue);
 	};
 	tcpCleanupConfirmed(connection);
 	tcpUpdateEvent(connection);
+	if (header->fin && (header->seq_num == connection->first_desired)) {
+		connection->first_desired++;
+		connection->state = &tcpstate_gotfin;
+	};
 	if (old_first != connection->first_desired) sendTCPAcknowledgement(connection);
 	return 0;
 };
