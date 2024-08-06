@@ -33,8 +33,7 @@ unsigned int sendTCPAcknowledgement(struct TCPConnection *connection) {
 	header.urgent_ptr = 0;
 	header.mss_present = header.winscale_present = false;
 	header.data_offset = computeTCPDataOffset(&header);
-	uint8_t *pseudo;
-	pseudo = alloca(connection->strategy->pseudo_length * sizeof(uint8_t));
+	uint8_t pseudo[connection->strategy->pseudo_length];
 	connection->strategy->create_pseudo(pseudo, &connection->addrs.dst, &connection->addrs.src, 6, header.data_offset);
 	uint8_t *packet;
 	packet = malloc(HEADERS_RESERVE * sizeof(uint8_t));

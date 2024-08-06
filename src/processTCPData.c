@@ -52,8 +52,7 @@ unsigned int processTCPData(struct CaptureContext *context, uint8_t *packet, uns
 	header.urgent_ptr = 0;
 	header.mss_present = header.winscale_present = false;
 	header.data_offset = computeTCPDataOffset(&header);
-	uint8_t *pseudo;
-	pseudo = alloca(connection->strategy->pseudo_length);
+	uint8_t pseudo[connection->strategy->pseudo_length];
 	connection->strategy->create_pseudo(pseudo, &connection->addrs.dst, &connection->addrs.src, 6, header.data_offset + count);
 	const uint32_t latest_ack = connection->latest_ack;
 	const unsigned int app_window = connection->app_window; // Копируем, т.к. в writeTCPHeader() на время вычисления контрольной суммы освобождается мьютекс соединения

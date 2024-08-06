@@ -44,8 +44,7 @@ unsigned int sendSynReply(struct TCPConnection *connection) {
 	uint8_t *packet;
 	packet = malloc(HEADERS_RESERVE * sizeof(uint8_t));
 	if (NULL == packet) return 1;
-	uint8_t *pseudo;
-	pseudo = alloca(connection->strategy->pseudo_length);
+	uint8_t pseudo[connection->strategy->pseudo_length];
 	hdr.data_offset = computeTCPDataOffset(&hdr);
 	connection->strategy->create_pseudo(pseudo, &connection->addrs.dst, &connection->addrs.src, 6, hdr.data_offset);
 	writeTCPHeader(&packet[HEADERS_RESERVE], 0, &hdr, pseudo, connection->strategy->pseudo_length, &connection->mutex);
