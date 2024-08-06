@@ -1,1 +1,1 @@
-void dequeueTxPacket(struct CaptureContext *context, struct PacketQueueItem **item);
+struct PacketQueueItem *dequeueTxPacket(struct CaptureContext *context, struct PacketQueueItem **item);

@@ -16,7 +16,7 @@ void tunWriteCallback(evutil_socket_t fd, short what, void *arg) {
 	context = (struct CaptureContext *) arg;
 	if (what & EV_WRITE) {
 		struct PacketQueueItem *item;
-		while (dequeueTxPacket(context, &item), item) {
+		while (dequeueTxPacket(context, &item)) {
 			ssize_t result;
 			result = context->settings->write_function(item->data, item->count, context->settings->user);
 			if (-1 == result) {
