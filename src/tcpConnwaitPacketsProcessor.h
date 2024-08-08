@@ -1,1 +1,1 @@
-unsigned int tcpConnwaitPacketsProcessor(struct TCPConnection *connection, const struct IPPacketPayload *payload, const struct TCPHeaderData *header);
+unsigned int tcpConnwaitPacketsProcessor(struct TCPConnection *connection, struct IPPacketPayload *payload, const struct TCPHeaderData *header);

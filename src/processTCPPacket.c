@@ -11,6 +11,7 @@
 #include "contrib/avl.h"
 #include "contrib/heap.h"
 #include "CaptureContext.h"
+#include "RefcountBuffer.h"
 #include "IPPacketPayload.h"
 #include "IPFragmentMetadata.h"
 #include "NetworkProtocolStrategy.h"
@@ -25,20 +26,22 @@
 #include "tcpDestroySitePrequeueItem.h"
 #include "tcpFinalizeRead.h"
 #include "tcpFinalizeWrite.h"
+#include "decrementRefcount.h"
 #include "tcpstate_connwait.h"
 
 #include "processTCPPacket.h"
-unsigned int processTCPPacket(struct CaptureContext *context, const struct IPPacketPayload *payload, const struct NetworkProtocolStrategy *strategy, struct SrcDstSockaddrs *addrs) {
+unsigned int processTCPPacket(struct CaptureContext *context, struct IPPacketPayload *payload, const struct NetworkProtocolStrategy *strategy, struct SrcDstSockaddrs *addrs) {
 	struct TCPHeaderData hdr;
-	if (parseTCPHeader(&hdr, payload->packet, payload->count, payload->pseudo, strategy->pseudo_length)) {
-		free(payload->free_me);
+	const unsigned int tcp_length = payload->buffer->size - payload->buffer->trapkt_offset;
+	if (parseTCPHeader(&hdr, &payload->buffer->data[payload->buffer->trapkt_offset], tcp_length, payload->pseudo, strategy->pseudo_length)) {
+		decrementRefcount(&payload->buffer);
 		return 0;
 	};
 	strategy->port_setter(&addrs->src, hdr.src_port);
 	strategy->port_setter(&addrs->dst, hdr.dst_port);
 	if (hdr.rst) {
-		// Удалить соединение
-		free(payload->free_me);
+		// TODO Удалить соединение
+		decrementRefcount(&payload->buffer);
 		return 0;
 	};
 	if (hdr.syn) {
@@ -47,7 +50,7 @@ unsigned int processTCPPacket(struct CaptureContext *context, const struct IPPac
 		assert(addrs->src.sa_family == addrs->dst.sa_family);
 		connection = malloc(sizeof(struct TCPConnection));
 		if (NULL == connection) {
-			free(payload->free_me);
+			decrementRefcount(&payload->buffer);
 			return 1;
 		};
 		if (hdr.mss_present) {
@@ -63,7 +66,7 @@ unsigned int processTCPPacket(struct CaptureContext *context, const struct IPPac
 		connection->site_prequeue = avl_create(&compareTCPSitePrequeueItems, NULL, NULL);
 		if (NULL == connection->site_prequeue) {
 			free(connection);
-			free(payload->free_me);
+			decrementRefcount(&payload->buffer);
 			return 1;
 		};
 		connection->site_scheduled = connection->app_scheduled = 0;
@@ -77,14 +80,14 @@ unsigned int processTCPPacket(struct CaptureContext *context, const struct IPPac
 		if (-1 == connection->sock) {
 			avl_destroy(connection->site_prequeue, &tcpDestroySitePrequeueItem);
 			free(connection);
-			free(payload->free_me);
+			decrementRefcount(&payload->buffer);
 			return 1;
 		};
 		if (-1 == fcntl(connection->sock, F_SETFL, O_NONBLOCK)) {
 			avl_destroy(connection->site_prequeue, &tcpDestroySitePrequeueItem);
 			close(connection->sock);
 			free(connection);
-			free(payload->free_me);
+			decrementRefcount(&payload->buffer);
 			return 1;
 		};
 		pthread_mutex_lock(&context->tcp_mutex);
@@ -102,7 +105,7 @@ unsigned int processTCPPacket(struct CaptureContext *context, const struct IPPac
 			pthread_mutex_destroy(&connection->mutex);
 			close(connection->sock);
 			free(connection);
-			free(payload->free_me);
+			decrementRefcount(&payload->buffer);
 			return 1;
 		};
 		connection->write_event = event_new(context->event_base, connection->sock, EV_WRITE | EV_PERSIST | EV_FINALIZE, &tcpWriteCallback, connection);
@@ -111,7 +114,7 @@ unsigned int processTCPPacket(struct CaptureContext *context, const struct IPPac
 			event_free_finalize(0, connection->read_event, &tcpFinalizeRead);
 			pthread_mutex_unlock(&context->tcp_mutex);
 			pthread_mutex_unlock(&connection->mutex);
-			free(payload->free_me);
+			decrementRefcount(&payload->buffer);
 			return 1;
 		};
 		if (-1 == event_add(connection->write_event, NULL)) {
@@ -119,7 +122,7 @@ unsigned int processTCPPacket(struct CaptureContext *context, const struct IPPac
 			event_free_finalize(0, connection->write_event, &tcpFinalizeWrite);
 			pthread_mutex_unlock(&context->tcp_mutex);
 			pthread_mutex_unlock(&connection->mutex);
-			free(payload->free_me);
+			decrementRefcount(&payload->buffer);
 			return 1;
 		};
 		errno = 0;
@@ -128,7 +131,7 @@ unsigned int processTCPPacket(struct CaptureContext *context, const struct IPPac
 			event_free_finalize(0, connection->write_event, &tcpFinalizeWrite);
 			pthread_mutex_unlock(&context->tcp_mutex);
 			pthread_mutex_unlock(&connection->mutex);
-			free(payload->free_me);
+			decrementRefcount(&payload->buffer);
 			return 1;
 		};
 		void **probe;
@@ -138,12 +141,12 @@ unsigned int processTCPPacket(struct CaptureContext *context, const struct IPPac
 			event_free_finalize(0, connection->write_event, &tcpFinalizeWrite);
 			pthread_mutex_unlock(&context->tcp_mutex);
 			pthread_mutex_unlock(&connection->mutex);
-			free(payload->free_me);
+			decrementRefcount(&payload->buffer);
 			return (unsigned int) (NULL == probe);
 		};
 		pthread_mutex_unlock(&context->tcp_mutex);
 		pthread_mutex_unlock(&connection->mutex);
-		free(payload->free_me); // TODO убрать, и в первом пакете могут быть данные
+		decrementRefcount(&payload->buffer); // TODO убрать, и в первом пакете могут быть данные
 		return 0;
 	};
 	// Попытаться обнаружить соединение и обработать пакет его обработчиком. Если соединение найти не удастся, послать RST
@@ -160,7 +163,7 @@ unsigned int processTCPPacket(struct CaptureContext *context, const struct IPPac
 	} else {
 		// TODO послать RST
 		pthread_mutex_unlock(&context->tcp_mutex);
-		free(payload->free_me);
+		decrementRefcount(&payload->buffer);
 	};
 	return 0;
 };

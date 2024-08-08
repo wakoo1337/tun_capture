@@ -1,1 +1,1 @@
-unsigned int packetsProcessor(struct CaptureContext *context, uint8_t *packet, unsigned int size, void *arg);
+unsigned int packetsProcessor(struct CaptureContext *context, struct RefcountBuffer *buffer, void *arg);

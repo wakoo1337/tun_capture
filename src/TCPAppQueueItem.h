@@ -1,7 +1,5 @@
 struct TCPAppQueueItem {
-	uint8_t *ip_packet;
-	unsigned int ip_size;
-	unsigned int data_size;
+	struct RefcountBuffer *buffer;
 	uint32_t confirm_ack;
 	struct TCPConnection *connection;
 	struct TimeoutItem *timeout;

@@ -1,1 +1,1 @@
-unsigned int udpGenerator(struct CaptureContext *context, uint8_t *packet, unsigned int size, void *arg);
+unsigned int udpGenerator(struct CaptureContext *context, struct RefcountBuffer *buffer, void *arg);

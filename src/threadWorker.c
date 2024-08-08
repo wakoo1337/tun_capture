@@ -4,9 +4,11 @@
 #include <stdlib.h>
 #include "contrib/heap.h"
 #include "CaptureContext.h"
+#include "RefcountBuffer.h"
 #include "PacketQueueItem.h"
 #include "dequeueRxPacket.h"
 #include "emergencyStop.h"
+#include "decrementRefcount.h"
 
 #include "threadWorker.h"
 void *threadWorker(void *arg) {
@@ -14,13 +16,14 @@ void *threadWorker(void *arg) {
 	struct PacketQueueItem *packet;
 	while (context->running) {
 		dequeueRxPacket(context, &packet);
-		if (packet->count == 0) {
+		pthread_mutex_lock(&packet->buffer->mutex);
+		if (packet->buffer->size == 0) {
 			if (packet->mutex) pthread_mutex_unlock(packet->mutex);
-			free(packet->free_me);
+			decrementRefcount(&packet->buffer);
 			free(packet);
 			continue;
 		};
-		if (packet->processor(context, packet->data, packet->count, packet->arg)) {
+		if (packet->processor(context, packet->buffer, packet->arg)) {
 			emergencyStop(context);
 			if (packet->mutex) pthread_mutex_unlock(packet->mutex);
 			free(packet);

@@ -1,1 +1,1 @@
-unsigned int processUDPPacket(struct CaptureContext *context, const struct IPPacketPayload *payload, const struct NetworkProtocolStrategy *strategy, struct SrcDstSockaddrs *addrs);
+unsigned int processUDPPacket(struct CaptureContext *context, struct IPPacketPayload *payload, const struct NetworkProtocolStrategy *strategy, struct SrcDstSockaddrs *addrs);

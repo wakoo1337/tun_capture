@@ -1,1 +1,1 @@
-unsigned int tcpSynackSendPacketsProcessor(struct TCPConnection *connection, const struct IPPacketPayload *payload, const struct TCPHeaderData *header);
+unsigned int tcpSynackSendPacketsProcessor(struct TCPConnection *connection, struct IPPacketPayload *payload, const struct TCPHeaderData *header);

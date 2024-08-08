@@ -4,13 +4,16 @@
 #include <stdbool.h>
 #include "contrib/heap.h"
 #include "CaptureContext.h"
+#include "RefcountBuffer.h"
 #include "processIPv4Packet.h"
+#include "decrementRefcount.h"
 
 #include "packetsProcessor.h"
-unsigned int packetsProcessor(struct CaptureContext *context, uint8_t *packet, unsigned int size, void *arg) {
-	uint8_t type = packet[0] >> 4;
-	if (type == 4) return processIPv4Packet(context, packet, size);
-	else if (type == 6) free(packet);
-	else free(packet);
+unsigned int packetsProcessor(struct CaptureContext *context, struct RefcountBuffer *buffer, void *arg) {
+	uint8_t type;
+	type = buffer->data[buffer->netpkt_offset];
+	if (type == 4) return processIPv4Packet(context, buffer);
+	else if (type == 6) decrementRefcount(&buffer);
+	else decrementRefcount(&buffer);
 	return 0;
 };

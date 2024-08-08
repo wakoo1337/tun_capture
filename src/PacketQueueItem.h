@@ -1,8 +1,7 @@
 struct PacketQueueItem {
-	uint8_t *data;
-	unsigned int count;
-	unsigned int (*processor)(struct CaptureContext *, uint8_t *, unsigned int, void *);
+	struct RefcountBuffer *buffer;
+	unsigned int (*processor)(struct CaptureContext *, struct RefcountBuffer *, void *);
 	pthread_mutex_t *mutex;
-	void *free_me, *arg;
+	void *arg;
 	struct PacketQueueItem *next;
 };

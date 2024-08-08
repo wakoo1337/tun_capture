@@ -12,6 +12,7 @@
 #include "IPFragmentMetadata.h"
 #include "NetworkProtocolStrategy.h"
 #include "UDPHeaderData.h"
+#include "RefcountBuffer.h"
 #include "UDPStackItem.h"
 #include "ChecksumContext.h"
 #include "UDPBinding.h"
@@ -21,29 +22,31 @@
 #include "computeChecksum.h"
 #include "getChecksum.h"
 #include "findUDPBinding.h"
+#include "decrementRefcount.h"
 
 #include "processUDPPacket.h"
-unsigned int processUDPPacket(struct CaptureContext *context, const struct IPPacketPayload *payload, const struct NetworkProtocolStrategy *strategy, struct SrcDstSockaddrs *addrs) {
+unsigned int processUDPPacket(struct CaptureContext *context, struct IPPacketPayload *payload, const struct NetworkProtocolStrategy *strategy, struct SrcDstSockaddrs *addrs) {
 	struct UDPHeaderData hdr;
-	if (payload->count < 8) {
-		free(payload->free_me);
+	const unsigned int udp_size = payload->buffer->size - payload->buffer->trapkt_offset;
+	if (udp_size < 8) {
+		decrementRefcount(&payload->buffer);
 		return 0;
 	};
-	hdr.src_port = ntohs(get16Bit(&payload->packet[0]));
-	hdr.dst_port = ntohs(get16Bit(&payload->packet[2]));
-	hdr.length = ntohs(get16Bit(&payload->packet[4]));
-	if (hdr.length != payload->count) {
-		free(payload->free_me);
+	hdr.src_port = ntohs(get16Bit(&payload->buffer->data[payload->buffer->trapkt_offset + 0]));
+	hdr.dst_port = ntohs(get16Bit(&payload->buffer->data[payload->buffer->trapkt_offset + 2]));
+	hdr.length = ntohs(get16Bit(&payload->buffer->data[payload->buffer->trapkt_offset + 4]));
+	if (hdr.length != udp_size) {
+		decrementRefcount(&payload->buffer);
 		return 0;
 	};
-	hdr.checksum = get16Bit(&payload->packet[6]); // На little-endian машинах порядок байтов менять не нужно — он уже поменян при вычислении контрольной суммы
+	hdr.checksum = get16Bit(&payload->buffer->data[payload->buffer->trapkt_offset + 6]); // На little-endian машинах порядок байтов менять не нужно — он уже поменян при вычислении контрольной суммы
 	struct ChecksumContext ctx;
 	uint16_t computed_cs;
 	if ((hdr.checksum == 0) || (
-		set16Bit(&payload->packet[6], 0),
+		set16Bit(&payload->buffer->data[payload->buffer->trapkt_offset + 6], 0),
 		initChecksum(&ctx),
 		computeChecksum(&ctx, payload->pseudo, strategy->pseudo_length),
-		computeChecksum(&ctx, payload->packet, payload->count),
+		computeChecksum(&ctx, &payload->buffer->data[payload->buffer->trapkt_offset], udp_size),
 		(computed_cs = getChecksum(&ctx)),
 		((computed_cs == hdr.checksum) || ((hdr.checksum == 0xFFFF) && ((computed_cs == 0) || (computed_cs == 0xFFFF))))
 		)) {
@@ -53,30 +56,25 @@ unsigned int processUDPPacket(struct CaptureContext *context, const struct IPPac
 		struct UDPBinding *binding;
 		binding = findUDPBinding(context, strategy, &addrs->src);
 		if (binding == NULL) {
-			free(payload->free_me);
+			decrementRefcount(&payload->buffer);
 			return 1;
 		};
 		struct UDPStackItem *item;
 		item = malloc(sizeof(struct UDPStackItem));
 		if (NULL == item) {
-			pthread_mutex_unlock(&binding->mutex);
-			free(payload->free_me);
+			decrementRefcount(&payload->buffer);
 			return 1;
 		};
-		item->send_me = payload->packet + 8;
-		item->size = payload->count - 8;
-		item->free_me = payload->free_me;
+		item->buffer = payload->buffer;
 		item->dst = addrs->dst;
 		item->next = binding->stack;
 		binding->stack = item;
 		if (-1 == event_add(binding->write_event, NULL)) {
-			pthread_mutex_unlock(&binding->mutex);
 			return 1;
 		};
-		pthread_mutex_unlock(&binding->mutex);
 		return 0;
 	} else {
-		free(payload->free_me);
+		decrementRefcount(&payload->buffer);
 		return 0;
 	};
 };

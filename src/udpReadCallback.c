@@ -47,8 +47,6 @@ void udpReadCallback(evutil_socket_t fd, short what, void *arg) {
 			emergencyStop(binding->context);
 			return;
 		};
-		queue_item->data = &buffer[HEADERS_RESERVE];
-		queue_item->count = result;
 		queue_item->processor = &udpGenerator;
 		queue_item->mutex = NULL;
 		struct UDPParameters *params;
