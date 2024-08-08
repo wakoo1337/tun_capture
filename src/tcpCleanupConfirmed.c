@@ -29,8 +29,12 @@ void tcpCleanupConfirmed(struct TCPConnection *connection) {
 			unsigned int new_app_scheduled;
 			new_app_scheduled = connection->app_scheduled - current->data_size;
 			if (new_app_scheduled < connection->app_scheduled) connection->app_scheduled = new_app_scheduled;
-			free(current->free_me);
-			free(current);
+			current->ref_count--;
+			if (0 == current->ref_count) {
+				free(current->free_me);
+				free(current);
+			};
+			current->next = NULL;
 			current = next;
 		};
 	};

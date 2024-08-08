@@ -7,5 +7,6 @@ struct TCPAppQueueItem {
 	struct TimeoutItem *timeout;
 	void *free_me;
 	bool is_filled;
+	unsigned int ref_count;
 	struct TCPAppQueueItem *next;
 };

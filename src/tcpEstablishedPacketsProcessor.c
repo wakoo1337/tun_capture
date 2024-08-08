@@ -61,12 +61,12 @@ unsigned int tcpEstablishedPacketsProcessor(struct TCPConnection *connection, co
 		item->urgent_count = header->urg ? header->urgent_ptr : 0;
 		item->data_count = payload->count - header->data_offset - item->urgent_count;
 		item->connection = connection;
-		struct timeval now, timeout;
-		getMonotonicTimeval(&now);
-		addTimeval(&segexpire_delay, &now, &timeout);
 		item->free_me = payload->free_me;
 		pthread_mutex_unlock(&connection->mutex);
 		pthread_mutex_lock(&connection->context->timeout_mutex);
+		struct timeval now, timeout;
+		getMonotonicTimeval(&now);
+		addTimeval(&segexpire_delay, &now, &timeout);
 		item->timeout = enqueueTimeout(connection->context, &timeout, &tcpDeleteExpiredSegment, item, &connection->mutex);
 		startTimer(connection->context);
 		pthread_mutex_lock(&connection->mutex);

@@ -69,10 +69,14 @@ unsigned int processTCPData(struct CaptureContext *context, uint8_t *packet, uns
 	item->data_size = count;
 	item->confirm_ack = header.seq_num + count;
 	item->connection = connection;
-	item->free_me = &packet[-HEADERS_RESERVE];
 	item->timeout = NULL;
+	item->free_me = &packet[-HEADERS_RESERVE];
 	item->is_filled = true;
-	if (checkByteInWindow(latest_ack, app_window, item->confirm_ack - item->data_size) && checkByteInWindow(latest_ack, app_window, item->confirm_ack)) sendTCPPacket(connection, item, false);
+	item->ref_count = 1;
+	if (checkByteInWindow(latest_ack, app_window, item->confirm_ack - item->data_size) && checkByteInWindow(latest_ack, app_window, item->confirm_ack)) {
+		item->ref_count++;
+		sendTCPPacket(connection, item);
+	};
 	pthread_mutex_unlock(&connection->mutex);
 	pthread_mutex_lock(&context->timeout_mutex);
 	struct timeval now, expire;

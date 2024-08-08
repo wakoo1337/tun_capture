@@ -23,6 +23,7 @@
 #include "getChecksum.h"
 #include "set16Bit.h"
 #include "enqueueTxPacket.h"
+#include "sendPacketOnce.h"
 #include "HEADERS_RESERVE.h"
 #include "ipv4_strategy.h"
 #include "ipv6_strategy.h"
@@ -61,7 +62,7 @@ unsigned int udpGenerator(struct CaptureContext *context, uint8_t *packet, unsig
 		};
 		queue_item->data = frag_metadata->buffer;
 		queue_item->count = frag_metadata->header_size + frag_metadata->data_size;
-		queue_item->processor = NULL;
+		queue_item->processor = &sendPacketOnce;
 		queue_item->free_me = &packet[-HEADERS_RESERVE];
 		queue_item->arg = NULL;
 		free(parameters);
