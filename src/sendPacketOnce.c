@@ -16,9 +16,5 @@ unsigned int sendPacketOnce(struct CaptureContext *context, uint8_t *packet, uns
 	if (-1 == result) {
 		return (errno != EAGAIN) && (errno != EWOULDBLOCK);
 	};
-	struct PacketQueueItem *item;
-	item = (struct PacketQueueItem *) arg;
-	free(item->free_me);
-	free(item);
 	return 0;
 };
