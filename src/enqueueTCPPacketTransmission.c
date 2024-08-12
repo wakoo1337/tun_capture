@@ -14,8 +14,8 @@
 #include "enqueueTxPacket.h"
 #include "sendTCPPacketRefcounted.h"
 
-#include "sendTCPPacket.h"
-unsigned int sendTCPPacket(struct TCPConnection *connection, struct TCPAppQueueItem *app_item) {
+#include "enqueueTCPPacketTransmission.h"
+unsigned int enqueueTCPPacketTransmission(struct TCPConnection *connection, struct TCPAppQueueItem *app_item) {
 	if (app_item->is_filled) {
 		struct PacketQueueItem *queue_item;
 		queue_item = malloc(sizeof(struct PacketQueueItem));

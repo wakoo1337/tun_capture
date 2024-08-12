@@ -10,7 +10,7 @@
 #include "TCPAppQueueItem.h"
 #include "getMonotonicTimeval.h"
 #include "compareTimeval.h"
-#include "sendTCPPacket.h"
+#include "enqueueTCPPacketTransmission.h"
 #include "addTimeval.h"
 #include "enqueueTimeout.h"
 #include "checkByteInWindow.h"
@@ -24,7 +24,7 @@ void tcpRetransmissionTimerCallback(void *arg) {
 		struct timeval now, timeout;
 		if (checkByteInWindow(item->connection->latest_ack, item->connection->app_window, item->confirm_ack - item->data_size) && checkByteInWindow(item->connection->latest_ack, item->connection->app_window, item->confirm_ack)){
 			item->ref_count++;
-			sendTCPPacket(item->connection, item);
+			enqueueTCPPacketTransmission(item->connection, item);
 		};
 		if (item->timeout) { // Если таймер не был отменён
 			pthread_mutex_unlock(&item->connection->mutex);

@@ -15,7 +15,7 @@
 #include "TCPConnection.h"
 #include "TCPAppQueueItem.h"
 #include "writeTCPHeader.h"
-#include "sendTCPPacket.h"
+#include "enqueueTCPPacketTransmission.h"
 #include "getSendWindowSize.h"
 #include "computeTCPDataOffset.h"
 #include "HEADERS_RESERVE.h"
@@ -61,5 +61,5 @@ unsigned int sendTCPAcknowledgement(struct TCPConnection *connection) {
 	queue_item->is_filled = true;
 	queue_item->ref_count = 1;
 	queue_item->next = NULL;
-	return sendTCPPacket(connection, queue_item);
+	return enqueueTCPPacketTransmission(connection, queue_item);
 };
