@@ -17,15 +17,15 @@
 #include "sendTCPPacket.h"
 unsigned int sendTCPPacket(struct TCPConnection *connection, struct TCPAppQueueItem *app_item) {
 	if (app_item->is_filled) {
-		struct PacketQueueItem *packet_item;
-		packet_item = malloc(sizeof(struct PacketQueueItem));
-		if (NULL == packet_item) return 1;
-		packet_item->data = app_item->ip_packet;
-		packet_item->count = app_item->ip_size;
-		packet_item->processor = &sendTCPPacketRefcounted;
-		packet_item->mutex = NULL;
-		packet_item->free_me = app_item->free_me;
-		packet_item->arg = app_item;
-		return enqueueTxPacket(connection->context, packet_item);
+		struct PacketQueueItem *queue_item;
+		queue_item = malloc(sizeof(struct PacketQueueItem));
+		if (NULL == queue_item) return 1;
+		queue_item->data = app_item->ip_packet;
+		queue_item->count = app_item->ip_size;
+		queue_item->processor = &sendTCPPacketRefcounted;
+		queue_item->mutex = NULL;
+		queue_item->free_me = NULL;
+		queue_item->arg = app_item;
+		return enqueueTxPacket(connection->context, queue_item);
 	} else return 0;
 };

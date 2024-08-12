@@ -8,7 +8,6 @@
 #include "contrib/heap.h"
 #include "CaptureSettings.h"
 #include "CaptureContext.h"
-#include "PacketQueueItem.h"
 #include "SrcDstSockaddrs.h"
 #include "TCPConnection.h"
 #include "TCPAppQueueItem.h"

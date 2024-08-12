@@ -71,7 +71,7 @@ unsigned int tcpEstablishedPacketsProcessor(struct TCPConnection *connection, co
 		startTimer(connection->context);
 		pthread_mutex_lock(&connection->mutex);
 		pthread_mutex_unlock(&connection->context->timeout_mutex);
-	};
+	} else free(payload->free_me);
 	if (checkByteInWindow(connection->latest_ack, connection->app_scheduled + 1, header->ack_num)) { // Обновляем последний ACK и размер окна
 		connection->latest_ack = header->ack_num;
 		connection->app_window = header->raw_window << (connection->scaling_enabled ? connection->remote_scale : 0);

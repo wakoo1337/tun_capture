@@ -13,6 +13,7 @@
 unsigned int sendPacketOnce(struct CaptureContext *context, uint8_t *packet, unsigned int size, void *arg) {
 	ssize_t result;
 	result = context->settings->write_function(packet, size, context->settings->user);
+	free(((struct PacketQueueItem *) arg)->free_me);
 	if (-1 == result) {
 		return (errno != EAGAIN) && (errno != EWOULDBLOCK);
 	};

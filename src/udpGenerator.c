@@ -64,7 +64,7 @@ unsigned int udpGenerator(struct CaptureContext *context, uint8_t *packet, unsig
 		queue_item->count = frag_metadata->header_size + frag_metadata->data_size;
 		queue_item->processor = &sendPacketOnce;
 		queue_item->free_me = &packet[-HEADERS_RESERVE];
-		queue_item->arg = NULL;
+		queue_item->arg = queue_item;
 		free(parameters);
 		return enqueueTxPacket(context, queue_item);
 	} else {
