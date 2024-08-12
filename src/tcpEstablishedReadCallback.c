@@ -11,11 +11,11 @@
 #include "TCPSiteQueueItem.h"
 #include "TCPConnection.h"
 #include "PacketQueueItem.h"
-#include "dequeueSiteQueueItem.h"
-#include "tcpUpdateEventUnlocked.h"
+#include "tcpUpdateWriteEvent.h"
 #include "processTCPUrgentData.h"
 #include "processTCPData.h"
 #include "enqueueRxPacket.h"
+#include "tcpUpdateReadEvent.h"
 #include "HEADERS_RESERVE.h"
 #include "MAX_APP_QUEUE.h"
 
@@ -67,8 +67,8 @@ unsigned int tcpEstablishedReadCallback(evutil_socket_t fd, short what, void *ar
 				break; // TODO сменить состояние
 			};
 		};
+		tcpUpdateReadEvent(connection);
 	};
-	tcpUpdateEventUnlocked(connection);
 	pthread_mutex_unlock(&connection->mutex);
 	return 0;
 };

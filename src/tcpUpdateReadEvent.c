@@ -3,23 +3,12 @@
 #include <stdbool.h>
 #include <sys/socket.h>
 #include <event2/event.h>
-#include "contrib/heap.h"
-#include "CaptureContext.h"
 #include "SrcDstSockaddrs.h"
 #include "TCPConnection.h"
 #include "MAX_APP_QUEUE.h"
 
-#include "tcpUpdateEvent.h"
-unsigned int tcpUpdateEvent(struct TCPConnection *connection) {
-	if (connection->site_scheduled) {
-		if (-1 == event_add(connection->write_event, NULL)) {
-			return 1;
-		};
-	} else {
-		if (-1 == event_del(connection->write_event)) {
-			return 1;
-		};
-	};
+#include "tcpUpdateReadEvent.h"
+unsigned int tcpUpdateReadEvent(struct TCPConnection *connection) {
 	if (connection->app_scheduled < MAX_APP_QUEUE) {
 		if (-1 == event_add(connection->read_event, NULL)) {
 			return 1;

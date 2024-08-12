@@ -8,13 +8,13 @@
 #include "TCPHeaderData.h"
 #include "TCPConnection.h"
 #include "TCPState.h"
-//#include "tcpGotFINReadCallback.h"
-//#include "tcpGotFINWriteCallback.h"
-//#include "tcpGotFINPacketsProcessor.h"
+#include "tcpGotFINReadCallback.h"
+#include "tcpGotFINWriteCallback.h"
+#include "tcpGotFINPacketsProcessor.h"
 
 #include "tcpstate_gotfin.h"
 const struct TCPState tcpstate_gotfin = {
-	//.read_callback = &tcpGotFINReadCallback,
-	//.write_callback = &tcpGotFINWriteCallback,
-	//.packets_processor = &tcpGotFINPacketsProcessor
+	.read_callback = &tcpGotFINReadCallback,
+	.write_callback = &tcpGotFINWriteCallback,
+	.packets_processor = &tcpGotFINPacketsProcessor
 };

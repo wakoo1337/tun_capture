@@ -18,7 +18,8 @@
 #include "enqueueTimeout.h"
 #include "tcpDeleteExpiredSegment.h"
 #include "enqueueSiteDataFromPrequeueItem.h"
-#include "tcpUpdateEvent.h"
+#include "tcpUpdateReadEvent.h"
+#include "tcpUpdateWriteEvent.h"
 #include "cancelTimeout.h"
 #include "startTimer.h"
 #include "sendTCPAcknowledgement.h"
@@ -85,7 +86,8 @@ unsigned int tcpEstablishedPacketsProcessor(struct TCPConnection *connection, co
 		enqueueSiteDataFromPrequeueItem(connection, found_prequeue);
 	};
 	tcpCleanupConfirmed(connection);
-	tcpUpdateEvent(connection);
+	tcpUpdateReadEvent(connection);
+	tcpUpdateWriteEvent(connection);
 	if (header->fin && (header->seq_num == connection->first_desired)) {
 		connection->first_desired++;
 		connection->state = &tcpstate_gotfin;
