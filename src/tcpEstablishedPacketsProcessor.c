@@ -4,6 +4,7 @@
 #include <pthread.h>
 #include <sys/time.h>
 #include <sys/socket.h>
+#include <event2/event.h>
 #include "contrib/avl.h"
 #include "contrib/heap.h"
 #include "IPPacketPayload.h"
@@ -91,6 +92,7 @@ unsigned int tcpEstablishedPacketsProcessor(struct TCPConnection *connection, co
 	if (header->fin && (header->seq_num == connection->first_desired)) {
 		connection->first_desired++;
 		connection->state = &tcpstate_gotfin;
+		event_add(connection->write_event, NULL);
 	};
 	if (old_first != connection->first_desired) sendTCPAcknowledgement(connection);
 	return 0;

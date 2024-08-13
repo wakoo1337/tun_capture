@@ -75,7 +75,7 @@ unsigned int processTCPData(struct CaptureContext *context, uint8_t *packet, uns
 	item->ref_count = 1;
 	if (checkByteInWindow(latest_ack, app_window, item->confirm_ack - item->data_size) && checkByteInWindow(latest_ack, app_window, item->confirm_ack)) {
 		item->ref_count++;
-		enqueueTCPPacketTransmission(connection, item);
+		enqueueTCPPacketTransmission(item);
 	};
 	pthread_mutex_unlock(&connection->mutex);
 	pthread_mutex_lock(&context->timeout_mutex);

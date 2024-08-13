@@ -15,7 +15,7 @@
 #include "sendTCPPacketRefcounted.h"
 
 #include "enqueueTCPPacketTransmission.h"
-unsigned int enqueueTCPPacketTransmission(struct TCPConnection *connection, struct TCPAppQueueItem *app_item) {
+unsigned int enqueueTCPPacketTransmission(struct TCPAppQueueItem *app_item) {
 	if (app_item->is_filled) {
 		struct PacketQueueItem *queue_item;
 		queue_item = malloc(sizeof(struct PacketQueueItem));
@@ -26,6 +26,6 @@ unsigned int enqueueTCPPacketTransmission(struct TCPConnection *connection, stru
 		queue_item->mutex = NULL;
 		queue_item->free_me = NULL;
 		queue_item->arg = app_item;
-		return enqueueTxPacket(connection->context, queue_item);
+		return enqueueTxPacket(app_item->connection->context, queue_item);
 	} else return 0;
 };

@@ -1,1 +1,1 @@
-unsigned int enqueueTCPPacketTransmission(struct TCPConnection *connection, struct TCPAppQueueItem *app_item);
+unsigned int enqueueTCPPacketTransmission(struct TCPAppQueueItem *app_item);

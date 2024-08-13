@@ -8,6 +8,8 @@
 #include "TCPConnection.h"
 #include "destroyTCPConnection.h"
 #include "sendSynReply.h"
+#include "tcpFinalizeRead.h"
+#include "tcpFinalizeWrite.h"
 #include "tcpstate_synack_send.h"
 
 #include "tcpConnwaitWriteCallback.h"
@@ -17,14 +19,12 @@ unsigned int tcpConnwaitWriteCallback(evutil_socket_t fd, short what, void *arg)
 		int err;
 		socklen_t sl = sizeof(int);
 		if ((-1 == getsockopt(connection->sock, SOL_SOCKET, SO_ERROR, &err, &sl)) || err) {
-			destroyTCPConnection(connection);
+			event_free_finalize(0, connection->read_event, &tcpFinalizeRead);
+			event_free_finalize(0, connection->write_event, &tcpFinalizeWrite);
+			connection->state = NULL;
 			return 0;
 		};
 		assert(sl == sizeof(int));
-		if (-1 == event_del(connection->write_event)) {
-			pthread_mutex_unlock(&connection->mutex);
-			return 1;
-		};
 		connection->state = &tcpstate_synack_send;
 		sendSynReply(connection);
 	};

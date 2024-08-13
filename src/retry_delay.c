@@ -2,6 +2,6 @@
 
 #include "retry_delay.h"
 const struct timeval retry_delay = {
-	.tv_sec = 0,
-	.tv_usec = 300000
+	.tv_sec = 3,
+	.tv_usec = 0
 };

@@ -23,8 +23,8 @@ unsigned int sendTCPPacketRefcounted(struct CaptureContext *context, uint8_t *pa
 	item->ref_count--;
 	if (0 == item->ref_count) {
 		free(item->free_me);
+		pthread_mutex_unlock(&item->connection->mutex);
 		free(item);
-	};
-	pthread_mutex_unlock(&item->connection->mutex);
+	} else pthread_mutex_unlock(&item->connection->mutex);
 	return 0;
 };

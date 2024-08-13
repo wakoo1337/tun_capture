@@ -61,5 +61,5 @@ unsigned int sendTCPAcknowledgement(struct TCPConnection *connection) {
 	queue_item->is_filled = true;
 	queue_item->ref_count = 1;
 	queue_item->next = NULL;
-	return enqueueTCPPacketTransmission(connection, queue_item);
+	return enqueueTCPPacketTransmission(queue_item);
 };

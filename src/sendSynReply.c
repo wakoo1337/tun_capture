@@ -72,7 +72,7 @@ unsigned int sendSynReply(struct TCPConnection *connection) {
 	queue_item->next = NULL;
 	*connection->app_last = queue_item;
 	connection->app_last = &queue_item->next;
-	enqueueTCPPacketTransmission(connection, queue_item);
+	enqueueTCPPacketTransmission(queue_item);
 	pthread_mutex_unlock(&connection->mutex);
 	pthread_mutex_lock(&connection->context->timeout_mutex);
 	struct timeval now, timeout;

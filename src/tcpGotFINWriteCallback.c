@@ -15,12 +15,11 @@ unsigned int tcpGotFINWriteCallback(evutil_socket_t fd, short what, void *arg) {
 	struct TCPConnection *connection = (struct TCPConnection *) arg;
 	if (what & EV_WRITE) {
 		sendSiteQueueItems(connection);
-		tcpUpdateWriteEvent(connection);
 		if (NULL == connection->site_queue) {
 			// Все данные на сайт отправлены, а новых не будет
 			shutdown(connection->sock, SHUT_WR);
 			event_free_finalize(0, connection->write_event, &tcpFinalizeWrite);
-		};
+		} else tcpUpdateWriteEvent(connection);
 	};
 	pthread_mutex_unlock(&connection->mutex);
 	return 0;
