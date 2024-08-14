@@ -6,6 +6,6 @@
 #include "TCPConnection.h"
 
 #include "tcpGotFINOnError.h"
-void tcpGotFINOnError(struct TCPConnection *connection) {
-	return;
+unsigned int tcpGotFINOnError(struct TCPConnection *connection) {
+	return 0;
 };

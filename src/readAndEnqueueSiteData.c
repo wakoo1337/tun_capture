@@ -14,7 +14,7 @@
 #include "MAX_APP_QUEUE.h"
 
 #include "readAndEnqueueSiteData.h"
-unsigned int readAndEnqueueSiteData(struct TCPConnection *connection, void (*on_end)(struct TCPConnection *), void (*on_error)(struct TCPConnection *)) {
+unsigned int readAndEnqueueSiteData(struct TCPConnection *connection, unsigned int (*on_end)(struct TCPConnection *), unsigned int (*on_error)(struct TCPConnection *)) {
 	while (connection->app_scheduled < MAX_APP_QUEUE) {
 		pthread_mutex_unlock(&connection->mutex);
 		struct PacketQueueItem *item;

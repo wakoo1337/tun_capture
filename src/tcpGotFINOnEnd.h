@@ -1,1 +1,1 @@
-void tcpGotFINOnEnd(struct TCPConnection *connection);
+unsigned int tcpGotFINOnEnd(struct TCPConnection *connection);

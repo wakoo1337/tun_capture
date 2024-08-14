@@ -1,1 +1,1 @@
-void tcpEstablishedOnEnd(struct TCPConnection *connection);
+unsigned int tcpEstablishedOnEnd(struct TCPConnection *connection);

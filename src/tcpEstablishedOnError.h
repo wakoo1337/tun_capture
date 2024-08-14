@@ -1,1 +1,1 @@
-void tcpEstablishedOnError(struct TCPConnection *connection);
+unsigned int tcpEstablishedOnError(struct TCPConnection *connection);

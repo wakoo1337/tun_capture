@@ -6,6 +6,6 @@
 #include "TCPConnection.h"
 
 #include "tcpEstablishedOnError.h"
-void tcpEstablishedOnError(struct TCPConnection *connection) {
-	return;
+unsigned int tcpEstablishedOnError(struct TCPConnection *connection) {
+	return 0;
 };

@@ -4,8 +4,14 @@
 #include <sys/socket.h>
 #include "SrcDstSockaddrs.h"
 #include "TCPConnection.h"
+#include "sendTCPFinalize.h"
 
 #include "tcpGotFINOnEnd.h"
-void tcpGotFINOnEnd(struct TCPConnection *connection) {
-	return;
+unsigned int tcpGotFINOnEnd(struct TCPConnection *connection) {
+	shutdown(connection->sock, SHUT_RD);
+	unsigned int value;
+	connection->first_desired++;
+	value = sendTCPFinalize(connection);
+	// TODO сменить состояние
+	return value;
 };

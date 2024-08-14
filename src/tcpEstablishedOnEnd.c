@@ -6,6 +6,6 @@
 #include "TCPConnection.h"
 
 #include "tcpEstablishedOnEnd.h"
-void tcpEstablishedOnEnd(struct TCPConnection *connection) {
-	return;
+unsigned int tcpEstablishedOnEnd(struct TCPConnection *connection) {
+	return 0;
 };

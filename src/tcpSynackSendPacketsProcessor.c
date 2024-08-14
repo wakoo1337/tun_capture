@@ -12,13 +12,14 @@
 #include "tcpCleanupConfirmed.h"
 #include "tcpUpdateReadEvent.h"
 #include "tcpUpdateWriteEvent.h"
+#include "scaleRemoteWindow.h"
 #include "tcpstate_established.h"
 
 #include "tcpSynackSendPacketsProcessor.h"
 unsigned int tcpSynackSendPacketsProcessor(struct TCPConnection *connection, const struct IPPacketPayload *payload, const struct TCPHeaderData *header) {
 	if ((header->seq_num == connection->first_desired) && (header->ack_num == connection->our_seq+1) && (header->ack)) {
 		connection->latest_ack = header->ack_num;
-		connection->app_window = header->raw_window << (connection->scaling_enabled ? connection->remote_scale : 0);
+		connection->app_window = scaleRemoteWindow(connection, header->raw_window);
 		tcpCleanupConfirmed(connection);
 		connection->our_seq++;
 		connection->state = &tcpstate_established;

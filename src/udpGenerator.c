@@ -24,14 +24,13 @@
 #include "set16Bit.h"
 #include "enqueueTxPacket.h"
 #include "sendPacketOnce.h"
+#include "addressFamilyToNetworkStrategy.h"
 #include "HEADERS_RESERVE.h"
-#include "ipv4_strategy.h"
-#include "ipv6_strategy.h"
 
 #include "udpGenerator.h"
 unsigned int udpGenerator(struct CaptureContext *context, uint8_t *packet, unsigned int size, void *arg) {
 	struct UDPParameters *parameters = (struct UDPParameters *) arg;
-	const struct NetworkProtocolStrategy *strategy = (parameters->from.sa_family == AF_INET) ? &ipv4_strategy : ((parameters->from.sa_family == AF_INET6) ? &ipv6_strategy : NULL);
+	const struct NetworkProtocolStrategy *strategy = addressFamilyToNetworkStrategy(parameters->from.sa_family);
 	if (NULL == strategy) return 1;
 	const unsigned int fragment_count = strategy->compute_fragcount(size, context->settings->mtu);
 	struct IPFragmentMetadata frag_metadata[fragment_count];

@@ -25,6 +25,8 @@
 #include "startTimer.h"
 #include "sendTCPAcknowledgement.h"
 #include "tcpCleanupConfirmed.h"
+#include "isNewAckAcceptable.h"
+#include "scaleRemoteWindow.h"
 #include "segexpire_delay.h"
 #include "tcpstate_gotfin.h"
 #include "MAX_SITE_QUEUE.h"
@@ -74,9 +76,9 @@ unsigned int tcpEstablishedPacketsProcessor(struct TCPConnection *connection, co
 		pthread_mutex_lock(&connection->mutex);
 		pthread_mutex_unlock(&connection->context->timeout_mutex);
 	} else free(payload->free_me);
-	if (checkByteInWindow(connection->latest_ack, connection->app_scheduled + 1, header->ack_num)) { // Обновляем последний ACK и размер окна
+	if (isNewAckAcceptable(connection, header->ack_num)) { // Обновляем последний ACK и размер окна
 		connection->latest_ack = header->ack_num;
-		connection->app_window = header->raw_window << (connection->scaling_enabled ? connection->remote_scale : 0);
+		connection->app_window = scaleRemoteWindow(connection, header->raw_window);
 	};
 	struct TCPSitePrequeueItem *found_prequeue;
 	while ((found_prequeue = avl_find(connection->site_prequeue, &connection->first_desired))) {
