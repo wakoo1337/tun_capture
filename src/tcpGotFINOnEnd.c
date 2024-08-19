@@ -2,16 +2,18 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <sys/socket.h>
+#include <event2/event.h>
 #include "SrcDstSockaddrs.h"
 #include "TCPConnection.h"
 #include "sendTCPFinalize.h"
+#include "tcpstate_lastackwait.h"
 
 #include "tcpGotFINOnEnd.h"
 unsigned int tcpGotFINOnEnd(struct TCPConnection *connection) {
-	shutdown(connection->sock, SHUT_RD);
+	event_del(connection->read_event);
 	unsigned int value;
-	connection->first_desired++;
 	value = sendTCPFinalize(connection);
-	// TODO сменить состояние
+	connection->first_desired++;
+	connection->state = &tcpstate_lastackwait;
 	return value;
 };

@@ -19,12 +19,8 @@
 #include "writeTCPHeader.h"
 #include "checkByteInWindow.h"
 #include "enqueueTCPPacketTransmission.h"
-#include "tcpRetransmissionTimerCallback.h"
-#include "getMonotonicTimeval.h"
-#include "addTimeval.h"
-#include "enqueueTimeout.h"
-#include "startTimer.h"
-#include "retry_delay.h"
+#include "enqueueTCPRetransmission.h"
+#include "isAppQueueItemInWindow.h"
 #include "HEADERS_RESERVE.h"
 
 #include "processTCPData.h"
@@ -73,26 +69,15 @@ unsigned int processTCPData(struct CaptureContext *context, uint8_t *packet, uns
 	item->free_me = &packet[-HEADERS_RESERVE];
 	item->is_filled = true;
 	item->ref_count = 1;
-	if (checkByteInWindow(latest_ack, app_window, item->confirm_ack - item->data_size) && checkByteInWindow(latest_ack, app_window, item->confirm_ack)) {
+	if (isAppQueueItemInWindow(latest_ack, app_window, item)) {
 		item->ref_count++;
 		enqueueTCPPacketTransmission(item);
+		if (enqueueTCPRetransmission(item)) {
+			*old_last = item->next;
+			free(item->free_me);
+			free(item);
+			return 1;
+		};
 	};
-	pthread_mutex_unlock(&connection->mutex);
-	pthread_mutex_lock(&context->timeout_mutex);
-	struct timeval now, expire;
-	getMonotonicTimeval(&now);
-	addTimeval(&now, &retry_delay, &expire);
-	item->timeout = enqueueTimeout(context, &expire, &tcpRetransmissionTimerCallback, item, &connection->mutex);
-	if (NULL == item->timeout) {
-		pthread_mutex_lock(&connection->mutex);
-		pthread_mutex_unlock(&context->timeout_mutex);
-		*old_last = item->next;
-		free(item->free_me);
-		free(item);
-		return 1;
-	};
-	startTimer(context);
-	pthread_mutex_lock(&connection->mutex);
-	pthread_mutex_unlock(&context->timeout_mutex);
 	return 0;
 };

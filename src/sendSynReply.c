@@ -16,14 +16,9 @@
 #include "TCPConnection.h"
 #include "getSendWindowSize.h"
 #include "writeTCPHeader.h"
-#include "startTimer.h"
-#include "enqueueTimeout.h"
-#include "tcpRetransmissionTimerCallback.h"
 #include "enqueueTCPPacketTransmission.h"
-#include "getMonotonicTimeval.h"
-#include "addTimeval.h"
 #include "computeTCPDataOffset.h"
-#include "retry_delay.h"
+#include "enqueueTCPRetransmission.h"
 #include "HEADERS_RESERVE.h"
 
 #include "sendSynReply.h"
@@ -66,6 +61,7 @@ unsigned int sendSynReply(struct TCPConnection *connection) {
 	queue_item->data_size = 0;
 	queue_item->confirm_ack = connection->our_seq + 1;
 	queue_item->connection = connection;
+	queue_item->timeout = NULL;
 	queue_item->free_me = packet;
 	queue_item->is_filled = true;
 	queue_item->ref_count = 2;
@@ -73,14 +69,5 @@ unsigned int sendSynReply(struct TCPConnection *connection) {
 	*connection->app_last = queue_item;
 	connection->app_last = &queue_item->next;
 	enqueueTCPPacketTransmission(queue_item);
-	pthread_mutex_unlock(&connection->mutex);
-	pthread_mutex_lock(&connection->context->timeout_mutex);
-	struct timeval now, timeout;
-	getMonotonicTimeval(&now);
-	addTimeval(&now, &retry_delay, &timeout);
-	queue_item->timeout = enqueueTimeout(connection->context, &timeout, &tcpRetransmissionTimerCallback, queue_item, &connection->mutex);
-	startTimer(connection->context);
-	pthread_mutex_lock(&connection->mutex);
-	pthread_mutex_unlock(&connection->context->timeout_mutex);
-	return 0;
+	return enqueueTCPRetransmission(queue_item);
 };

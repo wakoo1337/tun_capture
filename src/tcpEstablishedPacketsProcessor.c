@@ -13,6 +13,7 @@
 #include "TCPHeaderData.h"
 #include "TCPSitePrequeueItem.h"
 #include "CaptureContext.h"
+#include "TCPAppQueueItem.h"
 #include "getMonotonicTimeval.h"
 #include "addTimeval.h"
 #include "checkByteInWindow.h"
@@ -27,6 +28,9 @@
 #include "tcpCleanupConfirmed.h"
 #include "isNewAckAcceptable.h"
 #include "scaleRemoteWindow.h"
+#include "isAppQueueItemInWindow.h"
+#include "enqueueTCPPacketTransmission.h"
+#include "enqueueTCPRetransmission.h"
 #include "segexpire_delay.h"
 #include "tcpstate_gotfin.h"
 #include "MAX_SITE_QUEUE.h"
@@ -68,12 +72,12 @@ unsigned int tcpEstablishedPacketsProcessor(struct TCPConnection *connection, co
 		item->free_me = payload->free_me;
 		pthread_mutex_unlock(&connection->mutex);
 		pthread_mutex_lock(&connection->context->timeout_mutex);
+		pthread_mutex_lock(&connection->mutex);
 		struct timeval now, timeout;
 		getMonotonicTimeval(&now);
 		addTimeval(&segexpire_delay, &now, &timeout);
 		item->timeout = enqueueTimeout(connection->context, &timeout, &tcpDeleteExpiredSegment, item, &connection->mutex);
 		startTimer(connection->context);
-		pthread_mutex_lock(&connection->mutex);
 		pthread_mutex_unlock(&connection->context->timeout_mutex);
 	} else free(payload->free_me);
 	if (isNewAckAcceptable(connection, header->ack_num)) { // Обновляем последний ACK и размер окна
@@ -82,13 +86,21 @@ unsigned int tcpEstablishedPacketsProcessor(struct TCPConnection *connection, co
 	};
 	struct TCPSitePrequeueItem *found_prequeue;
 	while ((found_prequeue = avl_find(connection->site_prequeue, &connection->first_desired))) {
-		pthread_mutex_unlock(&connection->mutex);
-		cancelTimeout(connection->context, &found_prequeue->timeout);
-		pthread_mutex_lock(&connection->mutex);
+		cancelTimeout(connection->context, &connection->mutex, &found_prequeue->timeout);
 		connection->first_desired += found_prequeue->urgent_count + found_prequeue->data_count;
 		enqueueSiteDataFromPrequeueItem(connection, found_prequeue);
 	};
 	tcpCleanupConfirmed(connection);
+	struct TCPAppQueueItem *appqueue_current;
+	appqueue_current = connection->app_queue;
+	while (appqueue_current && appqueue_current->is_filled) {
+		if ((appqueue_current->timeout == NULL) && isAppQueueItemInWindow(connection->latest_ack, connection->app_window, appqueue_current)) {
+			appqueue_current->ref_count++;
+			enqueueTCPPacketTransmission(appqueue_current);
+			enqueueTCPRetransmission(appqueue_current);
+		};
+		appqueue_current = appqueue_current->next;
+	};
 	tcpUpdateReadEvent(connection);
 	tcpUpdateWriteEvent(connection);
 	if (header->fin && (header->seq_num == connection->first_desired)) {

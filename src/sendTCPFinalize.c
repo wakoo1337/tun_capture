@@ -17,6 +17,7 @@
 #include "enqueueTCPPacketTransmission.h"
 #include "getSendWindowSize.h"
 #include "computeTCPDataOffset.h"
+#include "enqueueTCPRetransmission.h"
 #include "HEADERS_RESERVE.h"
 
 #include "sendTCPFinalize.h"
@@ -56,9 +57,12 @@ unsigned int sendTCPFinalize(struct TCPConnection *connection) {
 	queue_item->data_size = 0;
 	queue_item->confirm_ack = connection->first_desired;
 	queue_item->connection = connection;
+	queue_item->timeout = NULL;
 	queue_item->free_me = packet;
 	queue_item->is_filled = true;
-	queue_item->ref_count = 1;
+	queue_item->ref_count = 2;
 	queue_item->next = NULL;
-	return enqueueTCPPacketTransmission(queue_item);
+	enqueueTCPPacketTransmission(queue_item);
+	enqueueTCPRetransmission(queue_item);
+	return 0;
 };

@@ -7,8 +7,10 @@
 #include "TimeoutItem.h"
 
 #include "cancelTimeout.h"
-void cancelTimeout(struct CaptureContext *context, struct TimeoutItem **item) {
+void cancelTimeout(struct CaptureContext *context, pthread_mutex_t *mutex, struct TimeoutItem **item) {
+	pthread_mutex_unlock(mutex);
 	pthread_mutex_lock(&context->timeout_mutex);
+	pthread_mutex_lock(mutex);
 	if (NULL != (*item)) {
 		(*item)->is_del = true;
 		*item = NULL;

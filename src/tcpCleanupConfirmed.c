@@ -23,12 +23,11 @@ void tcpCleanupConfirmed(struct TCPConnection *connection) {
 		if (NULL == connection->app_queue) connection->app_last = &connection->app_queue;
 		while (current) {
 			struct TCPAppQueueItem *next = current->next;
-			pthread_mutex_unlock(&connection->mutex);
-			cancelTimeout(connection->context, &current->timeout);
-			pthread_mutex_lock(&connection->mutex);
+			cancelTimeout(connection->context, &connection->mutex, &current->timeout);
 			unsigned int new_app_scheduled;
 			new_app_scheduled = connection->app_scheduled - current->data_size;
 			if (new_app_scheduled < connection->app_scheduled) connection->app_scheduled = new_app_scheduled;
+			else connection->app_scheduled = 0;
 			current->ref_count--;
 			current->next = NULL;
 			if (0 == current->ref_count) {
