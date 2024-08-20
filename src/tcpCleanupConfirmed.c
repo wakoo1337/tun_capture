@@ -26,8 +26,7 @@ void tcpCleanupConfirmed(struct TCPConnection *connection) {
 			cancelTimeout(connection->context, &connection->mutex, &current->timeout);
 			unsigned int new_app_scheduled;
 			new_app_scheduled = connection->app_scheduled - current->data_size;
-			if (new_app_scheduled < connection->app_scheduled) connection->app_scheduled = new_app_scheduled;
-			else connection->app_scheduled = 0;
+			connection->app_scheduled = (new_app_scheduled <= connection->app_scheduled) ? new_app_scheduled : 0;
 			current->ref_count--;
 			current->next = NULL;
 			if (0 == current->ref_count) {

@@ -1,4 +1,5 @@
 #include <pthread.h>
+#include <assert.h>
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
@@ -11,6 +12,7 @@
 #include "SrcDstSockaddrs.h"
 #include "TCPConnection.h"
 #include "TCPAppQueueItem.h"
+#include "cancelTimeout.h"
 
 #include "sendTCPPacketRefcounted.h"
 unsigned int sendTCPPacketRefcounted(struct CaptureContext *context, uint8_t *packet, unsigned int size, void *arg) {
@@ -22,6 +24,8 @@ unsigned int sendTCPPacketRefcounted(struct CaptureContext *context, uint8_t *pa
 	pthread_mutex_lock(&item->connection->mutex);
 	item->ref_count--;
 	if (0 == item->ref_count) {
+		assert(context == item->connection->context);
+		cancelTimeout(context, &item->connection->mutex, &item->timeout);
 		free(item->free_me);
 		pthread_mutex_unlock(&item->connection->mutex);
 		free(item);

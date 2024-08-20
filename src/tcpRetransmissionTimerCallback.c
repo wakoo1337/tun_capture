@@ -17,6 +17,6 @@ void tcpRetransmissionTimerCallback(void *arg) {
 	if (item->is_filled && isAppQueueItemInWindow(item->connection->latest_ack, item->connection->app_window, item)) {
 		item->ref_count++;
 		enqueueTCPPacketTransmission(item);
-		enqueueTCPRetransmission(item);
+		if (item->timeout) enqueueTCPRetransmission(item);
 	};
 };

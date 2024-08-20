@@ -193,7 +193,7 @@ bin/tcpstate_gotfin.o: src/tcpstate_gotfin.c src/tcpstate_gotfin.h src/IPPacketP
 	$(CC) $(CFLAGS) $(LIBEVENT_CFLAGS) -c -o bin/tcpstate_gotfin.o src/tcpstate_gotfin.c
 bin/sendPacketOnce.o: src/sendPacketOnce.c src/sendPacketOnce.h src/contrib/heap.h src/CaptureSettings.h src/CaptureContext.h src/PacketQueueItem.h
 	$(CC) $(CFLAGS) -c -o bin/sendPacketOnce.o src/sendPacketOnce.c
-bin/sendTCPPacketRefcounted.o: src/sendTCPPacketRefcounted.c src/sendTCPPacketRefcounted.h src/contrib/heap.h src/CaptureSettings.h src/CaptureContext.h src/SrcDstSockaddrs.h src/TCPConnection.h src/TCPAppQueueItem.h
+bin/sendTCPPacketRefcounted.o: src/sendTCPPacketRefcounted.c src/sendTCPPacketRefcounted.h src/contrib/heap.h src/CaptureSettings.h src/CaptureContext.h src/SrcDstSockaddrs.h src/TCPConnection.h src/TCPAppQueueItem.h src/cancelTimeout.h
 	$(CC) $(CFLAGS) -c -o bin/sendTCPPacketRefcounted.o src/sendTCPPacketRefcounted.c
 bin/tcpGotFINReadCallback.o: src/tcpGotFINReadCallback.c src/tcpGotFINReadCallback.h src/SrcDstSockaddrs.h src/TCPConnection.h src/readAndEnqueueSiteData.h src/tcpGotFINOnEnd.h src/tcpGotFINOnError.h
 	$(CC) $(CFLAGS) $(LIBEVENT_CFLAGS) -c -o bin/tcpGotFINReadCallback.o src/tcpGotFINReadCallback.c
@@ -229,7 +229,7 @@ bin/tcpLastACKWaitPacketsProcessor.o: src/tcpLastACKWaitPacketsProcessor.c src/t
 	$(CC) $(CFLAGS) -c -o bin/tcpLastACKWaitPacketsProcessor.o src/tcpLastACKWaitPacketsProcessor.c
 bin/tcpstate_lastackwait.o: src/tcpstate_lastackwait.c src/tcpstate_lastackwait.h src/IPPacketPayload.h src/SrcDstSockaddrs.h src/TCPHeaderData.h src/TCPConnection.h src/TCPState.h src/tcpLastACKWaitReadCallback.h src/tcpLastACKWaitWriteCallback.h src/tcpLastACKWaitPacketsProcessor.h
 	$(CC) $(CFLAGS) -c -o bin/tcpstate_lastackwait.o src/tcpstate_lastackwait.c
-bin/enqueueTCPRetransmission.o: src/enqueueTCPRetransmission.c src/enqueueTCPRetransmission.h src/contrib/heap.h src/CaptureContext.h src/SrcDstSockaddrs.h src/TCPConnection.h src/TCPAppQueueItem.h src/getMonotonicTimeval.h src/addTimeval.h src/enqueueTimeout.h src/tcpRetransmissionTimerCallback.h src/startTimer.h src/retry_delay.h
+bin/enqueueTCPRetransmission.o: src/enqueueTCPRetransmission.c src/enqueueTCPRetransmission.h src/contrib/heap.h src/CaptureContext.h src/SrcDstSockaddrs.h src/TCPConnection.h src/TCPAppQueueItem.h src/TimeoutItem.h src/getMonotonicTimeval.h src/addTimeval.h src/enqueueTimeout.h src/tcpRetransmissionTimerCallback.h src/startTimer.h src/retry_delay.h
 	$(CC) $(CFLAGS) -c -o bin/enqueueTCPRetransmission.o src/enqueueTCPRetransmission.c
 bin/isAppQueueItemInWindow.o: src/isAppQueueItemInWindow.c src/isAppQueueItemInWindow.h src/TCPAppQueueItem.h src/checkByteInWindow.h
 	$(CC) $(CFLAGS) -c -o bin/isAppQueueItemInWindow.o src/isAppQueueItemInWindow.c
