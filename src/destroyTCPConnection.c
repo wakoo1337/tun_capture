@@ -13,6 +13,7 @@
 #include "TCPAppQueueItem.h"
 #include "TCPSiteQueueItem.h"
 #include "tcpDestroySitePrequeueItem.h"
+#include "cancelTimeoutUnlocked.h"
 
 #include "destroyTCPConnection.h"
 void destroyTCPConnection(struct TCPConnection *connection) {
@@ -29,8 +30,12 @@ void destroyTCPConnection(struct TCPConnection *connection) {
 	while (connection->app_queue) {
 		struct TCPAppQueueItem *next;
 		next = connection->app_queue->next;
-		free(connection->app_queue->free_me);
-		free(connection->app_queue);
+		connection->app_queue->ref_count--;
+		cancelTimeoutUnlocked(&connection->app_queue->timeout);
+		if (0 == connection->app_queue->ref_count) {
+			free(connection->app_queue->free_me);
+			free(connection->app_queue);
+		};
 		connection->app_queue = next;
 	};
 	while (connection->site_queue) {
