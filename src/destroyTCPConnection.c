@@ -10,6 +10,8 @@
 #include "SrcDstSockaddrs.h"
 #include "CaptureContext.h"
 #include "TCPConnection.h"
+#include "TCPAppQueueItem.h"
+#include "TCPSiteQueueItem.h"
 #include "tcpDestroySitePrequeueItem.h"
 
 #include "destroyTCPConnection.h"
@@ -22,9 +24,26 @@ void destroyTCPConnection(struct TCPConnection *connection) {
 	pthread_mutex_lock(&connection->mutex);
 	pthread_mutex_unlock(&connection->context->tcp_mutex);
 	pthread_mutex_unlock(&connection->mutex);
-	pthread_mutex_destroy(&connection->mutex);
-	close(connection->sock);
-	// TODO освободить очереди
+	pthread_mutex_lock(&connection->context->timeout_mutex);
+	pthread_mutex_lock(&connection->mutex);
+	while (connection->app_queue) {
+		struct TCPAppQueueItem *next;
+		next = connection->app_queue->next;
+		free(connection->app_queue->free_me);
+		free(connection->app_queue);
+		connection->app_queue = next;
+	};
+	while (connection->site_queue) {
+		struct TCPSiteQueueItem *next;
+		next = connection->site_queue->next;
+		free(connection->site_queue->free_me);
+		free(connection->site_queue);
+		connection->site_queue = next;
+	};
 	avl_destroy(connection->site_prequeue, &tcpDestroySitePrequeueItem);
+	pthread_mutex_unlock(&connection->mutex);
+	pthread_mutex_destroy(&connection->mutex);
+	pthread_mutex_unlock(&connection->context->timeout_mutex);
+	close(connection->sock);
 	free(connection);
 }; 

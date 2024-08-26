@@ -96,10 +96,10 @@ unsigned int processTCPPacket(struct CaptureContext *context, const struct IPPac
 		connection->context = context;
 		connection->read_event = event_new(context->event_base, connection->sock, EV_READ | EV_PERSIST | EV_FINALIZE, &tcpReadCallback, connection);
 		if (NULL == connection->read_event) {
-			avl_destroy(connection->site_prequeue, &tcpDestroySitePrequeueItem);
 			pthread_mutex_unlock(&context->tcp_mutex);
 			pthread_mutex_unlock(&connection->mutex);
 			pthread_mutex_destroy(&connection->mutex);
+			avl_destroy(connection->site_prequeue, &tcpDestroySitePrequeueItem);
 			close(connection->sock);
 			free(connection);
 			free(payload->free_me);
