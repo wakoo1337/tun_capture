@@ -14,21 +14,23 @@
 #include "tcpCleanupConfirmed.h"
 void tcpCleanupConfirmed(struct TCPConnection *connection) {
 	struct TCPAppQueueItem *found = connection->app_queue;
-	while (found && found->is_filled && (found->confirm_ack != connection->latest_ack)) found = found->next;
+	while (found && found->is_filled && (found->confirm_ack != connection->latest_ack)) {
+		found = found->next;
+	};
 	if (found && found->is_filled) {
-		struct TCPAppQueueItem *old_next = found->next;
-		struct TCPAppQueueItem *current = connection->app_queue;
-		found->next = NULL;
-		connection->app_queue = old_next;
-		if (NULL == connection->app_queue) connection->app_last = &connection->app_queue;
+		struct TCPAppQueueItem *old_begin = connection->app_queue; // Запоминаем старое начало
+		connection->app_queue = found->next; // Делаем следующий элемент началом очереди
+		if (NULL == connection->app_queue) connection->app_last = &connection->app_queue; // Если нужно, исправляем указатель на место вставки
+		found->next = NULL; // Обнуляем указатель на элемент, следующий за удаляемым, чтобы вовремя остановиться
+		struct TCPAppQueueItem *current = old_begin;
 		while (current) {
 			struct TCPAppQueueItem *next = current->next;
-			cancelTimeout(connection->context, &connection->mutex, &current->timeout);
+			current->next = NULL;
 			unsigned int new_app_scheduled;
 			new_app_scheduled = connection->app_scheduled - current->data_size;
 			connection->app_scheduled = (new_app_scheduled <= connection->app_scheduled) ? new_app_scheduled : 0;
+			cancelTimeout(connection->context, &connection->mutex, &current->timeout);
 			current->ref_count--;
-			current->next = NULL;
 			if (0 == current->ref_count) {
 				free(current->free_me);
 				free(current);
@@ -36,5 +38,4 @@ void tcpCleanupConfirmed(struct TCPConnection *connection) {
 			current = next;
 		};
 	};
-	if (NULL == connection->app_queue) connection->app_last = &connection->app_queue;
 };

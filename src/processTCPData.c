@@ -34,13 +34,14 @@ unsigned int processTCPData(struct CaptureContext *context, uint8_t *packet, uns
 	item->is_filled = false;
 	item->next = NULL;
 	old_last = connection->app_last;
-	*(connection->app_last) = item;
+	*connection->app_last = item;
 	connection->app_last = &item->next;
 	struct TCPHeaderData header;
 	header.src_port = connection->strategy->port_getter(&connection->addrs.dst);
 	header.dst_port = connection->strategy->port_getter(&connection->addrs.src);
 	header.seq_num = connection->our_seq;
 	connection->our_seq += count;
+	assert(connection->our_seq != header.seq_num);
 	header.ack_num = connection->first_desired;
 	header.urg = header.psh = header.rst = header.syn = header.fin = false;
 	header.ack = true;

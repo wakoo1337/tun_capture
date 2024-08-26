@@ -20,15 +20,20 @@ unsigned int sendTCPPacketRefcounted(struct CaptureContext *context, uint8_t *pa
 	item = (struct TCPAppQueueItem *) arg;
 	ssize_t result;
 	result = context->settings->write_function(packet, size, context->settings->user);
-	if (-1 == result) return (errno != EAGAIN) && (errno != EWOULDBLOCK);
 	pthread_mutex_lock(&item->connection->mutex);
+	if (-1 == result) {
+		item->ref_count--;
+		pthread_mutex_unlock(&item->connection->mutex);
+		return (errno != EAGAIN) && (errno != EWOULDBLOCK);
+	};
 	item->ref_count--;
 	if (0 == item->ref_count) {
 		assert(context == item->connection->context);
 		cancelTimeout(context, &item->connection->mutex, &item->timeout);
+		pthread_mutex_t *mutex = &item->connection->mutex;
 		free(item->free_me);
-		pthread_mutex_unlock(&item->connection->mutex);
 		free(item);
+		pthread_mutex_unlock(mutex);
 	} else pthread_mutex_unlock(&item->connection->mutex);
 	return 0;
 };

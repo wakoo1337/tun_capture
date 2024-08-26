@@ -62,7 +62,8 @@ unsigned int sendTCPFinalize(struct TCPConnection *connection) {
 	queue_item->is_filled = true;
 	queue_item->ref_count = 2;
 	queue_item->next = NULL;
+	*connection->app_last = queue_item;
+	connection->app_last = &queue_item->next;
 	enqueueTCPPacketTransmission(queue_item);
-	enqueueTCPRetransmission(queue_item);
-	return 0;
+	return enqueueTCPRetransmission(queue_item);
 };

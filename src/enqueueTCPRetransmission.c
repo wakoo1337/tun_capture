@@ -21,7 +21,7 @@ unsigned int enqueueTCPRetransmission(struct TCPAppQueueItem *item) {
 	pthread_mutex_unlock(&item->connection->mutex);
 	pthread_mutex_lock(&item->connection->context->timeout_mutex);
 	pthread_mutex_lock(&item->connection->mutex);
-	if (item->timeout) { // cancelTimeout тут не подойдёт: удаление старого таймаута и установка нового должны происходить атомарно
+	if (item->timeout) { // cancelTimeout() тут не подойдёт: удаление старого таймаута и установка нового должны происходить атомарно
 		item->timeout->is_del = true;
 		item->timeout = NULL;
 	};
