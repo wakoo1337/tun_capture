@@ -38,6 +38,8 @@ void destroyTCPConnection(struct TCPConnection *connection) {
 		};
 		connection->app_queue = next;
 	};
+	avl_destroy(connection->site_prequeue, &tcpDestroySitePrequeueItem);
+	pthread_mutex_unlock(&connection->context->timeout_mutex);
 	while (connection->site_queue) {
 		struct TCPSiteQueueItem *next;
 		next = connection->site_queue->next;
@@ -45,10 +47,8 @@ void destroyTCPConnection(struct TCPConnection *connection) {
 		free(connection->site_queue);
 		connection->site_queue = next;
 	};
-	avl_destroy(connection->site_prequeue, &tcpDestroySitePrequeueItem);
 	pthread_mutex_unlock(&connection->mutex);
 	pthread_mutex_destroy(&connection->mutex);
-	pthread_mutex_unlock(&connection->context->timeout_mutex);
 	close(connection->sock);
 	free(connection);
 }; 
