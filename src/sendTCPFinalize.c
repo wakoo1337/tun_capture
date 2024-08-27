@@ -55,7 +55,7 @@ unsigned int sendTCPFinalize(struct TCPConnection *connection) {
 	queue_item->ip_packet = &packet[HEADERS_RESERVE - header.data_offset - metadata.header_size];
 	queue_item->ip_size = header.data_offset + metadata.header_size;
 	queue_item->data_size = 0;
-	queue_item->confirm_ack = connection->first_desired;
+	queue_item->confirm_ack = header.seq_num + 1;
 	queue_item->connection = connection;
 	queue_item->timeout = NULL;
 	queue_item->free_me = packet;
