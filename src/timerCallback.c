@@ -16,11 +16,11 @@ void timerCallback(evutil_socket_t socket, short what, void *arg) {
 	struct CaptureContext *context = (struct CaptureContext *) arg;
 	if (what & EV_TIMEOUT) {
 		pthread_mutex_lock(&context->timeout_mutex);
-		struct timeval tv;
+		struct timeval now;
 		struct TimeoutItem *item;
 		while ((item = heap_peek(context->timeout_queue)),
-			getMonotonicTimeval(&tv),
-			((item != NULL) && (item->is_del || (compareTimeval(&item->expiration, &tv) <= 0)))) {
+			getMonotonicTimeval(&now),
+			((item != NULL) && (item->is_del || (compareTimeval(&item->expiration, &now) <= 0)))) {
 			item = heap_poll(context->timeout_queue);
 			if (!item->is_del) {	
 				pthread_mutex_lock(item->mutex);

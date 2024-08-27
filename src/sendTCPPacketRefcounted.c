@@ -21,11 +21,6 @@ unsigned int sendTCPPacketRefcounted(struct CaptureContext *context, uint8_t *pa
 	ssize_t result;
 	result = context->settings->write_function(packet, size, context->settings->user);
 	pthread_mutex_lock(&item->connection->mutex);
-	if (-1 == result) {
-		item->ref_count--;
-		pthread_mutex_unlock(&item->connection->mutex);
-		return (errno != EAGAIN) && (errno != EWOULDBLOCK);
-	};
 	item->ref_count--;
 	if (0 == item->ref_count) {
 		assert(context == item->connection->context);
@@ -35,5 +30,6 @@ unsigned int sendTCPPacketRefcounted(struct CaptureContext *context, uint8_t *pa
 		free(item);
 		pthread_mutex_unlock(mutex);
 	} else pthread_mutex_unlock(&item->connection->mutex);
-	return 0;
+	if (result != -1) return 0;
+	else return ((errno == EAGAIN) || (errno == EWOULDBLOCK)) ? 0 : 1;
 };
