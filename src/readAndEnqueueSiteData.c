@@ -38,6 +38,7 @@ unsigned int readAndEnqueueSiteData(struct TCPConnection *connection, unsigned i
 			if ((errno == EAGAIN) || (errno == EWOULDBLOCK)) {
 				free(buffer);
 				free(item);
+				pthread_mutex_lock(&connection->mutex);
 				return tcpUpdateReadEvent(connection);
 			} else if (errno == EINTR) goto data_rx_retry;
 			else {
