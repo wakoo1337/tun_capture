@@ -41,7 +41,7 @@ bin/getChecksum.o: src/getChecksum.c src/getChecksum.h src/ChecksumContext.h
 	$(CC) $(CFLAGS) -c -o bin/getChecksum.o src/getChecksum.c
 bin/processIPv4Packet.o: src/processIPv4Packet.c src/processIPv4Packet.h src/contrib/heap.h src/CaptureContext.h src/IPv4HeaderData.h src/IPPacketPayload.h src/SrcDstSockaddrs.h src/IPFragmentMetadata.h src/NetworkProtocolStrategy.h src/parseIPv4Header.h src/processUDPPacket.h src/setIPv4SockaddrPort.h src/ipv4_strategy.h src/processTCPPacket.h
 	$(CC) $(CFLAGS) -c -o bin/processIPv4Packet.o src/processIPv4Packet.c
-bin/parseIPv4Header.o: src/parseIPv4Header.c src/parseIPv4Header.h src/IPv4HeaderData.h src/ChecksumContext.h src/initChecksum.h src/computeChecksum.h src/getChecksum.h src/get16Bit.h src/get32Bit.h
+bin/parseIPv4Header.o: src/parseIPv4Header.c src/parseIPv4Header.h src/IPv4HeaderData.h src/ChecksumContext.h src/initChecksum.h src/computeChecksum.h src/getChecksum.h src/get16Bit.h src/get32Bit.h src/set16Bit.h
 	$(CC) $(CFLAGS) -c -o bin/parseIPv4Header.o src/parseIPv4Header.c
 bin/get16Bit.o: src/get16Bit.c src/get16Bit.h
 	$(CC) $(CFLAGS) -c -o bin/get16Bit.o src/get16Bit.c

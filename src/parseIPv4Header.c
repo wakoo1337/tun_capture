@@ -9,6 +9,7 @@
 #include "getChecksum.h"
 #include "get16Bit.h"
 #include "get32Bit.h"
+#include "set16Bit.h"
 
 #include "parseIPv4Header.h"
 unsigned int parseIPv4Header(struct IPv4HeaderData *hdr, uint8_t *packet, unsigned int length, uint8_t pseudo[12]) {
@@ -35,7 +36,6 @@ unsigned int parseIPv4Header(struct IPv4HeaderData *hdr, uint8_t *packet, unsign
 	memcpy(&pseudo[0], &packet[12], 4);
 	memcpy(&pseudo[4], &packet[16], 4);
 	pseudo[9] = hdr->protocol;
-	uint16_t proto_len = htons(hdr->total_length - hdr->len);
-	memcpy(&pseudo[10], &proto_len, 2);
+	set16Bit(&pseudo[10], htons(hdr->total_length - hdr->len));
 	return 0;
 };

@@ -33,7 +33,7 @@ void writeIPv4Headers(struct CaptureContext *context, struct IPFragmentMetadata 
 		struct ChecksumContext sum_context;
 		initChecksum(&sum_context);
 		computeChecksum(&sum_context, &metadata->buffer[0], 20);
-		((uint16_t *) metadata->buffer)[5] = getChecksum(&sum_context);
+		set16Bit(&metadata->buffer[10], getChecksum(&sum_context));
 	};
 	context->ipv4_id++;
 };
