@@ -5,4 +5,5 @@ struct TCPSitePrequeueItem {
 	struct TCPConnection *connection;
 	struct TimeoutItem *timeout;
 	void *free_me;
+	bool fin;
 };

@@ -26,7 +26,6 @@ unsigned int enqueueSiteDataFromPrequeueItem(struct TCPConnection *connection, s
 	void *deleted;
 	deleted = avl_delete(connection->site_prequeue, pq_item);
 	assert((NULL == deleted) || (deleted == ((void *) pq_item)));
-	free(pq_item);
 	connection->site_scheduled += q_item->urgent_count + q_item->data_count;
 	return 0;
 };

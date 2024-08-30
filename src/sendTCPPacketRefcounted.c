@@ -12,24 +12,25 @@
 #include "SrcDstSockaddrs.h"
 #include "TCPConnection.h"
 #include "TCPAppQueueItem.h"
-#include "cancelTimeout.h"
+#include "cancelTimeoutUnlocked.h"
 
 #include "sendTCPPacketRefcounted.h"
 unsigned int sendTCPPacketRefcounted(struct CaptureContext *context, uint8_t *packet, unsigned int size, void *arg) {
 	struct TCPAppQueueItem *item;
 	item = (struct TCPAppQueueItem *) arg;
+	assert(context == item->connection->context);
 	ssize_t result;
 	result = context->settings->write_function(packet, size, context->settings->user);
-	pthread_mutex_lock(&item->connection->mutex);
+	pthread_mutex_t *mutex = &item->connection->mutex;
+	pthread_mutex_lock(&context->timeout_mutex);
+	pthread_mutex_lock(mutex);
 	item->ref_count--;
 	if (0 == item->ref_count) {
-		assert(context == item->connection->context);
-		cancelTimeout(context, &item->connection->mutex, &item->timeout);
-		pthread_mutex_t *mutex = &item->connection->mutex;
+		cancelTimeoutUnlocked(&item->timeout);
 		free(item->free_me);
 		free(item);
-		pthread_mutex_unlock(mutex);
-	} else pthread_mutex_unlock(&item->connection->mutex);
-	if (result != -1) return 0;
-	else return ((errno == EAGAIN) || (errno == EWOULDBLOCK)) ? 0 : 1;
+	};
+	pthread_mutex_unlock(mutex);
+	pthread_mutex_unlock(&context->timeout_mutex);
+	return (result == -1) && ((errno != EAGAIN) && (errno != EWOULDBLOCK));
 };

@@ -18,7 +18,7 @@
 #include "processTCPPacket.h"
 
 #include "processIPv4Packet.h"
-unsigned int processIPv4Packet(struct CaptureContext *context, void *data, unsigned int count) {
+unsigned int processIPv4Packet(struct CaptureContext *context, uint8_t *data, unsigned int count) {
 	struct IPv4HeaderData hdr;
 	uint8_t pseudo[12];
 	if (parseIPv4Header(&hdr, data, count, pseudo) || (hdr.total_length != count)) {

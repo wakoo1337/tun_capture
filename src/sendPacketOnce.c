@@ -14,8 +14,5 @@ unsigned int sendPacketOnce(struct CaptureContext *context, uint8_t *packet, uns
 	ssize_t result;
 	result = context->settings->write_function(packet, size, context->settings->user);
 	free(((struct PacketQueueItem *) arg)->free_me);
-	if (-1 == result) {
-		return (errno != EAGAIN) && (errno != EWOULDBLOCK);
-	};
-	return 0;
+	return (result == -1) && ((errno != EAGAIN) && (errno != EWOULDBLOCK));
 };

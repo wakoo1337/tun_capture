@@ -28,9 +28,9 @@
 #include "tcpCleanupConfirmed.h"
 #include "isNewAckAcceptable.h"
 #include "scaleRemoteWindow.h"
-#include "isAppQueueItemInWindow.h"
 #include "enqueueTCPPacketTransmission.h"
 #include "enqueueTCPRetransmission.h"
+#include "enqueueUnsentTCPPacketsTransmission.h"
 #include "segexpire_delay.h"
 #include "tcpstate_gotfin.h"
 #include "MAX_SITE_QUEUE.h"
@@ -45,8 +45,8 @@ unsigned int tcpEstablishedPacketsProcessor(struct TCPConnection *connection, co
 		free(payload->free_me);
 		return 0;
 	};
-	if (payload->count > header->data_offset) {
-		// Если в пакете есть данные
+	if (payload->count > header->data_offset || header->fin) {
+		// Если в пакете есть данные или установлен флаг FIN
 		struct TCPSitePrequeueItem *item;
 		item = malloc(sizeof(struct TCPSitePrequeueItem));
 		if (NULL == item) {
@@ -69,7 +69,9 @@ unsigned int tcpEstablishedPacketsProcessor(struct TCPConnection *connection, co
 		item->urgent_count = header->urg ? header->urgent_ptr : 0;
 		item->data_count = payload->count - header->data_offset - item->urgent_count;
 		item->connection = connection;
+		item->timeout = NULL;
 		item->free_me = payload->free_me;
+		item->fin = header->fin;
 		pthread_mutex_unlock(&connection->mutex);
 		pthread_mutex_lock(&connection->context->timeout_mutex);
 		pthread_mutex_lock(&connection->mutex);
@@ -84,30 +86,25 @@ unsigned int tcpEstablishedPacketsProcessor(struct TCPConnection *connection, co
 		connection->latest_ack = header->ack_num;
 		connection->app_window = scaleRemoteWindow(connection, header->raw_window);
 	};
+	tcpCleanupConfirmed(connection);
+	enqueueUnsentTCPPacketsTransmission(connection);
 	struct TCPSitePrequeueItem *found_prequeue;
 	while ((found_prequeue = avl_find(connection->site_prequeue, &connection->first_desired))) {
 		cancelTimeout(connection->context, &connection->mutex, &found_prequeue->timeout);
 		connection->first_desired += found_prequeue->urgent_count + found_prequeue->data_count;
 		enqueueSiteDataFromPrequeueItem(connection, found_prequeue);
-	};
-	tcpCleanupConfirmed(connection);
-	struct TCPAppQueueItem *appqueue_current;
-	appqueue_current = connection->app_queue;
-	while (appqueue_current && appqueue_current->is_filled) {
-		if ((appqueue_current->timeout == NULL) && isAppQueueItemInWindow(connection->latest_ack, connection->app_window, appqueue_current)) {
-			appqueue_current->ref_count++;
-			enqueueTCPPacketTransmission(appqueue_current);
-			enqueueTCPRetransmission(appqueue_current);
+		if (found_prequeue->fin) {
+			connection->first_desired++;
+			connection->state = &tcpstate_gotfin;
+			event_add(connection->write_event, NULL);
+			sendTCPAcknowledgement(connection);
+			free(found_prequeue);
+			return 0;
 		};
-		appqueue_current = appqueue_current->next;
+		free(found_prequeue);
 	};
 	tcpUpdateReadEvent(connection);
 	tcpUpdateWriteEvent(connection);
-	if (header->fin && (header->seq_num == connection->first_desired)) {
-		connection->first_desired++;
-		connection->state = &tcpstate_gotfin;
-		event_add(connection->write_event, NULL);
-	};
 	if (old_first != connection->first_desired) sendTCPAcknowledgement(connection);
 	return 0;
 };
