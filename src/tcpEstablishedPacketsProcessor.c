@@ -29,7 +29,6 @@
 #include "isNewAckAcceptable.h"
 #include "scaleRemoteWindow.h"
 #include "enqueueTCPPacketTransmission.h"
-#include "enqueueTCPRetransmission.h"
 #include "enqueueUnsentTCPPacketsTransmission.h"
 #include "segexpire_delay.h"
 #include "tcpstate_gotfin.h"

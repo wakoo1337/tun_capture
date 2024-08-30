@@ -43,8 +43,9 @@ unsigned int processTCPData(struct CaptureContext *context, uint8_t *packet, uns
 	connection->our_seq += count;
 	assert(connection->our_seq != header.seq_num);
 	header.ack_num = connection->first_desired;
-	header.urg = header.psh = header.rst = header.syn = header.fin = false;
+	header.urg = header.rst = header.syn = header.fin = false;
 	header.ack = true;
+	header.psh = count < connection->max_pktdata;
 	header.raw_window = getSendWindowSize(connection);
 	header.urgent_ptr = 0;
 	header.mss_present = header.winscale_present = false;

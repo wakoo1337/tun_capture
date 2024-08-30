@@ -15,7 +15,7 @@
 unsigned int tcpEstablishedWriteCallback(evutil_socket_t fd, short what, void *arg) {
 	struct TCPConnection *connection = (struct TCPConnection *) arg;
 	if (what & EV_WRITE) {
-		uint16_t old_window = getSendWindowSize(connection);
+		const uint16_t old_window = getSendWindowSize(connection);
 		sendSiteQueueItems(connection);
 		tcpUpdateWriteEvent(connection);
 		if (old_window != getSendWindowSize(connection)) sendTCPAcknowledgement(connection);

@@ -12,7 +12,7 @@
 #include "set32Bit.h"
 
 #include "writeTCPHeader.h"
-void writeTCPHeader(uint8_t *data, unsigned int length, struct TCPHeaderData *hdr, uint8_t *pseudo, unsigned int pseudo_len, pthread_mutex_t *unlock_mutex) {
+void writeTCPHeader(uint8_t *data, unsigned int length, struct TCPHeaderData *hdr, const uint8_t *pseudo, unsigned int pseudo_len, pthread_mutex_t *unlock_mutex) {
 	uint8_t *header = &data[(signed int) -(hdr->data_offset)];
 	set16Bit(&header[0], htons(hdr->src_port));
 	set16Bit(&header[2], htons(hdr->dst_port));

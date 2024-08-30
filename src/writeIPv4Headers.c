@@ -30,10 +30,10 @@ void writeIPv4Headers(struct CaptureContext *context, struct IPFragmentMetadata 
 		set16Bit(&metadata->buffer[10], 0);
 		memcpy(&metadata->buffer[12], &((struct sockaddr_in *) src)->sin_addr, sizeof(struct in_addr));
 		memcpy(&metadata->buffer[16], &((struct sockaddr_in *) dst)->sin_addr, sizeof(struct in_addr));
-		struct ChecksumContext context;
-		initChecksum(&context);
-		computeChecksum(&context, &metadata->buffer[0], 20);
-		((uint16_t *) metadata->buffer)[5] = getChecksum(&context);
+		struct ChecksumContext sum_context;
+		initChecksum(&sum_context);
+		computeChecksum(&sum_context, &metadata->buffer[0], 20);
+		((uint16_t *) metadata->buffer)[5] = getChecksum(&sum_context);
 	};
 	context->ipv4_id++;
 };
