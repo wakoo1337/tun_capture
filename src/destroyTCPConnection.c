@@ -28,7 +28,7 @@ void destroyTCPConnection(struct TCPConnection *connection) {
 		struct TCPAppQueueItem *next;
 		next = connection->app_queue->next;
 		connection->app_queue->ref_count--;
-		cancelTimeout(connection->context, &connection->mutex, connection->app_queue->timeout);
+		cancelTimeout(connection->context, &connection->mutex, &connection->app_queue->timeout);
 		if (0 == connection->app_queue->ref_count) {
 			free(connection->app_queue->free_me);
 			free(connection->app_queue);

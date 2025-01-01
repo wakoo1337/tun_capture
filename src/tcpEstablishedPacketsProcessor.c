@@ -77,12 +77,12 @@ unsigned int tcpEstablishedPacketsProcessor(struct TCPConnection *connection, co
 		void **probe;
 		probe = avl_probe(connection->site_prequeue, item);
 		if (NULL == probe) {
-			cancelTimeout(connection->context, &connection->mutex, item->timeout);
+			cancelTimeout(connection->context, &connection->mutex, &item->timeout);
 			free(item);
 			free(payload->free_me);
 			return 1;
 		} else if ((*probe) != item) {
-			cancelTimeout(connection->context, &connection->mutex, item->timeout);
+			cancelTimeout(connection->context, &connection->mutex, &item->timeout);
 			free(item);
 			free(payload->free_me);
 			return 0;
@@ -96,7 +96,7 @@ unsigned int tcpEstablishedPacketsProcessor(struct TCPConnection *connection, co
 	enqueueUnsentTCPPacketsTransmission(connection);
 	struct TCPSitePrequeueItem *found_prequeue;
 	while ((found_prequeue = avl_find(connection->site_prequeue, &connection->first_desired))) {
-		cancelTimeout(connection->context, &connection->mutex, found_prequeue->timeout);
+		cancelTimeout(connection->context, &connection->mutex, &found_prequeue->timeout);
 		if ((found_prequeue = avl_find(connection->site_prequeue, &connection->first_desired))) {
 			// За время ожидания на мьютексах таймер может сработать, а элемент предочереди удалиться
 			prequeueItemToSiteData(connection, found_prequeue);
