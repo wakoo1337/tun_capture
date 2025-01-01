@@ -53,17 +53,6 @@ unsigned int tcpEstablishedPacketsProcessor(struct TCPConnection *connection, co
 			return 1;
 		};
 		item->seq = header->seq_num;
-		void **probe;
-		probe = avl_probe(connection->site_prequeue, item);
-		if (probe == NULL) {
-			free(item);
-			free(payload->free_me);
-			return 1;
-		} else if ((*probe) != item) {
-			free(item);
-			free(payload->free_me);
-			return 0;
-		};
 		item->data = payload->packet + header->data_offset;
 		item->urgent_count = header->urg ? header->urgent_ptr : 0;
 		item->data_count = payload->count - header->data_offset - item->urgent_count;
@@ -78,8 +67,26 @@ unsigned int tcpEstablishedPacketsProcessor(struct TCPConnection *connection, co
 		getMonotonicTimeval(&now);
 		addTimeval(&segexpire_delay, &now, &timeout);
 		item->timeout = enqueueTimeout(connection->context, &timeout, &tcpDeleteExpiredSegment, item, &connection->mutex);
+		if (NULL == item->timeout) {
+			free(item);
+			free(payload->free_me);
+			return 1;
+		};
 		startTimer(connection->context);
 		pthread_mutex_unlock(&connection->context->timeout_mutex);
+		void **probe;
+		probe = avl_probe(connection->site_prequeue, item);
+		if (NULL == probe) {
+			cancelTimeout(connection->context, &connection->mutex, item->timeout);
+			free(item);
+			free(payload->free_me);
+			return 1;
+		} else if ((*probe) != item) {
+			cancelTimeout(connection->context, &connection->mutex, item->timeout);
+			free(item);
+			free(payload->free_me);
+			return 0;
+		};
 	} else free(payload->free_me);
 	if (isNewAckAcceptable(connection, header->ack_num)) { // Обновляем последний ACK и размер окна
 		connection->latest_ack = header->ack_num;
@@ -89,16 +96,15 @@ unsigned int tcpEstablishedPacketsProcessor(struct TCPConnection *connection, co
 	enqueueUnsentTCPPacketsTransmission(connection);
 	struct TCPSitePrequeueItem *found_prequeue;
 	while ((found_prequeue = avl_find(connection->site_prequeue, &connection->first_desired))) {
-		cancelTimeout(connection->context, &connection->mutex, found_prequeue->timeout);
 		connection->first_desired += found_prequeue->urgent_count + found_prequeue->data_count;
 		enqueueSiteDataFromPrequeueItem(connection, found_prequeue);
+		cancelTimeout(connection->context, &connection->mutex, found_prequeue->timeout);
 		if (found_prequeue->fin) {
 			connection->first_desired++;
 			connection->state = &tcpstate_gotfin;
 			event_add(connection->write_event, NULL);
-			sendTCPAcknowledgement(connection);
 			free(found_prequeue);
-			return 0;
+			return sendTCPAcknowledgement(connection);
 		};
 		free(found_prequeue);
 	};

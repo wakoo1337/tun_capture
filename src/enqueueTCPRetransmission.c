@@ -1,4 +1,5 @@
 #include <pthread.h>
+#include <assert.h>
 #include <stdint.h>
 #include <stdbool.h>
 #include <sys/socket.h>
@@ -14,15 +15,15 @@
 #include "enqueueTimeout.h"
 #include "tcpRetransmissionTimerCallback.h"
 #include "startTimer.h"
-#include "cancelTimeout.h"
+#include "cancelTimeoutUnlocked.h"
 #include "retry_delay.h"
 
 #include "enqueueTCPRetransmission.h"
 unsigned int enqueueTCPRetransmission(struct TCPAppQueueItem *item) {
-	if (item->timeout) cancelTimeout(item->connection->context, &item->connection->mutex, item->timeout);
 	pthread_mutex_unlock(&item->connection->mutex);
 	pthread_mutex_lock(&item->connection->context->timeout_mutex);
 	pthread_mutex_lock(&item->connection->mutex);
+	cancelTimeoutUnlocked(item->connection->context, item->timeout);
 	struct timeval now, expire;
 	getMonotonicTimeval(&now);
 	addTimeval(&now, &retry_delay, &expire);

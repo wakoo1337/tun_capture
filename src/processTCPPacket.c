@@ -74,21 +74,27 @@ unsigned int processTCPPacket(struct CaptureContext *context, const struct IPPac
 		connection->our_scale = 0; // TODO сделать масштабирование
 		connection->addrs = *addrs;
 		connection->sock = socket(addrs->src.sa_family, SOCK_STREAM, 0);
+		pthread_mutex_init(&connection->mutex, NULL);
+		pthread_mutex_lock(&connection->mutex);
 		if (-1 == connection->sock) {
 			avl_destroy(connection->site_prequeue, &tcpDestroySitePrequeueItem);
+			pthread_mutex_unlock(&connection->mutex);
+			pthread_mutex_destroy(&connection->mutex);
 			free(connection);
 			free(payload->free_me);
 			return 1;
 		};
 		if (-1 == fcntl(connection->sock, F_SETFL, O_NONBLOCK)) {
 			avl_destroy(connection->site_prequeue, &tcpDestroySitePrequeueItem);
+			pthread_mutex_unlock(&connection->mutex);
+			pthread_mutex_destroy(&connection->mutex);
 			close(connection->sock);
 			free(connection);
 			free(payload->free_me);
 			return 1;
 		};
+		pthread_mutex_unlock(&connection->mutex);
 		pthread_mutex_lock(&context->tcp_mutex);
-		pthread_mutex_init(&connection->mutex, NULL);
 		pthread_mutex_lock(&connection->mutex);
 		connection->read_finalized = connection->write_finalized = false;
 		connection->state = &tcpstate_connwait;
