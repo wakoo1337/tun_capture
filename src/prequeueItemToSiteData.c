@@ -10,8 +10,8 @@
 #include "TCPSiteQueueItem.h"
 #include "TCPConnection.h"
 
-#include "enqueueSiteDataFromPrequeueItem.h"
-unsigned int enqueueSiteDataFromPrequeueItem(struct TCPConnection *connection, struct TCPSitePrequeueItem *pq_item) {
+#include "prequeueItemToSiteData.h"
+unsigned int prequeueItemToSiteData(struct TCPConnection *connection, struct TCPSitePrequeueItem *pq_item) {
 	struct TCPSiteQueueItem *q_item;
 	q_item = malloc(sizeof(struct TCPSiteQueueItem));
 	if (NULL == q_item) return 1;
@@ -27,5 +27,6 @@ unsigned int enqueueSiteDataFromPrequeueItem(struct TCPConnection *connection, s
 	deleted = avl_delete(connection->site_prequeue, pq_item);
 	assert((NULL == deleted) || (deleted == ((void *) pq_item)));
 	connection->site_scheduled += q_item->urgent_count + q_item->data_count;
+	connection->first_desired += q_item->urgent_count + q_item->data_count;
 	return 0;
 };

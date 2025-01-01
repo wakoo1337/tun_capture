@@ -19,7 +19,7 @@
 #include "checkByteInWindow.h"
 #include "enqueueTimeout.h"
 #include "tcpDeleteExpiredSegment.h"
-#include "enqueueSiteDataFromPrequeueItem.h"
+#include "prequeueItemToSiteData.h"
 #include "tcpUpdateReadEvent.h"
 #include "tcpUpdateWriteEvent.h"
 #include "cancelTimeout.h"
@@ -96,17 +96,19 @@ unsigned int tcpEstablishedPacketsProcessor(struct TCPConnection *connection, co
 	enqueueUnsentTCPPacketsTransmission(connection);
 	struct TCPSitePrequeueItem *found_prequeue;
 	while ((found_prequeue = avl_find(connection->site_prequeue, &connection->first_desired))) {
-		connection->first_desired += found_prequeue->urgent_count + found_prequeue->data_count;
-		enqueueSiteDataFromPrequeueItem(connection, found_prequeue);
 		cancelTimeout(connection->context, &connection->mutex, found_prequeue->timeout);
-		if (found_prequeue->fin) {
-			connection->first_desired++;
-			connection->state = &tcpstate_gotfin;
-			event_add(connection->write_event, NULL);
+		if ((found_prequeue = avl_find(connection->site_prequeue, &connection->first_desired))) {
+			// За время ожидания на мьютексах таймер может сработать, а элемент предочереди удалиться
+			prequeueItemToSiteData(connection, found_prequeue);
+			if (found_prequeue->fin) {
+				connection->first_desired++;
+				connection->state = &tcpstate_gotfin;
+				event_add(connection->write_event, NULL);
+				free(found_prequeue);
+				return sendTCPAcknowledgement(connection);
+			};
 			free(found_prequeue);
-			return sendTCPAcknowledgement(connection);
 		};
-		free(found_prequeue);
 	};
 	tcpUpdateReadEvent(connection);
 	tcpUpdateWriteEvent(connection);
