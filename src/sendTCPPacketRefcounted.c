@@ -26,7 +26,7 @@ unsigned int sendTCPPacketRefcounted(struct CaptureContext *context, uint8_t *pa
 	pthread_mutex_lock(mutex);
 	item->ref_count--;
 	if (0 == item->ref_count) {
-		if (item->timeout) cancelTimeout(item->connection->context, mutex, item->timeout);
+		cancelTimeout(item->connection->context, mutex, item->timeout);
 		free(item->free_me);
 		free(item);
 	};

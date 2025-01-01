@@ -19,7 +19,6 @@ unsigned int readAndEnqueueSiteData(struct TCPConnection *connection, unsigned i
 		struct PacketQueueItem *item;
 		item = malloc(sizeof(struct PacketQueueItem));
 		if (NULL == item) {
-			pthread_mutex_unlock(&connection->mutex);
 			return 1;
 		};
 		const unsigned int remain = MAX_APP_QUEUE - connection->app_scheduled;

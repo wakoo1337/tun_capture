@@ -40,8 +40,6 @@ unsigned int processTCPData(struct CaptureContext *context, uint8_t *packet, uns
 	header.src_port = connection->strategy->port_getter(&connection->addrs.dst);
 	header.dst_port = connection->strategy->port_getter(&connection->addrs.src);
 	header.seq_num = connection->our_seq;
-	connection->our_seq += count;
-	assert(connection->our_seq != header.seq_num);
 	header.ack_num = connection->first_desired;
 	header.urg = header.rst = header.syn = header.fin = false;
 	header.ack = true;
@@ -52,6 +50,8 @@ unsigned int processTCPData(struct CaptureContext *context, uint8_t *packet, uns
 	header.data_offset = computeTCPDataOffset(&header);
 	uint8_t pseudo[connection->strategy->pseudo_length];
 	connection->strategy->create_pseudo(pseudo, &connection->addrs.dst, &connection->addrs.src, 6, header.data_offset + count);
+	connection->our_seq += count;
+	assert(connection->our_seq != header.seq_num);
 	const uint32_t latest_ack = connection->latest_ack;
 	const unsigned int app_window = connection->app_window; // Копируем, т.к. в writeTCPHeader() на время вычисления контрольной суммы освобождается мьютекс соединения
 	writeTCPHeader(packet, count, &header, pseudo, connection->strategy->pseudo_length, &connection->mutex);
@@ -73,8 +73,7 @@ unsigned int processTCPData(struct CaptureContext *context, uint8_t *packet, uns
 	item->ref_count = 1;
 	if (isAppQueueItemInWindow(latest_ack, app_window, item)) {
 		item->ref_count++;
-		enqueueTCPPacketTransmission(item);
-		if (enqueueTCPRetransmission(item)) {
+		if (enqueueTCPPacketTransmission(item) || enqueueTCPRetransmission(item)) {
 			*old_last = item->next;
 			free(item->free_me);
 			free(item);
