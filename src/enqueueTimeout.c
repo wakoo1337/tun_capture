@@ -3,7 +3,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <sys/time.h>
-#include "contrib/heap.h"
+#include "contrib/logdel_heap.h"
 #include "CaptureContext.h"
 #include "TimeoutItem.h"
 
@@ -16,10 +16,7 @@ struct TimeoutItem *enqueueTimeout(struct CaptureContext *context, const struct 
 	item->callback = callback;
 	item->arg = arg;
 	item->mutex = mutex;
-	item->is_del = false;
-	int result;
-	result = heap_offer(&context->timeout_queue, item);
-	if (result) {
+	if (logdelheap_insert(&context->timeout_queue, item, &item->index)) {
 		free(item);
 		return NULL;
 	};

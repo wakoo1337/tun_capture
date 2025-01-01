@@ -3,7 +3,7 @@
 #include <stdbool.h>
 #include <sys/time.h>
 #include <event2/event.h>
-#include "contrib/heap.h"
+#include "contrib/logdel_heap.h"
 #include "TimeoutItem.h"
 #include "CaptureContext.h"
 #include "getMonotonicTimeval.h"
@@ -12,7 +12,7 @@
 #include "startTimer.h"
 unsigned int startTimer(struct CaptureContext *context) {
 	struct TimeoutItem *item;
-	item = heap_peek(context->timeout_queue);
+	item = logdelheap_peek(context->timeout_queue);
 	if (item != NULL) {
 		struct timeval tv, delta;
 		getMonotonicTimeval(&tv);

@@ -4,7 +4,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <errno.h>
-#include "contrib/heap.h"
+#include "contrib/logdel_heap.h"
 #include "CaptureSettings.h"
 #include "CaptureContext.h"
 #include "PacketQueueItem.h"

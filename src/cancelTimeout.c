@@ -1,17 +1,20 @@
 #include <stdint.h>
+#include <assert.h>
 #include <stdbool.h>
 #include <pthread.h>
 #include <sys/time.h>
-#include "contrib/heap.h"
+#include "contrib/logdel_heap.h"
 #include "CaptureContext.h"
 #include "TimeoutItem.h"
-#include "cancelTimeoutUnlocked.h"
 
 #include "cancelTimeout.h"
-void cancelTimeout(struct CaptureContext *context, pthread_mutex_t *mutex, struct TimeoutItem **item) {
+unsigned int cancelTimeout(struct CaptureContext *context, pthread_mutex_t *mutex, struct TimeoutItem *item) {
 	pthread_mutex_unlock(mutex);
 	pthread_mutex_lock(&context->timeout_mutex);
 	pthread_mutex_lock(mutex);
-	cancelTimeoutUnlocked(item);
+	void *out;
+	if (logdelheap_delete(&context->timeout_queue, &out, item->index)) return 1;
+	assert(out == ((void *) item));
 	pthread_mutex_unlock(&context->timeout_mutex);
+	return 0;
 };

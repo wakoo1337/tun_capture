@@ -7,7 +7,7 @@
 #include <netinet/in.h>
 #include <string.h>
 #include <event2/event.h>
-#include "contrib/heap.h"
+#include "contrib/logdel_heap.h"
 #include "ForwardingMappingIPv4.h"
 #include "ForwardingMappingIPv6.h"
 #include "CaptureSettings.h"

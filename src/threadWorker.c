@@ -2,7 +2,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "contrib/heap.h"
+#include "contrib/logdel_heap.h"
 #include "CaptureContext.h"
 #include "PacketQueueItem.h"
 #include "dequeueRxPacket.h"

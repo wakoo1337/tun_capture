@@ -3,7 +3,7 @@
 #include <stdbool.h>
 #include <sys/socket.h>
 #include <sys/time.h>
-#include "contrib/heap.h"
+#include "contrib/logdel_heap.h"
 #include "CaptureContext.h"
 #include "SrcDstSockaddrs.h"
 #include "TCPConnection.h"
@@ -14,15 +14,15 @@
 #include "enqueueTimeout.h"
 #include "tcpRetransmissionTimerCallback.h"
 #include "startTimer.h"
-#include "cancelTimeoutUnlocked.h"
+#include "cancelTimeout.h"
 #include "retry_delay.h"
 
 #include "enqueueTCPRetransmission.h"
 unsigned int enqueueTCPRetransmission(struct TCPAppQueueItem *item) {
+	if (item->timeout) cancelTimeout(item->connection->context, &item->connection->mutex, item->timeout);
 	pthread_mutex_unlock(&item->connection->mutex);
 	pthread_mutex_lock(&item->connection->context->timeout_mutex);
 	pthread_mutex_lock(&item->connection->mutex);
-	cancelTimeoutUnlocked(&item->timeout);
 	struct timeval now, expire;
 	getMonotonicTimeval(&now);
 	addTimeval(&now, &retry_delay, &expire);

@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "contrib/heap.h"
+#include "contrib/logdel_heap.h"
 #include "CaptureContext.h"
 #include "processIPv4Packet.h"
 

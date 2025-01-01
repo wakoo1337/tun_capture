@@ -4,7 +4,7 @@
 #include <stdlib.h>
 #include <sys/time.h>
 #include <sys/socket.h>
-#include "contrib/heap.h"
+#include "contrib/logdel_heap.h"
 #include "SrcDstSockaddrs.h"
 #include "CaptureContext.h"
 #include "TCPAppQueueItem.h"
@@ -29,7 +29,7 @@ void tcpCleanupConfirmed(struct TCPConnection *connection) {
 			unsigned int new_app_scheduled;
 			new_app_scheduled = connection->app_scheduled - current->data_size;
 			connection->app_scheduled = (new_app_scheduled <= connection->app_scheduled) ? new_app_scheduled : 0;
-			cancelTimeout(connection->context, &connection->mutex, &current->timeout);
+			cancelTimeout(connection->context, &connection->mutex, current->timeout);
 			current->ref_count--;
 			if (0 == current->ref_count) {
 				free(current->free_me);

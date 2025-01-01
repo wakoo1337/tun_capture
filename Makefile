@@ -5,15 +5,15 @@ CC := cc
 CFLAGS := -O0 -g -Wall -std=gnu11
 .PHONY: all
 all: bin/tun_capture
-bin/tun_capture: bin/tun_capture.o bin/openInterface.o bin/doCapture.o bin/tunReadCallback.o bin/set16Bit.o bin/set32Bit.o bin/savePacket.o bin/dequeueRxPacket.o bin/threadWorker.o bin/compareIPv4FragmentsIdsSources.o bin/compareTimeoutItems.o bin/processIPv4Packet.o bin/compareTimeval.o bin/get16Bit.o bin/get32Bit.o bin/parseIPv4Header.o bin/addShortWithCarry.o bin/udpReadCallback.o bin/udpWriteCallback.o bin/compareUDPBindings.o bin/processUDPPacket.o bin/setIPv4SockaddrPort.o bin/findUDPBinding.o bin/packetsProcessor.o bin/udpGenerator.o bin/computeIPv4FragmentsCount.o bin/ipv4_strategy.o bin/fillIPv4FragmentMetadatas.o bin/createIPv4PseudoHdr.o bin/writeIPv4Headers.o bin/getIPv4SockaddrPort.o bin/readPacket.o bin/writePacket.o bin/getFdFromUser.o bin/addTimeval.o bin/subTimeval.o bin/getMonotonicTimeval.o bin/timerCallback.o bin/startTimer.o bin/parseTCPHeader.o bin/processTCPPacket.o bin/compareTCPConnections.o bin/tcpReadCallback.o bin/tcpstate_connwait.o bin/tcpConnwaitReadCallback.o bin/tcpConnwaitWriteCallback.o bin/destroyTCPConnection.o bin/tcpConnwaitPacketsProcessor.o bin/writeTCPHeader.o bin/tcpSynackSendReadCallback.o bin/tcpSynackSendWriteCallback.o bin/tcpSynackSendPacketsProcessor.o bin/tcpstate_synack_send.o bin/getSendWindowSize.o bin/computeIPv4MSS.o bin/computeIPv6MSS.o bin/sendSynReply.o bin/retry_delay.o bin/enqueueTimeout.o bin/enqueueTCPPacketTransmission.o bin/tcpRetransmissionTimerCallback.o bin/computeTCPDataOffset.o bin/enqueueRxPacket.o bin/tcpstate_established.o bin/tcpEstablishedReadCallback.o bin/tcpEstablishedWriteCallback.o bin/tcpEstablishedPacketsProcessor.o bin/cancelTimeout.o bin/tcpCleanupConfirmed.o bin/tcpUpdateReadEvent.o bin/tcpUpdateWriteEvent.o bin/checkByteInWindow.o bin/compareTCPSitePrequeueItems.o bin/segexpire_delay.o bin/tcpDeleteExpiredSegment.o bin/enqueueSiteDataFromPrequeueItem.o bin/sendTCPAcknowledgement.o bin/processTCPUrgentData.o bin/processTCPData.o bin/dequeueTxPacket.o bin/tunWriteCallback.o bin/emergencyStop.o bin/enqueueTxPacket.o bin/tcpWriteCallback.o bin/tcpDestroySitePrequeueItem.o bin/tcpFinalizeRead.o bin/tcpFinalizeWrite.o bin/tcpstate_gotfin.o bin/sendPacketOnce.o bin/sendTCPPacketRefcounted.o bin/tcpGotFINReadCallback.o bin/tcpGotFINWriteCallback.o bin/tcpGotFINPacketsProcessor.o bin/sendSiteQueueItems.o bin/tcpEstablishedOnEnd.o bin/tcpEstablishedOnError.o bin/readAndEnqueueSiteData.o bin/tcpGotFINOnEnd.o bin/tcpGotFINOnError.o bin/isNewAckAcceptable.o bin/addressFamilyToNetworkStrategy.o bin/sendTCPFinalize.o bin/scaleRemoteWindow.o bin/tcpLastACKWaitReadCallback.o bin/tcpLastACKWaitWriteCallback.o bin/tcpLastACKWaitPacketsProcessor.o bin/tcpstate_lastackwait.o bin/enqueueTCPRetransmission.o bin/isAppQueueItemInWindow.o bin/cancelTimeoutUnlocked.o bin/enqueueUnsentTCPPacketsTransmission.o bin/checksum.a bin/avl.o bin/heap.o
-	$(CC) $(CFLAGS) -o bin/tun_capture bin/tun_capture.o bin/openInterface.o bin/doCapture.o bin/tunReadCallback.o bin/set16Bit.o bin/set32Bit.o bin/savePacket.o bin/dequeueRxPacket.o bin/threadWorker.o bin/compareIPv4FragmentsIdsSources.o bin/compareTimeoutItems.o bin/compareTimeval.o bin/processIPv4Packet.o bin/get16Bit.o bin/get32Bit.o bin/parseIPv4Header.o bin/addShortWithCarry.o bin/udpReadCallback.o bin/udpWriteCallback.o bin/compareUDPBindings.o bin/processUDPPacket.o bin/setIPv4SockaddrPort.o bin/findUDPBinding.o bin/packetsProcessor.o bin/udpGenerator.o bin/computeIPv4FragmentsCount.o bin/ipv4_strategy.o bin/fillIPv4FragmentMetadatas.o bin/createIPv4PseudoHdr.o bin/writeIPv4Headers.o bin/getIPv4SockaddrPort.o bin/readPacket.o bin/writePacket.o bin/getFdFromUser.o bin/addTimeval.o bin/subTimeval.o bin/getMonotonicTimeval.o bin/timerCallback.o bin/startTimer.o bin/parseTCPHeader.o bin/processTCPPacket.o bin/compareTCPConnections.o bin/tcpReadCallback.o bin/tcpstate_connwait.o bin/tcpConnwaitReadCallback.o bin/tcpConnwaitWriteCallback.o bin/destroyTCPConnection.o bin/tcpConnwaitPacketsProcessor.o bin/writeTCPHeader.o bin/tcpSynackSendReadCallback.o bin/tcpSynackSendWriteCallback.o bin/tcpSynackSendPacketsProcessor.o bin/tcpstate_synack_send.o bin/getSendWindowSize.o bin/computeIPv4MSS.o bin/computeIPv6MSS.o bin/sendSynReply.o bin/retry_delay.o bin/enqueueTimeout.o bin/enqueueTCPPacketTransmission.o bin/tcpRetransmissionTimerCallback.o bin/computeTCPDataOffset.o bin/enqueueRxPacket.o bin/tcpstate_established.o bin/tcpEstablishedReadCallback.o bin/tcpEstablishedWriteCallback.o bin/tcpEstablishedPacketsProcessor.o bin/cancelTimeout.o bin/tcpCleanupConfirmed.o bin/tcpUpdateReadEvent.o bin/tcpUpdateWriteEvent.o bin/checkByteInWindow.o bin/compareTCPSitePrequeueItems.o bin/segexpire_delay.o bin/tcpDeleteExpiredSegment.o bin/enqueueSiteDataFromPrequeueItem.o bin/sendTCPAcknowledgement.o bin/processTCPUrgentData.o bin/processTCPData.o bin/dequeueTxPacket.o bin/tunWriteCallback.o bin/emergencyStop.o bin/enqueueTxPacket.o bin/tcpWriteCallback.o bin/tcpDestroySitePrequeueItem.o bin/tcpFinalizeRead.o bin/tcpFinalizeWrite.o bin/tcpstate_gotfin.o bin/sendPacketOnce.o bin/sendTCPPacketRefcounted.o bin/tcpGotFINReadCallback.o bin/tcpGotFINWriteCallback.o bin/tcpGotFINPacketsProcessor.o bin/sendSiteQueueItems.o bin/tcpEstablishedOnEnd.o bin/tcpEstablishedOnError.o bin/readAndEnqueueSiteData.o bin/tcpGotFINOnEnd.o bin/tcpGotFINOnError.o bin/isNewAckAcceptable.o bin/addressFamilyToNetworkStrategy.o bin/sendTCPFinalize.o bin/scaleRemoteWindow.o bin/tcpLastACKWaitReadCallback.o bin/tcpLastACKWaitWriteCallback.o bin/tcpLastACKWaitPacketsProcessor.o bin/tcpstate_lastackwait.o bin/enqueueTCPRetransmission.o bin/isAppQueueItemInWindow.o bin/cancelTimeoutUnlocked.o bin/enqueueUnsentTCPPacketsTransmission.o bin/checksum.a bin/avl.o bin/heap.o $(LIBEVENT_LIBS) -lpthread
+bin/tun_capture: bin/tun_capture.o bin/openInterface.o bin/doCapture.o bin/tunReadCallback.o bin/set16Bit.o bin/set32Bit.o bin/savePacket.o bin/dequeueRxPacket.o bin/threadWorker.o bin/compareIPv4FragmentsIdsSources.o bin/compareTimeoutItems.o bin/processIPv4Packet.o bin/compareTimeval.o bin/get16Bit.o bin/get32Bit.o bin/parseIPv4Header.o bin/addShortWithCarry.o bin/udpReadCallback.o bin/udpWriteCallback.o bin/compareUDPBindings.o bin/processUDPPacket.o bin/setIPv4SockaddrPort.o bin/findUDPBinding.o bin/packetsProcessor.o bin/udpGenerator.o bin/computeIPv4FragmentsCount.o bin/ipv4_strategy.o bin/fillIPv4FragmentMetadatas.o bin/createIPv4PseudoHdr.o bin/writeIPv4Headers.o bin/getIPv4SockaddrPort.o bin/readPacket.o bin/writePacket.o bin/getFdFromUser.o bin/addTimeval.o bin/subTimeval.o bin/getMonotonicTimeval.o bin/timerCallback.o bin/startTimer.o bin/parseTCPHeader.o bin/processTCPPacket.o bin/compareTCPConnections.o bin/tcpReadCallback.o bin/tcpstate_connwait.o bin/tcpConnwaitReadCallback.o bin/tcpConnwaitWriteCallback.o bin/destroyTCPConnection.o bin/tcpConnwaitPacketsProcessor.o bin/writeTCPHeader.o bin/tcpSynackSendReadCallback.o bin/tcpSynackSendWriteCallback.o bin/tcpSynackSendPacketsProcessor.o bin/tcpstate_synack_send.o bin/getSendWindowSize.o bin/computeIPv4MSS.o bin/computeIPv6MSS.o bin/sendSynReply.o bin/retry_delay.o bin/enqueueTimeout.o bin/enqueueTCPPacketTransmission.o bin/tcpRetransmissionTimerCallback.o bin/computeTCPDataOffset.o bin/enqueueRxPacket.o bin/tcpstate_established.o bin/tcpEstablishedReadCallback.o bin/tcpEstablishedWriteCallback.o bin/tcpEstablishedPacketsProcessor.o bin/cancelTimeout.o bin/tcpCleanupConfirmed.o bin/tcpUpdateReadEvent.o bin/tcpUpdateWriteEvent.o bin/checkByteInWindow.o bin/compareTCPSitePrequeueItems.o bin/segexpire_delay.o bin/tcpDeleteExpiredSegment.o bin/enqueueSiteDataFromPrequeueItem.o bin/sendTCPAcknowledgement.o bin/processTCPUrgentData.o bin/processTCPData.o bin/dequeueTxPacket.o bin/tunWriteCallback.o bin/emergencyStop.o bin/enqueueTxPacket.o bin/tcpWriteCallback.o bin/tcpDestroySitePrequeueItem.o bin/tcpFinalizeRead.o bin/tcpFinalizeWrite.o bin/tcpstate_gotfin.o bin/sendPacketOnce.o bin/sendTCPPacketRefcounted.o bin/tcpGotFINReadCallback.o bin/tcpGotFINWriteCallback.o bin/tcpGotFINPacketsProcessor.o bin/sendSiteQueueItems.o bin/tcpEstablishedOnEnd.o bin/tcpEstablishedOnError.o bin/readAndEnqueueSiteData.o bin/tcpGotFINOnEnd.o bin/tcpGotFINOnError.o bin/isNewAckAcceptable.o bin/addressFamilyToNetworkStrategy.o bin/sendTCPFinalize.o bin/scaleRemoteWindow.o bin/tcpLastACKWaitReadCallback.o bin/tcpLastACKWaitWriteCallback.o bin/tcpLastACKWaitPacketsProcessor.o bin/tcpstate_lastackwait.o bin/enqueueTCPRetransmission.o bin/isAppQueueItemInWindow.o bin/enqueueUnsentTCPPacketsTransmission.o bin/udpFinalize.o bin/checksum.a bin/avl.o bin/logdel_heap.o
+	$(CC) $(CFLAGS) -o bin/tun_capture bin/tun_capture.o bin/openInterface.o bin/doCapture.o bin/tunReadCallback.o bin/set16Bit.o bin/set32Bit.o bin/savePacket.o bin/dequeueRxPacket.o bin/threadWorker.o bin/compareIPv4FragmentsIdsSources.o bin/compareTimeoutItems.o bin/compareTimeval.o bin/processIPv4Packet.o bin/get16Bit.o bin/get32Bit.o bin/parseIPv4Header.o bin/addShortWithCarry.o bin/udpReadCallback.o bin/udpWriteCallback.o bin/compareUDPBindings.o bin/processUDPPacket.o bin/setIPv4SockaddrPort.o bin/findUDPBinding.o bin/packetsProcessor.o bin/udpGenerator.o bin/computeIPv4FragmentsCount.o bin/ipv4_strategy.o bin/fillIPv4FragmentMetadatas.o bin/createIPv4PseudoHdr.o bin/writeIPv4Headers.o bin/getIPv4SockaddrPort.o bin/readPacket.o bin/writePacket.o bin/getFdFromUser.o bin/addTimeval.o bin/subTimeval.o bin/getMonotonicTimeval.o bin/timerCallback.o bin/startTimer.o bin/parseTCPHeader.o bin/processTCPPacket.o bin/compareTCPConnections.o bin/tcpReadCallback.o bin/tcpstate_connwait.o bin/tcpConnwaitReadCallback.o bin/tcpConnwaitWriteCallback.o bin/destroyTCPConnection.o bin/tcpConnwaitPacketsProcessor.o bin/writeTCPHeader.o bin/tcpSynackSendReadCallback.o bin/tcpSynackSendWriteCallback.o bin/tcpSynackSendPacketsProcessor.o bin/tcpstate_synack_send.o bin/getSendWindowSize.o bin/computeIPv4MSS.o bin/computeIPv6MSS.o bin/sendSynReply.o bin/retry_delay.o bin/enqueueTimeout.o bin/enqueueTCPPacketTransmission.o bin/tcpRetransmissionTimerCallback.o bin/computeTCPDataOffset.o bin/enqueueRxPacket.o bin/tcpstate_established.o bin/tcpEstablishedReadCallback.o bin/tcpEstablishedWriteCallback.o bin/tcpEstablishedPacketsProcessor.o bin/cancelTimeout.o bin/tcpCleanupConfirmed.o bin/tcpUpdateReadEvent.o bin/tcpUpdateWriteEvent.o bin/checkByteInWindow.o bin/compareTCPSitePrequeueItems.o bin/segexpire_delay.o bin/tcpDeleteExpiredSegment.o bin/enqueueSiteDataFromPrequeueItem.o bin/sendTCPAcknowledgement.o bin/processTCPUrgentData.o bin/processTCPData.o bin/dequeueTxPacket.o bin/tunWriteCallback.o bin/emergencyStop.o bin/enqueueTxPacket.o bin/tcpWriteCallback.o bin/tcpDestroySitePrequeueItem.o bin/tcpFinalizeRead.o bin/tcpFinalizeWrite.o bin/tcpstate_gotfin.o bin/sendPacketOnce.o bin/sendTCPPacketRefcounted.o bin/tcpGotFINReadCallback.o bin/tcpGotFINWriteCallback.o bin/tcpGotFINPacketsProcessor.o bin/sendSiteQueueItems.o bin/tcpEstablishedOnEnd.o bin/tcpEstablishedOnError.o bin/readAndEnqueueSiteData.o bin/tcpGotFINOnEnd.o bin/tcpGotFINOnError.o bin/isNewAckAcceptable.o bin/addressFamilyToNetworkStrategy.o bin/sendTCPFinalize.o bin/scaleRemoteWindow.o bin/tcpLastACKWaitReadCallback.o bin/tcpLastACKWaitWriteCallback.o bin/tcpLastACKWaitPacketsProcessor.o bin/tcpstate_lastackwait.o bin/enqueueTCPRetransmission.o bin/isAppQueueItemInWindow.o bin/enqueueUnsentTCPPacketsTransmission.o bin/udpFinalize.o bin/checksum.a bin/avl.o bin/logdel_heap.o $(LIBEVENT_LIBS) -lpthread
 bin/tun_capture.o: src/tun_capture.c src/ForwardingMappingIPv4.h src/ForwardingMappingIPv6.h src/UserData.h src/CaptureSettings.h src/openInterface.h src/doCapture.h src/set32Bit.h src/set16Bit.h src/getFdFromUser.h src/readPacket.h src/writePacket.h
 	$(CC) $(CFLAGS) -c -o bin/tun_capture.o src/tun_capture.c
 bin/openInterface.o: src/openInterface.c src/openInterface.h
 	$(CC) $(CFLAGS) -c -o bin/openInterface.o src/openInterface.c
-bin/doCapture.o: src/doCapture.c src/doCapture.h src/contrib/avl.h src/contrib/heap.h src/ForwardingMappingIPv4.h src/ForwardingMappingIPv6.h src/CaptureContext.h src/CaptureSettings.h src/tunReadCallback.h src/tunWriteCallback.h src/threadWorker.h src/compareIPv4FragmentsIdsSources.h src/compareTimeoutItems.h src/compareUDPBindings.h src/UDPBinding.h src/timerCallback.h src/compareTCPConnections.h
+bin/doCapture.o: src/doCapture.c src/doCapture.h src/contrib/avl.h src/contrib/logdel_heap.h src/ForwardingMappingIPv4.h src/ForwardingMappingIPv6.h src/CaptureContext.h src/CaptureSettings.h src/tunReadCallback.h src/tunWriteCallback.h src/threadWorker.h src/compareIPv4FragmentsIdsSources.h src/compareTimeoutItems.h src/compareUDPBindings.h src/UDPBinding.h src/timerCallback.h src/compareTCPConnections.h
 	$(CC) $(CFLAGS) $(LIBEVENT_CFLAGS) -c -o bin/doCapture.o src/doCapture.c
-bin/tunReadCallback.o: src/tunReadCallback.c src/tunReadCallback.h src/contrib/heap.h src/CaptureSettings.h src/CaptureContext.h src/PacketQueueItem.h src/enqueueRxPacket.h src/packetsProcessor.h src/emergencyStop.h
+bin/tunReadCallback.o: src/tunReadCallback.c src/tunReadCallback.h src/contrib/logdel_heap.h src/CaptureSettings.h src/CaptureContext.h src/PacketQueueItem.h src/enqueueRxPacket.h src/packetsProcessor.h src/emergencyStop.h
 	$(CC) $(CFLAGS) $(LIBEVENT_CFLAGS) -c -o bin/tunReadCallback.o src/tunReadCallback.c
 bin/set16Bit.o: src/set16Bit.c src/set16Bit.h
 	$(CC) $(CFLAGS) -c -o bin/set16Bit.o src/set16Bit.c
@@ -21,9 +21,9 @@ bin/set32Bit.o: src/set32Bit.c src/set32Bit.h
 	$(CC) $(CFLAGS) -c -o bin/set32Bit.o src/set32Bit.c
 bin/savePacket.o: src/savePacket.c src/savePacket.h src/set32Bit.h
 	$(CC) $(CFLAGS) -c -o bin/savePacket.o src/savePacket.c
-bin/dequeueRxPacket.o: src/dequeueRxPacket.c src/dequeueRxPacket.h src/contrib/heap.h src/CaptureContext.h src/PacketQueueItem.h
+bin/dequeueRxPacket.o: src/dequeueRxPacket.c src/dequeueRxPacket.h src/contrib/logdel_heap.h src/CaptureContext.h src/PacketQueueItem.h
 	$(CC) $(CFLAGS) -c -o bin/dequeueRxPacket.o src/dequeueRxPacket.c
-bin/threadWorker.o: src/threadWorker.c src/threadWorker.h src/contrib/heap.h src/CaptureContext.h src/PacketQueueItem.h src/dequeueRxPacket.h src/emergencyStop.h
+bin/threadWorker.o: src/threadWorker.c src/threadWorker.h src/contrib/logdel_heap.h src/CaptureContext.h src/PacketQueueItem.h src/dequeueRxPacket.h src/emergencyStop.h
 	$(CC) $(CFLAGS) -c -o bin/threadWorker.o src/threadWorker.c
 bin/compareIPv4FragmentsIdsSources.o: src/compareIPv4FragmentsIdsSources.c src/compareIPv4FragmentsIdsSources.h src/IPv4Fragments.h
 	$(CC) $(CFLAGS) -c -o bin/compareIPv4FragmentsIdsSources.o src/compareIPv4FragmentsIdsSources.c
@@ -39,7 +39,7 @@ bin/initChecksum.o: src/initChecksum.c src/initChecksum.h src/ChecksumContext.h
 	$(CC) $(CFLAGS) -c -o bin/initChecksum.o src/initChecksum.c
 bin/getChecksum.o: src/getChecksum.c src/getChecksum.h src/ChecksumContext.h
 	$(CC) $(CFLAGS) -c -o bin/getChecksum.o src/getChecksum.c
-bin/processIPv4Packet.o: src/processIPv4Packet.c src/processIPv4Packet.h src/contrib/heap.h src/CaptureContext.h src/IPv4HeaderData.h src/IPPacketPayload.h src/SrcDstSockaddrs.h src/IPFragmentMetadata.h src/NetworkProtocolStrategy.h src/parseIPv4Header.h src/processUDPPacket.h src/setIPv4SockaddrPort.h src/ipv4_strategy.h src/processTCPPacket.h
+bin/processIPv4Packet.o: src/processIPv4Packet.c src/processIPv4Packet.h src/contrib/logdel_heap.h src/CaptureContext.h src/IPv4HeaderData.h src/IPPacketPayload.h src/SrcDstSockaddrs.h src/IPFragmentMetadata.h src/NetworkProtocolStrategy.h src/parseIPv4Header.h src/processUDPPacket.h src/setIPv4SockaddrPort.h src/ipv4_strategy.h src/processTCPPacket.h
 	$(CC) $(CFLAGS) -c -o bin/processIPv4Packet.o src/processIPv4Packet.c
 bin/parseIPv4Header.o: src/parseIPv4Header.c src/parseIPv4Header.h src/IPv4HeaderData.h src/ChecksumContext.h src/initChecksum.h src/computeChecksum.h src/getChecksum.h src/get16Bit.h src/get32Bit.h src/set16Bit.h
 	$(CC) $(CFLAGS) -c -o bin/parseIPv4Header.o src/parseIPv4Header.c
@@ -49,29 +49,29 @@ bin/get32Bit.o: src/get32Bit.c src/get32Bit.h
 	$(CC) $(CFLAGS) -c -o bin/get32Bit.o src/get32Bit.c
 bin/addShortWithCarry.o: src/addShortWithCarry.c src/addShortWithCarry.h
 	$(CC) $(CFLAGS) -c -o bin/addShortWithCarry.o src/addShortWithCarry.c
-bin/udpReadCallback.o: src/udpReadCallback.c src/udpReadCallback.h src/contrib/heap.h src/CaptureContext.h src/PacketQueueItem.h src/UDPParameters.h src/UDPStackItem.h src/UDPBinding.h src/udpGenerator.h src/emergencyStop.h src/enqueueRxPacket.h src/HEADERS_RESERVE.h src/MAX_UDP_PAYLOAD.h
+bin/udpReadCallback.o: src/udpReadCallback.c src/udpReadCallback.h src/contrib/logdel_heap.h src/CaptureContext.h src/PacketQueueItem.h src/UDPParameters.h src/UDPStackItem.h src/UDPBinding.h src/udpGenerator.h src/emergencyStop.h src/enqueueRxPacket.h src/HEADERS_RESERVE.h src/MAX_UDP_PAYLOAD.h
 	$(CC) $(CFLAGS) $(LIBEVENT_CFLAGS) -c -o bin/udpReadCallback.o src/udpReadCallback.c
 bin/compareUDPBindings.o: src/compareUDPBindings.c src/compareUDPBindings.h src/UDPBinding.h
 	$(CC) $(CFLAGS) $(LIBEVENT_CFLAGS) -c -o bin/compareUDPBindings.o src/compareUDPBindings.c
-bin/processUDPPacket.o: src/processUDPPacket.c src/processUDPPacket.h src/contrib/heap.h src/CaptureContext.h src/IPPacketPayload.h src/SrcDstSockaddrs.h src/IPFragmentMetadata.h src/NetworkProtocolStrategy.h src/UDPHeaderData.h src/UDPStackItem.h src/ChecksumContext.h src/UDPBinding.h src/get16Bit.h src/set16Bit.h src/initChecksum.h src/computeChecksum.h src/getChecksum.h src/findUDPBinding.h src/udpReadCallback.h src/udpWriteCallback.h
+bin/processUDPPacket.o: src/processUDPPacket.c src/processUDPPacket.h src/contrib/logdel_heap.h src/CaptureContext.h src/IPPacketPayload.h src/SrcDstSockaddrs.h src/IPFragmentMetadata.h src/NetworkProtocolStrategy.h src/UDPHeaderData.h src/UDPStackItem.h src/ChecksumContext.h src/UDPBinding.h src/get16Bit.h src/set16Bit.h src/initChecksum.h src/computeChecksum.h src/getChecksum.h src/findUDPBinding.h src/udpReadCallback.h src/udpWriteCallback.h
 	$(CC) $(CFLAGS) $(LIBEVENT_CFLAGS) -c -o bin/processUDPPacket.o src/processUDPPacket.c
 bin/setIPv4SockaddrPort.o: src/setIPv4SockaddrPort.c src/setIPv4SockaddrPort.h
 	$(CC) $(CFLAGS) -c -o bin/setIPv4SockaddrPort.o src/setIPv4SockaddrPort.c
-bin/findUDPBinding.o: src/findUDPBinding.c src/findUDPBinding.h src/contrib/avl.h src/contrib/heap.h src/CaptureContext.h src/IPFragmentMetadata.h src/NetworkProtocolStrategy.h src/UDPBinding.h src/udpReadCallback.h src/udpWriteCallback.h
+bin/findUDPBinding.o: src/findUDPBinding.c src/findUDPBinding.h src/contrib/avl.h src/contrib/logdel_heap.h src/CaptureContext.h src/IPFragmentMetadata.h src/NetworkProtocolStrategy.h src/UDPBinding.h src/udpReadCallback.h src/udpWriteCallback.h src/udpFinalize.h
 	$(CC) $(CFLAGS) $(LIBEVENT_CFLAGS) -c -o bin/findUDPBinding.o src/findUDPBinding.c
-bin/packetsProcessor.o: src/packetsProcessor.c src/packetsProcessor.h src/contrib/heap.h src/CaptureContext.h src/processIPv4Packet.h
+bin/packetsProcessor.o: src/packetsProcessor.c src/packetsProcessor.h src/contrib/logdel_heap.h src/CaptureContext.h src/processIPv4Packet.h
 	$(CC) $(CFLAGS) -c -o bin/packetsProcessor.o src/packetsProcessor.c
-bin/udpGenerator.o: src/udpGenerator.c src/udpGenerator.h src/contrib/heap.h src/ForwardingMappingIPv4.h src/ForwardingMappingIPv6.h src/CaptureSettings.h src/CaptureContext.h src/UDPParameters.h src/UDPBinding.h src/ChecksumContext.h src/IPFragmentMetadata.h src/NetworkProtocolStrategy.h src/PacketQueueItem.h src/initChecksum.h src/computeChecksum.h src/getChecksum.h src/set16Bit.h src/enqueueTxPacket.h src/sendPacketOnce.h src/addressFamilyToNetworkStrategy.h src/HEADERS_RESERVE.h
+bin/udpGenerator.o: src/udpGenerator.c src/udpGenerator.h src/contrib/logdel_heap.h src/ForwardingMappingIPv4.h src/ForwardingMappingIPv6.h src/CaptureSettings.h src/CaptureContext.h src/UDPParameters.h src/UDPBinding.h src/ChecksumContext.h src/IPFragmentMetadata.h src/NetworkProtocolStrategy.h src/PacketQueueItem.h src/initChecksum.h src/computeChecksum.h src/getChecksum.h src/set16Bit.h src/enqueueTxPacket.h src/sendPacketOnce.h src/addressFamilyToNetworkStrategy.h src/HEADERS_RESERVE.h
 	$(CC) $(CFLAGS) $(LIBEVENT_CFLAGS) -c -o bin/udpGenerator.o src/udpGenerator.c
 bin/computeIPv4FragmentsCount.o: src/computeIPv4FragmentsCount.c src/computeIPv4FragmentsCount.h
 	$(CC) $(CFLAGS) -c -o bin/computeIPv4FragmentsCount.o src/computeIPv4FragmentsCount.c
-bin/ipv4_strategy.o: src/ipv4_strategy.c src/ipv4_strategy.h src/contrib/heap.h src/CaptureContext.h src/IPFragmentMetadata.h src/NetworkProtocolStrategy.h src/setIPv4SockaddrPort.h src/getIPv4SockaddrPort.h src/computeIPv4FragmentsCount.h src/fillIPv4FragmentMetadatas.h src/createIPv4PseudoHdr.h src/writeIPv4Headers.h src/computeIPv4MSS.h
+bin/ipv4_strategy.o: src/ipv4_strategy.c src/ipv4_strategy.h src/contrib/logdel_heap.h src/CaptureContext.h src/IPFragmentMetadata.h src/NetworkProtocolStrategy.h src/setIPv4SockaddrPort.h src/getIPv4SockaddrPort.h src/computeIPv4FragmentsCount.h src/fillIPv4FragmentMetadatas.h src/createIPv4PseudoHdr.h src/writeIPv4Headers.h src/computeIPv4MSS.h
 	$(CC) $(CFLAGS) -c -o bin/ipv4_strategy.o src/ipv4_strategy.c
 bin/fillIPv4FragmentMetadatas.o: src/fillIPv4FragmentMetadatas.c src/fillIPv4FragmentMetadatas.h src/IPFragmentMetadata.h
 	$(CC) $(CFLAGS) -c -o bin/fillIPv4FragmentMetadatas.o src/fillIPv4FragmentMetadatas.c
 bin/createIPv4PseudoHdr.o: src/createIPv4PseudoHdr.c src/createIPv4PseudoHdr.h
 	$(CC) $(CFLAGS) -c -o bin/createIPv4PseudoHdr.o src/createIPv4PseudoHdr.c
-bin/writeIPv4Headers.o: src/writeIPv4Headers.c src/writeIPv4Headers.h src/contrib/heap.h src/ForwardingMappingIPv4.h src/ForwardingMappingIPv6.h src/CaptureSettings.h src/CaptureContext.h src/IPFragmentMetadata.h src/ChecksumContext.h src/initChecksum.h src/computeChecksum.h src/getChecksum.h src/set16Bit.h
+bin/writeIPv4Headers.o: src/writeIPv4Headers.c src/writeIPv4Headers.h src/contrib/logdel_heap.h src/ForwardingMappingIPv4.h src/ForwardingMappingIPv6.h src/CaptureSettings.h src/CaptureContext.h src/IPFragmentMetadata.h src/ChecksumContext.h src/initChecksum.h src/computeChecksum.h src/getChecksum.h src/set16Bit.h
 	$(CC) $(CFLAGS) -c -o bin/writeIPv4Headers.o src/writeIPv4Headers.c
 bin/getIPv4SockaddrPort.o: src/getIPv4SockaddrPort.c src/getIPv4SockaddrPort.h
 	$(CC) $(CFLAGS) -c -o bin/getIPv4SockaddrPort.o src/getIPv4SockaddrPort.c
@@ -81,7 +81,7 @@ bin/writePacket.o: src/writePacket.c src/writePacket.h src/UserData.h src/savePa
 	$(CC) $(CFLAGS) -c -o bin/writePacket.o src/writePacket.c
 bin/getFdFromUser.o: src/getFdFromUser.c src/getFdFromUser.h src/UserData.h
 	$(CC) $(CFLAGS) -c -o bin/getFdFromUser.o src/getFdFromUser.c
-bin/timerCallback.o: src/timerCallback.c src/timerCallback.h src/contrib/heap.h src/TimeoutItem.h src/CaptureContext.h src/getMonotonicTimeval.h src/compareTimeval.h src/startTimer.h
+bin/timerCallback.o: src/timerCallback.c src/timerCallback.h src/contrib/logdel_heap.h src/TimeoutItem.h src/CaptureContext.h src/getMonotonicTimeval.h src/compareTimeval.h src/startTimer.h src/emergencyStop.h
 	$(CC) $(CFLAGS) $(LIBEVENT_CFLAGS) -c -o bin/timerCallback.o src/timerCallback.c
 bin/addTimeval.o: src/addTimeval.c src/addTimeval.h
 	$(CC) $(CFLAGS) -c -o bin/addTimeval.o src/addTimeval.c
@@ -89,15 +89,15 @@ bin/subTimeval.o: src/subTimeval.c src/subTimeval.h
 	$(CC) $(CFLAGS) -c -o bin/subTimeval.o src/subTimeval.c
 bin/getMonotonicTimeval.o: src/getMonotonicTimeval.c src/getMonotonicTimeval.h
 	$(CC) $(CFLAGS) -c -o bin/getMonotonicTimeval.o src/getMonotonicTimeval.c
-bin/startTimer.o: src/startTimer.c src/startTimer.h src/contrib/heap.h src/TimeoutItem.h src/CaptureContext.h src/getMonotonicTimeval.h src/subTimeval.h
+bin/startTimer.o: src/startTimer.c src/startTimer.h src/contrib/logdel_heap.h src/TimeoutItem.h src/CaptureContext.h src/getMonotonicTimeval.h src/subTimeval.h
 	$(CC) $(CFLAGS) $(LIBEVENT_CFLAGS) -c -o bin/startTimer.o src/startTimer.c
 bin/parseTCPHeader.o: src/parseTCPHeader.c src/parseTCPHeader.h src/TCPHeaderData.h src/ChecksumContext.h src/initChecksum.h src/computeChecksum.h src/getChecksum.h src/get16Bit.h src/get32Bit.h
 	$(CC) $(CFLAGS) -c -o bin/parseTCPHeader.o src/parseTCPHeader.c
-bin/processTCPPacket.o: src/processTCPPacket.c src/processTCPPacket.h src/contrib/avl.h src/contrib/heap.h src/CaptureContext.h src/IPPacketPayload.h src/IPFragmentMetadata.h src/NetworkProtocolStrategy.h src/SrcDstSockaddrs.h src/TCPHeaderData.h src/TCPConnection.h src/TCPState.h src/parseTCPHeader.h src/compareTCPSitePrequeueItems.h src/tcpReadCallback.h src/tcpWriteCallback.h src/tcpDestroySitePrequeueItem.h src/tcpFinalizeRead.h src/tcpFinalizeWrite.h src/tcpstate_connwait.h
+bin/processTCPPacket.o: src/processTCPPacket.c src/processTCPPacket.h src/contrib/avl.h src/contrib/logdel_heap.h src/CaptureContext.h src/IPPacketPayload.h src/IPFragmentMetadata.h src/NetworkProtocolStrategy.h src/SrcDstSockaddrs.h src/TCPHeaderData.h src/TCPConnection.h src/TCPState.h src/parseTCPHeader.h src/compareTCPSitePrequeueItems.h src/tcpReadCallback.h src/tcpWriteCallback.h src/tcpDestroySitePrequeueItem.h src/tcpFinalizeRead.h src/tcpFinalizeWrite.h src/tcpstate_connwait.h
 	$(CC) $(CFLAGS) $(LIBEVENT_CFLAGS) -c -o bin/processTCPPacket.o src/processTCPPacket.c
 bin/compareTCPConnections.o: src/compareTCPConnections.c src/compareTCPConnections.h src/SrcDstSockaddrs.h src/TCPConnection.h
 	$(CC) $(CFLAGS) -c -o bin/compareTCPConnections.o src/compareTCPConnections.c
-bin/tcpReadCallback.o: src/tcpReadCallback.c src/tcpReadCallback.h src/contrib/heap.h src/CaptureContext.h src/SrcDstSockaddrs.h src/IPPacketPayload.h src/TCPHeaderData.h src/TCPConnection.h src/TCPState.h src/emergencyStop.h
+bin/tcpReadCallback.o: src/tcpReadCallback.c src/tcpReadCallback.h src/contrib/logdel_heap.h src/CaptureContext.h src/SrcDstSockaddrs.h src/IPPacketPayload.h src/TCPHeaderData.h src/TCPConnection.h src/TCPState.h src/emergencyStop.h
 	$(CC) $(CFLAGS) $(LIBEVENT_CFLAGS) -c -o bin/tcpReadCallback.o src/tcpReadCallback.c
 bin/tcpstate_connwait.o: src/tcpstate_connwait.c src/tcpstate_connwait.h src/SrcDstSockaddrs.h src/IPPacketPayload.h src/TCPHeaderData.h src/TCPConnection.h src/TCPState.h src/tcpConnwaitReadCallback.h src/tcpConnwaitWriteCallback.h src/tcpConnwaitPacketsProcessor.h
 	$(CC) $(CFLAGS) $(LIBEVENT_CFLAGS) -c -o bin/tcpstate_connwait.o src/tcpstate_connwait.c
@@ -105,7 +105,7 @@ bin/tcpConnwaitReadCallback.o: src/tcpConnwaitReadCallback.c src/tcpConnwaitRead
 	$(CC) $(CFLAGS) $(LIBEVENT_CFLAGS) -c -o bin/tcpConnwaitReadCallback.o src/tcpConnwaitReadCallback.c
 bin/tcpConnwaitWriteCallback.o: src/tcpConnwaitWriteCallback.c src/tcpConnwaitWriteCallback.h src/SrcDstSockaddrs.h src/TCPConnection.h src/destroyTCPConnection.h src/sendSynReply.h src/tcpFinalizeRead.h src/tcpFinalizeWrite.h src/tcpstate_synack_send.h
 	$(CC) $(CFLAGS) $(LIBEVENT_CFLAGS) -c -o bin/tcpConnwaitWriteCallback.o src/tcpConnwaitWriteCallback.c
-bin/destroyTCPConnection.o: src/destroyTCPConnection.c src/destroyTCPConnection.h src/contrib/avl.h src/contrib/heap.h src/SrcDstSockaddrs.h src/CaptureContext.h src/TCPConnection.h src/TCPAppQueueItem.h src/TCPSiteQueueItem.h src/tcpDestroySitePrequeueItem.h src/cancelTimeoutUnlocked.h
+bin/destroyTCPConnection.o: src/destroyTCPConnection.c src/destroyTCPConnection.h src/contrib/avl.h src/contrib/logdel_heap.h src/SrcDstSockaddrs.h src/CaptureContext.h src/TCPConnection.h src/TCPAppQueueItem.h src/TCPSiteQueueItem.h src/tcpDestroySitePrequeueItem.h src/cancelTimeout.h
 	$(CC) $(CFLAGS) -c -o bin/destroyTCPConnection.o src/destroyTCPConnection.c
 bin/tcpConnwaitPacketsProcessor.o: src/tcpConnwaitPacketsProcessor.c src/tcpConnwaitPacketsProcessor.h src/IPPacketPayload.h src/TCPHeaderData.h src/SrcDstSockaddrs.h src/TCPConnection.h
 	$(CC) $(CFLAGS) -c -o bin/tcpConnwaitPacketsProcessor.o src/tcpConnwaitPacketsProcessor.c
@@ -121,23 +121,23 @@ bin/tcpstate_synack_send.o: src/tcpstate_synack_send.c src/tcpstate_synack_send.
 	$(CC) $(CFLAGS) $(LIBEVENT_CFLAGS) -c -o bin/tcpstate_synack_send.o src/tcpstate_synack_send.c
 bin/getSendWindowSize.o: src/getSendWindowSize.c src/getSendWindowSize.h src/SrcDstSockaddrs.h src/TCPSiteQueueItem.h src/TCPConnection.h src/MAX_SITE_QUEUE.h
 	$(CC) $(CFLAGS) -c -o bin/getSendWindowSize.o src/getSendWindowSize.c
-bin/computeIPv4MSS.o: src/computeIPv4MSS.c src/computeIPv4MSS.h src/contrib/heap.h src/CaptureSettings.h src/CaptureContext.h
+bin/computeIPv4MSS.o: src/computeIPv4MSS.c src/computeIPv4MSS.h src/contrib/logdel_heap.h src/CaptureSettings.h src/CaptureContext.h
 	$(CC) $(CFLAGS) -c -o bin/computeIPv4MSS.o src/computeIPv4MSS.c
-bin/computeIPv6MSS.o: src/computeIPv6MSS.c src/computeIPv6MSS.h src/contrib/heap.h src/CaptureSettings.h src/CaptureContext.h
+bin/computeIPv6MSS.o: src/computeIPv6MSS.c src/computeIPv6MSS.h src/contrib/logdel_heap.h src/CaptureSettings.h src/CaptureContext.h
 	$(CC) $(CFLAGS) -c -o bin/computeIPv6MSS.o src/computeIPv6MSS.c
-bin/sendSynReply.o: src/sendSynReply.c src/sendSynReply.h src/contrib/heap.h src/CaptureSettings.h src/CaptureContext.h src/SrcDstSockaddrs.h src/IPFragmentMetadata.h src/NetworkProtocolStrategy.h src/TCPAppQueueItem.h src/TCPHeaderData.h src/TCPConnection.h src/getSendWindowSize.h src/writeTCPHeader.h src/enqueueTCPPacketTransmission.h src/computeTCPDataOffset.h src/enqueueTCPRetransmission.h src/HEADERS_RESERVE.h
+bin/sendSynReply.o: src/sendSynReply.c src/sendSynReply.h src/contrib/logdel_heap.h src/CaptureSettings.h src/CaptureContext.h src/SrcDstSockaddrs.h src/IPFragmentMetadata.h src/NetworkProtocolStrategy.h src/TCPAppQueueItem.h src/TCPHeaderData.h src/TCPConnection.h src/getSendWindowSize.h src/writeTCPHeader.h src/enqueueTCPPacketTransmission.h src/computeTCPDataOffset.h src/enqueueTCPRetransmission.h src/HEADERS_RESERVE.h
 	$(CC) $(CFLAGS) -c -o bin/sendSynReply.o src/sendSynReply.c
 bin/retry_delay.o: src/retry_delay.c src/retry_delay.h
 	$(CC) $(CFLAGS) -c -o bin/retry_delay.o src/retry_delay.c
-bin/enqueueTimeout.o: src/enqueueTimeout.c src/enqueueTimeout.h src/contrib/heap.h src/CaptureContext.h src/TimeoutItem.h
+bin/enqueueTimeout.o: src/enqueueTimeout.c src/enqueueTimeout.h src/contrib/logdel_heap.h src/CaptureContext.h src/TimeoutItem.h
 	$(CC) $(CFLAGS) -c -o bin/enqueueTimeout.o src/enqueueTimeout.c
-bin/enqueueTCPPacketTransmission.o: src/enqueueTCPPacketTransmission.c src/enqueueTCPPacketTransmission.h src/contrib/heap.h src/CaptureSettings.h src/CaptureContext.h src/PacketQueueItem.h src/TCPAppQueueItem.h src/SrcDstSockaddrs.h src/TCPConnection.h src/enqueueTxPacket.h src/sendTCPPacketRefcounted.h
+bin/enqueueTCPPacketTransmission.o: src/enqueueTCPPacketTransmission.c src/enqueueTCPPacketTransmission.h src/contrib/logdel_heap.h src/CaptureSettings.h src/CaptureContext.h src/PacketQueueItem.h src/TCPAppQueueItem.h src/SrcDstSockaddrs.h src/TCPConnection.h src/enqueueTxPacket.h src/sendTCPPacketRefcounted.h
 	$(CC) $(CFLAGS) $(LIBEVENT_CFLAGS) -c -o bin/enqueueTCPPacketTransmission.o src/enqueueTCPPacketTransmission.c
 bin/tcpRetransmissionTimerCallback.o: src/tcpRetransmissionTimerCallback.c src/tcpRetransmissionTimerCallback.h src/SrcDstSockaddrs.h src/TCPConnection.h src/TCPAppQueueItem.h src/enqueueTCPPacketTransmission.h src/enqueueTCPRetransmission.h src/isAppQueueItemInWindow.h
 	$(CC) $(CFLAGS) -c -o bin/tcpRetransmissionTimerCallback.o src/tcpRetransmissionTimerCallback.c
 bin/computeTCPDataOffset.o: src/computeTCPDataOffset.c src/computeTCPDataOffset.h src/TCPHeaderData.h
 	$(CC) $(CFLAGS) -c -o bin/computeTCPDataOffset.o src/computeTCPDataOffset.c
-bin/enqueueRxPacket.o: src/enqueueRxPacket.c src/enqueueRxPacket.h src/contrib/heap.h src/CaptureContext.h src/PacketQueueItem.h
+bin/enqueueRxPacket.o: src/enqueueRxPacket.c src/enqueueRxPacket.h src/contrib/logdel_heap.h src/CaptureContext.h src/PacketQueueItem.h
 	$(CC) $(CFLAGS) -c -o bin/enqueueRxPacket.o src/enqueueRxPacket.c
 bin/tcpstate_established.o: src/tcpstate_established.c src/tcpstate_established.h src/IPPacketPayload.h src/SrcDstSockaddrs.h src/TCPHeaderData.h src/TCPConnection.h src/TCPState.h src/tcpEstablishedReadCallback.h src/tcpEstablishedWriteCallback.h src/tcpEstablishedPacketsProcessor.h
 	$(CC) $(CFLAGS) $(LIBEVENT_CFLAGS) -c -o bin/tcpstate_established.o src/tcpstate_established.c
@@ -145,11 +145,11 @@ bin/tcpEstablishedReadCallback.o: src/tcpEstablishedReadCallback.c src/tcpEstabl
 	$(CC) $(CFLAGS) $(LIBEVENT_CFLAGS) -c -o bin/tcpEstablishedReadCallback.o src/tcpEstablishedReadCallback.c
 bin/tcpEstablishedWriteCallback.o: src/tcpEstablishedWriteCallback.c src/tcpEstablishedWriteCallback.h src/SrcDstSockaddrs.h src/TCPSiteQueueItem.h src/TCPConnection.h src/getSendWindowSize.h src/sendTCPAcknowledgement.h src/sendSiteQueueItems.h src/tcpUpdateWriteEvent.h
 	$(CC) $(CFLAGS) $(LIBEVENT_CFLAGS) -c -o bin/tcpEstablishedWriteCallback.o src/tcpEstablishedWriteCallback.c
-bin/tcpEstablishedPacketsProcessor.o: src/tcpEstablishedPacketsProcessor.c src/tcpEstablishedPacketsProcessor.h src/contrib/avl.h src/contrib/heap.h src/IPPacketPayload.h src/SrcDstSockaddrs.h src/TCPConnection.h src/TCPHeaderData.h src/TCPSitePrequeueItem.h src/CaptureContext.h src/TCPAppQueueItem.h src/getMonotonicTimeval.h src/addTimeval.h src/checkByteInWindow.h src/enqueueTimeout.h src/tcpDeleteExpiredSegment.h src/enqueueSiteDataFromPrequeueItem.h src/tcpUpdateReadEvent.h src/tcpUpdateWriteEvent.h src/cancelTimeout.h src/startTimer.h src/sendTCPAcknowledgement.h src/tcpCleanupConfirmed.h src/isNewAckAcceptable.h src/scaleRemoteWindow.h src/enqueueTCPPacketTransmission.h src/enqueueUnsentTCPPacketsTransmission.h src/segexpire_delay.h src/tcpstate_gotfin.h src/MAX_SITE_QUEUE.h
+bin/tcpEstablishedPacketsProcessor.o: src/tcpEstablishedPacketsProcessor.c src/tcpEstablishedPacketsProcessor.h src/contrib/avl.h src/contrib/logdel_heap.h src/IPPacketPayload.h src/SrcDstSockaddrs.h src/TCPConnection.h src/TCPHeaderData.h src/TCPSitePrequeueItem.h src/CaptureContext.h src/TCPAppQueueItem.h src/getMonotonicTimeval.h src/addTimeval.h src/checkByteInWindow.h src/enqueueTimeout.h src/tcpDeleteExpiredSegment.h src/enqueueSiteDataFromPrequeueItem.h src/tcpUpdateReadEvent.h src/tcpUpdateWriteEvent.h src/cancelTimeout.h src/startTimer.h src/sendTCPAcknowledgement.h src/tcpCleanupConfirmed.h src/isNewAckAcceptable.h src/scaleRemoteWindow.h src/enqueueTCPPacketTransmission.h src/enqueueUnsentTCPPacketsTransmission.h src/segexpire_delay.h src/tcpstate_gotfin.h src/MAX_SITE_QUEUE.h
 	$(CC) $(CFLAGS) $(LIBEVENT_CFLAGS) -c -o bin/tcpEstablishedPacketsProcessor.o src/tcpEstablishedPacketsProcessor.c
-bin/cancelTimeout.o: src/cancelTimeout.c src/cancelTimeout.h src/contrib/heap.h src/CaptureContext.h src/TimeoutItem.h src/cancelTimeoutUnlocked.h
+bin/cancelTimeout.o: src/cancelTimeout.c src/cancelTimeout.h src/contrib/logdel_heap.h src/CaptureContext.h src/TimeoutItem.h
 	$(CC) $(CFLAGS) -c -o bin/cancelTimeout.o src/cancelTimeout.c
-bin/tcpCleanupConfirmed.o: src/tcpCleanupConfirmed.c src/tcpCleanupConfirmed.h src/contrib/heap.h src/SrcDstSockaddrs.h src/CaptureContext.h src/TCPAppQueueItem.h src/TCPConnection.h src/cancelTimeout.h
+bin/tcpCleanupConfirmed.o: src/tcpCleanupConfirmed.c src/tcpCleanupConfirmed.h src/contrib/logdel_heap.h src/SrcDstSockaddrs.h src/CaptureContext.h src/TCPAppQueueItem.h src/TCPConnection.h src/cancelTimeout.h
 	$(CC) $(CFLAGS) -c -o bin/tcpCleanupConfirmed.o src/tcpCleanupConfirmed.c
 bin/tcpUpdateReadEvent.o: src/tcpUpdateReadEvent.c src/tcpUpdateReadEvent.h src/SrcDstSockaddrs.h src/TCPConnection.h src/MAX_APP_QUEUE.h
 	$(CC) $(CFLAGS) $(LIBEVENT_CFLAGS) -c -o bin/tcpUpdateReadEvent.o src/tcpUpdateReadEvent.c
@@ -161,29 +161,29 @@ bin/compareTCPSitePrequeueItems.o: src/compareTCPSitePrequeueItems.c src/compare
 	$(CC) $(CFLAGS) -c -o bin/compareTCPSitePrequeueItems.o src/compareTCPSitePrequeueItems.c
 bin/segexpire_delay.o: src/segexpire_delay.c src/segexpire_delay.h
 	$(CC) $(CFLAGS) -c -o bin/segexpire_delay.o src/segexpire_delay.c
-bin/tcpDeleteExpiredSegment.o: src/tcpDeleteExpiredSegment.c src/tcpDeleteExpiredSegment.h src/contrib/avl.h src/TimeoutItem.h src/SrcDstSockaddrs.h src/TCPConnection.h src/TCPSitePrequeueItem.h src/cancelTimeout.h
+bin/tcpDeleteExpiredSegment.o: src/tcpDeleteExpiredSegment.c src/tcpDeleteExpiredSegment.h src/contrib/avl.h src/TimeoutItem.h src/SrcDstSockaddrs.h src/TCPConnection.h src/TCPSitePrequeueItem.h
 	$(CC) $(CFLAGS) -c -o bin/tcpDeleteExpiredSegment.o src/tcpDeleteExpiredSegment.c
 bin/enqueueSiteDataFromPrequeueItem.o: src/enqueueSiteDataFromPrequeueItem.c src/enqueueSiteDataFromPrequeueItem.h src/contrib/avl.h src/SrcDstSockaddrs.h src/TCPSitePrequeueItem.h src/TCPSiteQueueItem.h src/TCPConnection.h
 	$(CC) $(CFLAGS) -c -o bin/enqueueSiteDataFromPrequeueItem.o src/enqueueSiteDataFromPrequeueItem.c
-bin/sendTCPAcknowledgement.o: src/sendTCPAcknowledgement.c src/sendTCPAcknowledgement.h src/contrib/heap.h src/CaptureSettings.h src/CaptureContext.h src/TCPHeaderData.h src/IPFragmentMetadata.h src/NetworkProtocolStrategy.h src/SrcDstSockaddrs.h src/TCPConnection.h src/TCPAppQueueItem.h src/writeTCPHeader.h src/enqueueTCPPacketTransmission.h src/getSendWindowSize.h src/computeTCPDataOffset.h src/HEADERS_RESERVE.h
+bin/sendTCPAcknowledgement.o: src/sendTCPAcknowledgement.c src/sendTCPAcknowledgement.h src/contrib/logdel_heap.h src/CaptureSettings.h src/CaptureContext.h src/TCPHeaderData.h src/IPFragmentMetadata.h src/NetworkProtocolStrategy.h src/SrcDstSockaddrs.h src/TCPConnection.h src/TCPAppQueueItem.h src/writeTCPHeader.h src/enqueueTCPPacketTransmission.h src/getSendWindowSize.h src/computeTCPDataOffset.h src/HEADERS_RESERVE.h
 	$(CC) $(CFLAGS) -c -o bin/sendTCPAcknowledgement.o src/sendTCPAcknowledgement.c
-bin/processTCPUrgentData.o: src/processTCPUrgentData.c src/processTCPUrgentData.h src/contrib/heap.h src/CaptureContext.h
+bin/processTCPUrgentData.o: src/processTCPUrgentData.c src/processTCPUrgentData.h src/contrib/logdel_heap.h src/CaptureContext.h
 	$(CC) $(CFLAGS) -c -o bin/processTCPUrgentData.o src/processTCPUrgentData.c
-bin/processTCPData.o: src/processTCPData.c src/processTCPData.h src/contrib/heap.h src/CaptureSettings.h src/CaptureContext.h src/SrcDstSockaddrs.h src/IPFragmentMetadata.h src/NetworkProtocolStrategy.h src/TCPConnection.h src/TCPAppQueueItem.h src/TCPHeaderData.h src/getSendWindowSize.h src/computeTCPDataOffset.h src/writeTCPHeader.h src/checkByteInWindow.h src/enqueueTCPPacketTransmission.h src/enqueueTCPRetransmission.h src/isAppQueueItemInWindow.h src/HEADERS_RESERVE.h
+bin/processTCPData.o: src/processTCPData.c src/processTCPData.h src/contrib/logdel_heap.h src/CaptureSettings.h src/CaptureContext.h src/SrcDstSockaddrs.h src/IPFragmentMetadata.h src/NetworkProtocolStrategy.h src/TCPConnection.h src/TCPAppQueueItem.h src/TCPHeaderData.h src/getSendWindowSize.h src/computeTCPDataOffset.h src/writeTCPHeader.h src/checkByteInWindow.h src/enqueueTCPPacketTransmission.h src/enqueueTCPRetransmission.h src/isAppQueueItemInWindow.h src/HEADERS_RESERVE.h
 	$(CC) $(CFLAGS) -c -o bin/processTCPData.o src/processTCPData.c
-bin/dequeueTxPacket.o: src/dequeueTxPacket.c src/dequeueTxPacket.h src/contrib/heap.h src/CaptureContext.h src/PacketQueueItem.h
+bin/dequeueTxPacket.o: src/dequeueTxPacket.c src/dequeueTxPacket.h src/contrib/logdel_heap.h src/CaptureContext.h src/PacketQueueItem.h
 	$(CC) $(CFLAGS) -c -o bin/dequeueTxPacket.o src/dequeueTxPacket.c
-bin/tunWriteCallback.o: src/tunWriteCallback.c src/tunWriteCallback.h src/contrib/heap.h src/CaptureSettings.h src/CaptureContext.h src/dequeueTxPacket.h src/emergencyStop.h
+bin/tunWriteCallback.o: src/tunWriteCallback.c src/tunWriteCallback.h src/contrib/logdel_heap.h src/CaptureSettings.h src/CaptureContext.h src/dequeueTxPacket.h src/emergencyStop.h
 	$(CC) $(CFLAGS) $(LIBEVENT_CFLAGS) -c -o bin/tunWriteCallback.o src/tunWriteCallback.c
-bin/emergencyStop.o: src/emergencyStop.c src/emergencyStop.h src/contrib/heap.h src/CaptureContext.h
+bin/emergencyStop.o: src/emergencyStop.c src/emergencyStop.h src/contrib/logdel_heap.h src/CaptureContext.h
 	$(CC) $(CFLAGS) $(LIBEVENT_CFLAGS) -c -o bin/emergencyStop.o src/emergencyStop.c
-bin/udpWriteCallback.o: src/udpWriteCallback.c src/udpWriteCallback.h src/contrib/heap.h src/CaptureContext.h src/UDPBinding.h src/UDPStackItem.h src/emergencyStop.h
+bin/udpWriteCallback.o: src/udpWriteCallback.c src/udpWriteCallback.h src/contrib/logdel_heap.h src/CaptureContext.h src/UDPBinding.h src/UDPStackItem.h src/emergencyStop.h
 	$(CC) $(CFLAGS) $(LIBEVENT_CFLAGS) -c -o bin/udpWriteCallback.o src/udpWriteCallback.c
-bin/enqueueTxPacket.o: src/enqueueTxPacket.c src/enqueueTxPacket.h src/contrib/heap.h src/CaptureContext.h src/PacketQueueItem.h
+bin/enqueueTxPacket.o: src/enqueueTxPacket.c src/enqueueTxPacket.h src/contrib/logdel_heap.h src/CaptureContext.h src/PacketQueueItem.h
 	$(CC) $(CFLAGS) $(LIBEVENT_CFLAGS) -c -o bin/enqueueTxPacket.o src/enqueueTxPacket.c
-bin/tcpWriteCallback.o: src/tcpWriteCallback.c src/tcpWriteCallback.h src/contrib/heap.h src/CaptureContext.h src/SrcDstSockaddrs.h src/IPPacketPayload.h src/TCPHeaderData.h src/TCPConnection.h src/TCPState.h src/emergencyStop.h
+bin/tcpWriteCallback.o: src/tcpWriteCallback.c src/tcpWriteCallback.h src/contrib/logdel_heap.h src/CaptureContext.h src/SrcDstSockaddrs.h src/IPPacketPayload.h src/TCPHeaderData.h src/TCPConnection.h src/TCPState.h src/emergencyStop.h
 	$(CC) $(CFLAGS) $(LIBEVENT_CFLAGS) -c -o bin/tcpWriteCallback.o src/tcpWriteCallback.c
-bin/tcpDestroySitePrequeueItem.o: src/tcpDestroySitePrequeueItem.c src/tcpDestroySitePrequeueItem.h src/SrcDstSockaddrs.h src/TCPConnection.h src/TCPSitePrequeueItem.h src/cancelTimeoutUnlocked.h
+bin/tcpDestroySitePrequeueItem.o: src/tcpDestroySitePrequeueItem.c src/tcpDestroySitePrequeueItem.h src/SrcDstSockaddrs.h src/TCPConnection.h src/TCPSitePrequeueItem.h src/cancelTimeout.h
 	$(CC) $(CFLAGS) -c -o bin/tcpDestroySitePrequeueItem.o src/tcpDestroySitePrequeueItem.c
 bin/tcpFinalizeRead.o: src/tcpFinalizeRead.c src/tcpFinalizeRead.h src/SrcDstSockaddrs.h src/TCPConnection.h src/destroyTCPConnection.h
 	$(CC) $(CFLAGS) $(LIBEVENT_CFLAGS) -c -o bin/tcpFinalizeRead.o src/tcpFinalizeRead.c
@@ -191,9 +191,9 @@ bin/tcpFinalizeWrite.o: src/tcpFinalizeWrite.c src/tcpFinalizeWrite.h src/SrcDst
 	$(CC) $(CFLAGS) $(LIBEVENT_CFLAGS) -c -o bin/tcpFinalizeWrite.o src/tcpFinalizeWrite.c
 bin/tcpstate_gotfin.o: src/tcpstate_gotfin.c src/tcpstate_gotfin.h src/IPPacketPayload.h src/SrcDstSockaddrs.h src/TCPHeaderData.h src/TCPConnection.h src/TCPState.h
 	$(CC) $(CFLAGS) $(LIBEVENT_CFLAGS) -c -o bin/tcpstate_gotfin.o src/tcpstate_gotfin.c
-bin/sendPacketOnce.o: src/sendPacketOnce.c src/sendPacketOnce.h src/contrib/heap.h src/CaptureSettings.h src/CaptureContext.h src/PacketQueueItem.h
+bin/sendPacketOnce.o: src/sendPacketOnce.c src/sendPacketOnce.h src/contrib/logdel_heap.h src/CaptureSettings.h src/CaptureContext.h src/PacketQueueItem.h
 	$(CC) $(CFLAGS) -c -o bin/sendPacketOnce.o src/sendPacketOnce.c
-bin/sendTCPPacketRefcounted.o: src/sendTCPPacketRefcounted.c src/sendTCPPacketRefcounted.h src/contrib/heap.h src/CaptureSettings.h src/CaptureContext.h src/SrcDstSockaddrs.h src/TCPConnection.h src/TCPAppQueueItem.h src/cancelTimeoutUnlocked.h
+bin/sendTCPPacketRefcounted.o: src/sendTCPPacketRefcounted.c src/sendTCPPacketRefcounted.h src/contrib/logdel_heap.h src/CaptureSettings.h src/CaptureContext.h src/SrcDstSockaddrs.h src/TCPConnection.h src/TCPAppQueueItem.h src/cancelTimeout.h
 	$(CC) $(CFLAGS) -c -o bin/sendTCPPacketRefcounted.o src/sendTCPPacketRefcounted.c
 bin/tcpGotFINReadCallback.o: src/tcpGotFINReadCallback.c src/tcpGotFINReadCallback.h src/SrcDstSockaddrs.h src/TCPConnection.h src/readAndEnqueueSiteData.h src/tcpGotFINOnEnd.h src/tcpGotFINOnError.h
 	$(CC) $(CFLAGS) $(LIBEVENT_CFLAGS) -c -o bin/tcpGotFINReadCallback.o src/tcpGotFINReadCallback.c
@@ -215,9 +215,9 @@ bin/tcpGotFINOnError.o: src/tcpGotFINOnError.c src/tcpGotFINOnError.h src/SrcDst
 	$(CC) $(CFLAGS) -c -o bin/tcpGotFINOnError.o src/tcpGotFINOnError.c
 bin/isNewAckAcceptable.o: src/isNewAckAcceptable.c src/isNewAckAcceptable.h src/SrcDstSockaddrs.h src/TCPConnection.h src/checkByteInWindow.h
 	$(CC) $(CFLAGS) -c -o bin/isNewAckAcceptable.o src/isNewAckAcceptable.c
-bin/addressFamilyToNetworkStrategy.o: src/addressFamilyToNetworkStrategy.c src/addressFamilyToNetworkStrategy.h src/contrib/heap.h src/CaptureContext.h src/IPFragmentMetadata.h src/NetworkProtocolStrategy.h src/ipv4_strategy.h src/ipv6_strategy.h
+bin/addressFamilyToNetworkStrategy.o: src/addressFamilyToNetworkStrategy.c src/addressFamilyToNetworkStrategy.h src/contrib/logdel_heap.h src/CaptureContext.h src/IPFragmentMetadata.h src/NetworkProtocolStrategy.h src/ipv4_strategy.h src/ipv6_strategy.h
 	$(CC) $(CFLAGS) -c -o bin/addressFamilyToNetworkStrategy.o src/addressFamilyToNetworkStrategy.c
-bin/sendTCPFinalize.o: src/sendTCPFinalize.c src/sendTCPFinalize.h src/contrib/heap.h src/CaptureSettings.h src/CaptureContext.h src/TCPHeaderData.h src/IPFragmentMetadata.h src/NetworkProtocolStrategy.h src/SrcDstSockaddrs.h src/TCPConnection.h src/TCPAppQueueItem.h src/writeTCPHeader.h src/enqueueTCPPacketTransmission.h src/getSendWindowSize.h src/computeTCPDataOffset.h src/enqueueTCPRetransmission.h src/HEADERS_RESERVE.h
+bin/sendTCPFinalize.o: src/sendTCPFinalize.c src/sendTCPFinalize.h src/contrib/logdel_heap.h src/CaptureSettings.h src/CaptureContext.h src/TCPHeaderData.h src/IPFragmentMetadata.h src/NetworkProtocolStrategy.h src/SrcDstSockaddrs.h src/TCPConnection.h src/TCPAppQueueItem.h src/writeTCPHeader.h src/enqueueTCPPacketTransmission.h src/getSendWindowSize.h src/computeTCPDataOffset.h src/enqueueTCPRetransmission.h src/HEADERS_RESERVE.h
 	$(CC) $(CFLAGS) -c -o bin/sendTCPFinalize.o src/sendTCPFinalize.c
 bin/scaleRemoteWindow.o: src/scaleRemoteWindow.c src/scaleRemoteWindow.h src/SrcDstSockaddrs.h src/TCPConnection.h
 	$(CC) $(CFLAGS) -c -o bin/scaleRemoteWindow.o src/scaleRemoteWindow.c
@@ -229,17 +229,17 @@ bin/tcpLastACKWaitPacketsProcessor.o: src/tcpLastACKWaitPacketsProcessor.c src/t
 	$(CC) $(CFLAGS) -c -o bin/tcpLastACKWaitPacketsProcessor.o src/tcpLastACKWaitPacketsProcessor.c
 bin/tcpstate_lastackwait.o: src/tcpstate_lastackwait.c src/tcpstate_lastackwait.h src/IPPacketPayload.h src/SrcDstSockaddrs.h src/TCPHeaderData.h src/TCPConnection.h src/TCPState.h src/tcpLastACKWaitReadCallback.h src/tcpLastACKWaitWriteCallback.h src/tcpLastACKWaitPacketsProcessor.h
 	$(CC) $(CFLAGS) -c -o bin/tcpstate_lastackwait.o src/tcpstate_lastackwait.c
-bin/enqueueTCPRetransmission.o: src/enqueueTCPRetransmission.c src/enqueueTCPRetransmission.h src/contrib/heap.h src/CaptureContext.h src/SrcDstSockaddrs.h src/TCPConnection.h src/TCPAppQueueItem.h src/TimeoutItem.h src/getMonotonicTimeval.h src/addTimeval.h src/enqueueTimeout.h src/tcpRetransmissionTimerCallback.h src/startTimer.h src/cancelTimeoutUnlocked.h src/retry_delay.h
+bin/enqueueTCPRetransmission.o: src/enqueueTCPRetransmission.c src/enqueueTCPRetransmission.h src/contrib/logdel_heap.h src/CaptureContext.h src/SrcDstSockaddrs.h src/TCPConnection.h src/TCPAppQueueItem.h src/TimeoutItem.h src/getMonotonicTimeval.h src/addTimeval.h src/enqueueTimeout.h src/tcpRetransmissionTimerCallback.h src/startTimer.h src/retry_delay.h
 	$(CC) $(CFLAGS) -c -o bin/enqueueTCPRetransmission.o src/enqueueTCPRetransmission.c
 bin/isAppQueueItemInWindow.o: src/isAppQueueItemInWindow.c src/isAppQueueItemInWindow.h src/TCPAppQueueItem.h src/checkByteInWindow.h
 	$(CC) $(CFLAGS) -c -o bin/isAppQueueItemInWindow.o src/isAppQueueItemInWindow.c
-bin/cancelTimeoutUnlocked.o: src/cancelTimeoutUnlocked.c src/cancelTimeoutUnlocked.h src/TimeoutItem.h
-	$(CC) $(CFLAGS) -c -o bin/cancelTimeoutUnlocked.o src/cancelTimeoutUnlocked.c
 bin/enqueueUnsentTCPPacketsTransmission.o: src/enqueueUnsentTCPPacketsTransmission.c src/enqueueUnsentTCPPacketsTransmission.h src/SrcDstSockaddrs.h src/TCPAppQueueItem.h src/TCPConnection.h src/isAppQueueItemInWindow.h src/enqueueTCPPacketTransmission.h src/enqueueTCPRetransmission.h
 	$(CC) $(CFLAGS) -c -o bin/enqueueUnsentTCPPacketsTransmission.o src/enqueueUnsentTCPPacketsTransmission.c
+bin/udpFinalize.o: src/udpFinalize.c src/udpFinalize.h
+	$(CC) $(CFLAGS) $(LIBEVENT_CFLAGS) -c -o bin/udpFinalize.o src/udpFinalize.c
 bin/avl.o: src/contrib/avl.c src/contrib/avl.h
 	$(CC) $(CFLAGS) -c -o bin/avl.o src/contrib/avl.c
-bin/heap.o: src/contrib/heap.c src/contrib/heap.h
-	$(CC) $(CFLAGS) -c -o bin/heap.o src/contrib/heap.c
+bin/logdel_heap.o: src/contrib/logdel_heap.c src/contrib/logdel_heap.h
+	$(CC) $(CFLAGS) -c -o bin/logdel_heap.o src/contrib/logdel_heap.c
 clean:
 	rm -f bin/*

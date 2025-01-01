@@ -6,14 +6,14 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include "contrib/avl.h"
-#include "contrib/heap.h"
+#include "contrib/logdel_heap.h"
 #include "SrcDstSockaddrs.h"
 #include "CaptureContext.h"
 #include "TCPConnection.h"
 #include "TCPAppQueueItem.h"
 #include "TCPSiteQueueItem.h"
 #include "tcpDestroySitePrequeueItem.h"
-#include "cancelTimeoutUnlocked.h"
+#include "cancelTimeout.h"
 
 #include "destroyTCPConnection.h"
 void destroyTCPConnection(struct TCPConnection *connection) {
@@ -24,14 +24,11 @@ void destroyTCPConnection(struct TCPConnection *connection) {
 	assert(del == connection);
 	pthread_mutex_lock(&connection->mutex);
 	pthread_mutex_unlock(&connection->context->tcp_mutex);
-	pthread_mutex_unlock(&connection->mutex);
-	pthread_mutex_lock(&connection->context->timeout_mutex);
-	pthread_mutex_lock(&connection->mutex);
 	while (connection->app_queue) {
 		struct TCPAppQueueItem *next;
 		next = connection->app_queue->next;
 		connection->app_queue->ref_count--;
-		cancelTimeoutUnlocked(&connection->app_queue->timeout);
+		cancelTimeout(connection->context, &connection->mutex, connection->app_queue->timeout);
 		if (0 == connection->app_queue->ref_count) {
 			free(connection->app_queue->free_me);
 			free(connection->app_queue);
@@ -39,7 +36,6 @@ void destroyTCPConnection(struct TCPConnection *connection) {
 		connection->app_queue = next;
 	};
 	avl_destroy(connection->site_prequeue, &tcpDestroySitePrequeueItem);
-	pthread_mutex_unlock(&connection->context->timeout_mutex);
 	while (connection->site_queue) {
 		struct TCPSiteQueueItem *next;
 		next = connection->site_queue->next;

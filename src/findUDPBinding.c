@@ -7,13 +7,14 @@
 #include <sys/socket.h>
 #include <event2/event.h>
 #include "contrib/avl.h"
-#include "contrib/heap.h"
+#include "contrib/logdel_heap.h"
 #include "CaptureContext.h"
 #include "IPFragmentMetadata.h"
 #include "NetworkProtocolStrategy.h"
 #include "UDPBinding.h"
 #include "udpReadCallback.h"
 #include "udpWriteCallback.h"
+#include "udpFinalize.h"
 
 #include "findUDPBinding.h"
 struct UDPBinding *findUDPBinding(struct CaptureContext *context, const struct NetworkProtocolStrategy *strategy, const struct sockaddr *sa) {
@@ -75,7 +76,7 @@ struct UDPBinding *findUDPBinding(struct CaptureContext *context, const struct N
 		if (NULL == binding->write_event) {
 			pthread_mutex_unlock(&binding->mutex);
 			pthread_mutex_destroy(&binding->mutex);
-			event_free(binding->read_event);
+			event_free_finalize(0, binding->read_event, &udpFinalize);
 			pthread_mutex_unlock(&context->udp_mutex);
 			close(binding->sock);
 			free(binding);
@@ -84,8 +85,8 @@ struct UDPBinding *findUDPBinding(struct CaptureContext *context, const struct N
 		if (-1 == event_add(binding->read_event, NULL)) {
 			pthread_mutex_unlock(&binding->mutex);
 			pthread_mutex_destroy(&binding->mutex);
-			event_free(binding->read_event);
-			event_free(binding->write_event);
+			event_free_finalize(0, binding->read_event, &udpFinalize);
+			event_free_finalize(0, binding->write_event, &udpFinalize);
 			pthread_mutex_unlock(&context->udp_mutex);
 			close(binding->sock);
 			free(binding);
@@ -97,8 +98,8 @@ struct UDPBinding *findUDPBinding(struct CaptureContext *context, const struct N
 		if ((NULL == probe) || ((*probe) != binding)) {
 			pthread_mutex_unlock(&binding->mutex);
 			pthread_mutex_destroy(&binding->mutex);
-			event_free(binding->read_event);
-			event_free(binding->write_event);
+			event_free_finalize(0, binding->read_event, &udpFinalize);
+			event_free_finalize(0, binding->write_event, &udpFinalize);
 			pthread_mutex_unlock(&context->udp_mutex);
 			close(binding->sock);
 			free(binding);

@@ -10,7 +10,7 @@ struct CaptureContext {
 	struct event *rx_event, *tx_event; // События приёма и передачи
 	struct avl_table *ipv4_fragments; // Фрагменты пакетов IPv4
 	struct event *timeout_event;
-	heap_t *timeout_queue; // Очередь с приоритетом для таймаутов
+	struct LogDelHeap *timeout_queue; // Очередь с приоритетом для таймаутов
 	pthread_mutex_t timeout_mutex; // Мьютекс для таймеров
 	pthread_mutex_t udp_mutex; // Мьютекс для контроля над привязками UDP
 	struct avl_table *udp_bindings; // Таблица с привязками UDP

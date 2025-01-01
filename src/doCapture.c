@@ -7,7 +7,7 @@
 #include <event2/event.h>
 #include <event2/thread.h>
 #include "contrib/avl.h"
-#include "contrib/heap.h"
+#include "contrib/logdel_heap.h"
 #include "ForwardingMappingIPv4.h"
 #include "ForwardingMappingIPv6.h"
 #include "CaptureContext.h"
@@ -40,7 +40,7 @@ unsigned int doCapture(const struct CaptureSettings *settings) {
 	context->tx_begin = NULL;
 	context->tx_end = &context->tx_begin;
 	context->ipv4_fragments = avl_create(&compareIPv4FragmentsIdsSources, NULL, NULL);
-	context->timeout_queue = heap_new(&compareTimeoutItems, NULL);
+	context->timeout_queue = logdelheap_create(&compareTimeoutItems, NULL);
 	if (evthread_use_pthreads()) {
 		free(context);
 		return 1;

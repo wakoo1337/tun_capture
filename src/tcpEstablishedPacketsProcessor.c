@@ -6,7 +6,7 @@
 #include <sys/socket.h>
 #include <event2/event.h>
 #include "contrib/avl.h"
-#include "contrib/heap.h"
+#include "contrib/logdel_heap.h"
 #include "IPPacketPayload.h"
 #include "SrcDstSockaddrs.h"
 #include "TCPConnection.h"
@@ -89,7 +89,7 @@ unsigned int tcpEstablishedPacketsProcessor(struct TCPConnection *connection, co
 	enqueueUnsentTCPPacketsTransmission(connection);
 	struct TCPSitePrequeueItem *found_prequeue;
 	while ((found_prequeue = avl_find(connection->site_prequeue, &connection->first_desired))) {
-		cancelTimeout(connection->context, &connection->mutex, &found_prequeue->timeout);
+		cancelTimeout(connection->context, &connection->mutex, found_prequeue->timeout);
 		connection->first_desired += found_prequeue->urgent_count + found_prequeue->data_count;
 		enqueueSiteDataFromPrequeueItem(connection, found_prequeue);
 		if (found_prequeue->fin) {
