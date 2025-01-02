@@ -20,21 +20,16 @@
 
 #include "enqueueTCPRetransmission.h"
 unsigned int enqueueTCPRetransmission(struct TCPAppQueueItem *item) {
-	struct TimeoutItem *original_timeout = item->timeout;
 	pthread_mutex_unlock(&item->connection->mutex);
 	pthread_mutex_lock(&item->connection->context->timeout_mutex);
 	pthread_mutex_lock(&item->connection->mutex);
-	if (item->timeout == original_timeout) {
-		cancelTimeoutUnlocked(item->connection->context, item->timeout);
-		struct timeval now, expire;
-		getMonotonicTimeval(&now);
-		addTimeval(&now, &retry_delay, &expire);
-		item->timeout = enqueueTimeout(item->connection->context, &expire, &tcpRetransmissionTimerCallback, item, &item->connection->mutex);
-		const unsigned int result = (NULL == item->timeout);
-		if (0 == result) startTimer(item->connection->context);
-		pthread_mutex_unlock(&item->connection->context->timeout_mutex);
-		return result;
-	};
+	cancelTimeoutUnlocked(item->connection->context, item->timeout);
+	struct timeval now, expire;
+	getMonotonicTimeval(&now);
+	addTimeval(&now, &retry_delay, &expire);
+	item->timeout = enqueueTimeout(item->connection->context, &expire, &tcpRetransmissionTimerCallback, item, &item->connection->mutex);
+	const unsigned int result = (NULL == item->timeout);
+	if (0 == result) startTimer(item->connection->context);
 	pthread_mutex_unlock(&item->connection->context->timeout_mutex);
-	return 0;
+	return result;
 };

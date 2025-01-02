@@ -10,17 +10,11 @@
 
 #include "cancelTimeout.h"
 unsigned int cancelTimeout(struct CaptureContext *context, pthread_mutex_t *mutex, struct TimeoutItem **item) {
-	struct TimeoutItem *original_timeout = *item;
 	pthread_mutex_unlock(mutex);
 	pthread_mutex_lock(&context->timeout_mutex);
 	pthread_mutex_lock(mutex);
-	if ((*item) == original_timeout) {
-		unsigned int result;
-		result = cancelTimeoutUnlocked(context, *item);
-		pthread_mutex_unlock(&context->timeout_mutex);
-		return result;
-	} else {
-		pthread_mutex_unlock(&context->timeout_mutex);
-		return 0;
-	};
+	unsigned int result;
+	result = cancelTimeoutUnlocked(context, *item);
+	pthread_mutex_unlock(&context->timeout_mutex);
+	return result;
 };
