@@ -72,7 +72,6 @@ unsigned int processTCPData(struct CaptureContext *context, uint8_t *packet, uns
 	item->is_filled = true;
 	item->ref_count = 1;
 	if (isAppQueueItemInWindow(latest_ack, app_window, item)) {
-		item->ref_count++;
 		if (enqueueTCPPacketTransmission(item) || enqueueTCPRetransmission(item)) {
 			*old_last = item->next;
 			free(item->free_me);

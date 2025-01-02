@@ -29,7 +29,10 @@ unsigned int enqueueTCPRetransmission(struct TCPAppQueueItem *item) {
 	addTimeval(&now, &retry_delay, &expire);
 	item->timeout = enqueueTimeout(item->connection->context, &expire, &tcpRetransmissionTimerCallback, item, &item->connection->mutex);
 	const unsigned int result = (NULL == item->timeout);
-	if (0 == result) startTimer(item->connection->context);
+	if (0 == result) {
+		item->ref_count++;
+		startTimer(item->connection->context);
+	};
 	pthread_mutex_unlock(&item->connection->context->timeout_mutex);
 	return result;
 };
