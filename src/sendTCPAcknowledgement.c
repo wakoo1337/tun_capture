@@ -60,7 +60,7 @@ unsigned int sendTCPAcknowledgement(struct TCPConnection *connection) {
 	queue_item->timeout = NULL;
 	queue_item->free_me = packet;
 	queue_item->is_filled = true;
-	queue_item->ref_count = 1;
+	queue_item->ref_count = 0;
 	queue_item->next = NULL;
 	return enqueueTCPPacketTransmission(queue_item);
 };

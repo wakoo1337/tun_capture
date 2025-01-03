@@ -14,7 +14,6 @@
 void tcpRetransmissionTimerCallback(void *arg) {
 	struct TCPAppQueueItem *item;
 	item = (struct TCPAppQueueItem *) arg;
-	item->ref_count++;
 	enqueueTCPPacketTransmission(item);
 	item->timeout = NULL;
 	enqueueTCPRetransmission(item);
