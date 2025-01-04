@@ -70,14 +70,15 @@ unsigned int processTCPData(struct CaptureContext *context, uint8_t *packet, uns
 	item->timeout = NULL;
 	item->free_me = &packet[-HEADERS_RESERVE];
 	item->is_filled = true;
-	item->ref_count = 1;
+	item->ref_count = 2; // Одна ссылка — в связном списке, вторая — в локальной переменной в этой функции
 	if (isAppQueueItemInWindow(latest_ack, app_window, item)) {
 		if (enqueueTCPPacketTransmission(item) || enqueueTCPRetransmission(item)) {
-			*old_last = item->next;
+			*old_last = item->next; // TODO сделать лучший способ удаления, чтобы учитывалось, что и предыдущий элемент может измениться. Искать текущий элемент с самого начала.
 			free(item->free_me);
 			free(item);
 			return 1;
 		};
 	};
+	item->ref_count--; // Ссылка из локальной переменной ушла, всё.
 	return 0;
 };

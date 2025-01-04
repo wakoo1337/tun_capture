@@ -23,7 +23,7 @@ unsigned int enqueueTCPRetransmission(struct TCPAppQueueItem *item) {
 	pthread_mutex_unlock(&item->connection->mutex);
 	pthread_mutex_lock(&item->connection->context->timeout_mutex);
 	pthread_mutex_lock(&item->connection->mutex);
-	cancelTimeoutUnlocked(item->connection->context, item->timeout);
+	cancelTimeoutUnlocked(item->connection->context, &item->timeout);
 	struct timeval now, expire;
 	getMonotonicTimeval(&now);
 	addTimeval(&now, &retry_delay, &expire);

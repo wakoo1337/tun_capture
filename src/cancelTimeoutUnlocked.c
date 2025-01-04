@@ -9,12 +9,13 @@
 #include "TimeoutItem.h"
 
 #include "cancelTimeoutUnlocked.h"
-unsigned int cancelTimeoutUnlocked(struct CaptureContext *context, struct TimeoutItem *item) {
-	if (item) {
+unsigned int cancelTimeoutUnlocked(struct CaptureContext *context, struct TimeoutItem **item) {
+	if (*item) {
 		void *out;
-		if (logdelheap_delete(&context->timeout_queue, &out, item->index)) return 1;
-		assert(out == ((void *) item));
-		free(item);
+		if (logdelheap_delete(&context->timeout_queue, &out, (*item)->index)) return 1;
+		assert(out == ((void *) (*item)));
+		free(*item);
+		*item = NULL;
 	};
 	return 0;
 };

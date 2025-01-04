@@ -48,7 +48,7 @@ int main(int argc, char **argv) {
 	set32Bit(&header[16], 65535);
 	set32Bit(&header[20], 101);
 	fwrite(header, sizeof(char), 24, user.cap_file);
-	user.sa = (struct sockaddr) {0};
+	user.sa = (struct sockaddr_ll) {0};
 	((struct sockaddr_ll *) &user.sa)->sll_family = AF_PACKET;
 	((struct sockaddr_ll *) &user.sa)->sll_protocol = htons(ETH_P_IP);
 	((struct sockaddr_ll *) &user.sa)->sll_ifindex = iface;
