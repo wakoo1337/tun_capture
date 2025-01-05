@@ -15,7 +15,6 @@ unsigned int enqueueUnsentTCPPacketsTransmission(struct TCPConnection *connectio
 	appqueue_current = connection->app_queue;
 	while (appqueue_current && appqueue_current->is_filled) {
 		if ((appqueue_current->timeout == NULL) && isAppQueueItemInWindow(connection->latest_ack, connection->app_window, appqueue_current)) {
-			appqueue_current->ref_count++;
 			unsigned int status = 0;
 			status |= enqueueTCPPacketTransmission(appqueue_current);
 			if (status) return status;
