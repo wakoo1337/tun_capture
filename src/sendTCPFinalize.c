@@ -18,6 +18,7 @@
 #include "getSendWindowSize.h"
 #include "computeTCPDataOffset.h"
 #include "enqueueTCPRetransmission.h"
+#include "freeNoRefsAppQueueItem.h"
 #include "HEADERS_RESERVE.h"
 
 #include "sendTCPFinalize.h"
@@ -59,11 +60,17 @@ unsigned int sendTCPFinalize(struct TCPConnection *connection) {
 	queue_item->connection = connection;
 	queue_item->timeout = NULL;
 	queue_item->free_me = packet;
-	queue_item->is_filled = true;
-	queue_item->ref_count = 2;
+	queue_item->ref_count = 2; // Одна ссылка — в связном списке, вторая — в локальной переменной в этой функции
 	queue_item->next = NULL;
+	queue_item->is_filled = true;
 	*connection->app_last = queue_item;
 	connection->app_last = &queue_item->next;
-	enqueueTCPPacketTransmission(queue_item);
-	return enqueueTCPRetransmission(queue_item);
+	if (enqueueTCPPacketTransmission(queue_item) || enqueueTCPRetransmission(queue_item)) {
+		// TODO реализовать удаление, как в processTCPData()
+		free(queue_item);
+		return 1;
+	};
+	queue_item->ref_count--;
+	freeNoRefsAppQueueItem(queue_item);
+	return 0;
 };

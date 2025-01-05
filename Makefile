@@ -217,7 +217,7 @@ bin/isNewAckAcceptable.o: src/isNewAckAcceptable.c src/isNewAckAcceptable.h src/
 	$(CC) $(CFLAGS) -c -o bin/isNewAckAcceptable.o src/isNewAckAcceptable.c
 bin/addressFamilyToNetworkStrategy.o: src/addressFamilyToNetworkStrategy.c src/addressFamilyToNetworkStrategy.h src/contrib/logdel_heap.h src/CaptureContext.h src/IPFragmentMetadata.h src/NetworkProtocolStrategy.h src/ipv4_strategy.h src/ipv6_strategy.h
 	$(CC) $(CFLAGS) -c -o bin/addressFamilyToNetworkStrategy.o src/addressFamilyToNetworkStrategy.c
-bin/sendTCPFinalize.o: src/sendTCPFinalize.c src/sendTCPFinalize.h src/contrib/logdel_heap.h src/CaptureSettings.h src/CaptureContext.h src/TCPHeaderData.h src/IPFragmentMetadata.h src/NetworkProtocolStrategy.h src/SrcDstSockaddrs.h src/TCPConnection.h src/TCPAppQueueItem.h src/writeTCPHeader.h src/enqueueTCPPacketTransmission.h src/getSendWindowSize.h src/computeTCPDataOffset.h src/enqueueTCPRetransmission.h src/HEADERS_RESERVE.h
+bin/sendTCPFinalize.o: src/sendTCPFinalize.c src/sendTCPFinalize.h src/contrib/logdel_heap.h src/CaptureSettings.h src/CaptureContext.h src/TCPHeaderData.h src/IPFragmentMetadata.h src/NetworkProtocolStrategy.h src/SrcDstSockaddrs.h src/TCPConnection.h src/TCPAppQueueItem.h src/writeTCPHeader.h src/enqueueTCPPacketTransmission.h src/getSendWindowSize.h src/computeTCPDataOffset.h src/enqueueTCPRetransmission.h src/freeNoRefsAppQueueItem.h src/HEADERS_RESERVE.h
 	$(CC) $(CFLAGS) -c -o bin/sendTCPFinalize.o src/sendTCPFinalize.c
 bin/scaleRemoteWindow.o: src/scaleRemoteWindow.c src/scaleRemoteWindow.h src/SrcDstSockaddrs.h src/TCPConnection.h
 	$(CC) $(CFLAGS) -c -o bin/scaleRemoteWindow.o src/scaleRemoteWindow.c
