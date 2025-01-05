@@ -12,7 +12,7 @@
 #include "SrcDstSockaddrs.h"
 #include "TCPConnection.h"
 #include "TCPAppQueueItem.h"
-#include "cancelTimeout.h"
+#include "freeNoRefsAppQueueItem.h"
 
 #include "sendTCPPacketRefcounted.h"
 unsigned int sendTCPPacketRefcounted(struct CaptureContext *context, uint8_t *packet, unsigned int size, void *arg) {
@@ -25,11 +25,7 @@ unsigned int sendTCPPacketRefcounted(struct CaptureContext *context, uint8_t *pa
 	pthread_mutex_t *mutex = &item->connection->mutex;
 	pthread_mutex_lock(mutex);
 	item->ref_count--;
-	if (0 == item->ref_count) {
-		cancelTimeout(item->connection->context, mutex, &item->timeout);
-		free(item->free_me);
-		free(item);
-	};
+	freeNoRefsAppQueueItem(item);
 	pthread_mutex_unlock(mutex);
 	return (result == -1) && ((old_errno != EAGAIN) && (old_errno != EWOULDBLOCK));
 };

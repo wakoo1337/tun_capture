@@ -21,6 +21,7 @@
 #include "enqueueTCPPacketTransmission.h"
 #include "enqueueTCPRetransmission.h"
 #include "isAppQueueItemInWindow.h"
+#include "freeNoRefsAppQueueItem.h"
 #include "HEADERS_RESERVE.h"
 
 #include "processTCPData.h"
@@ -80,5 +81,6 @@ unsigned int processTCPData(struct CaptureContext *context, uint8_t *packet, uns
 		};
 	};
 	item->ref_count--; // Ссылка из локальной переменной ушла, всё.
+	freeNoRefsAppQueueItem(item);
 	return 0;
 };

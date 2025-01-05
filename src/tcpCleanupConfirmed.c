@@ -10,6 +10,7 @@
 #include "TCPAppQueueItem.h"
 #include "TCPConnection.h"
 #include "cancelTimeout.h"
+#include "freeNoRefsAppQueueItem.h"
 
 #include "tcpCleanupConfirmed.h"
 void tcpCleanupConfirmed(struct TCPConnection *connection) {
@@ -31,10 +32,7 @@ void tcpCleanupConfirmed(struct TCPConnection *connection) {
 			connection->app_scheduled = (new_app_scheduled <= connection->app_scheduled) ? new_app_scheduled : 0;
 			cancelTimeout(connection->context, &connection->mutex, &current->timeout);
 			current->ref_count--;
-			if (0 == current->ref_count) {
-				free(current->free_me);
-				free(current);
-			};
+			freeNoRefsAppQueueItem(current);
 			current = next;
 		};
 	};

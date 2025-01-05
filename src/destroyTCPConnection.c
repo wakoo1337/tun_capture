@@ -14,6 +14,7 @@
 #include "TCPSiteQueueItem.h"
 #include "tcpDestroySitePrequeueItem.h"
 #include "cancelTimeout.h"
+#include "freeNoRefsAppQueueItem.h"
 
 #include "destroyTCPConnection.h"
 void destroyTCPConnection(struct TCPConnection *connection) {
@@ -29,10 +30,7 @@ void destroyTCPConnection(struct TCPConnection *connection) {
 		next = connection->app_queue->next;
 		cancelTimeout(connection->context, &connection->mutex, &connection->app_queue->timeout);
 		connection->app_queue->ref_count--;
-		if (0 == connection->app_queue->ref_count) {
-			free(connection->app_queue->free_me);
-			free(connection->app_queue);
-		};
+		freeNoRefsAppQueueItem(connection->app_queue);
 		connection->app_queue = next;
 	};
 	avl_destroy(connection->site_prequeue, &tcpDestroySitePrequeueItem);
