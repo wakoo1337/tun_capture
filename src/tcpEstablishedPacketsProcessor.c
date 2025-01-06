@@ -30,6 +30,7 @@
 #include "scaleRemoteWindow.h"
 #include "enqueueTCPPacketTransmission.h"
 #include "enqueueUnsentTCPPacketsTransmission.h"
+#include "cancelTimeoutUnlocked.h"
 #include "segexpire_delay.h"
 #include "tcpstate_gotfin.h"
 #include "MAX_SITE_QUEUE.h"
@@ -96,9 +97,13 @@ unsigned int tcpEstablishedPacketsProcessor(struct TCPConnection *connection, co
 	enqueueUnsentTCPPacketsTransmission(connection);
 	struct TCPSitePrequeueItem *found_prequeue;
 	while ((found_prequeue = avl_find(connection->site_prequeue, &connection->first_desired))) {
-		cancelTimeout(connection->context, &connection->mutex, &found_prequeue->timeout);
+		pthread_mutex_unlock(&connection->mutex);
+		pthread_mutex_lock(&connection->context->timeout_mutex);
+		pthread_mutex_lock(&connection->mutex);
 		if ((found_prequeue = avl_find(connection->site_prequeue, &connection->first_desired))) {
 			// За время ожидания на мьютексах таймер может сработать, а элемент предочереди удалиться
+			cancelTimeoutUnlocked(connection->context, &found_prequeue->timeout);
+			pthread_mutex_unlock(&connection->context->timeout_mutex);
 			prequeueItemToSiteData(connection, found_prequeue);
 			if (found_prequeue->fin) {
 				connection->first_desired++;
@@ -108,7 +113,7 @@ unsigned int tcpEstablishedPacketsProcessor(struct TCPConnection *connection, co
 				return sendTCPAcknowledgement(connection);
 			};
 			free(found_prequeue);
-		};
+		} else pthread_mutex_unlock(&connection->context->timeout_mutex);
 	};
 	tcpUpdateReadEvent(connection);
 	tcpUpdateWriteEvent(connection);
