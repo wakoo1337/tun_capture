@@ -19,6 +19,7 @@
 #include "computeTCPDataOffset.h"
 #include "enqueueTCPRetransmission.h"
 #include "freeNoRefsAppQueueItem.h"
+#include "decrementAppQueueItemRefCount.h"
 #include "HEADERS_RESERVE.h"
 
 #include "sendTCPFinalize.h"
@@ -70,7 +71,7 @@ unsigned int sendTCPFinalize(struct TCPConnection *connection) {
 		free(queue_item);
 		return 1;
 	};
-	queue_item->ref_count--;
+	decrementAppQueueItemRefCount(queue_item);
 	freeNoRefsAppQueueItem(queue_item);
 	return 0;
 };

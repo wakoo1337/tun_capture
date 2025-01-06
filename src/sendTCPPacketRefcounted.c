@@ -13,6 +13,7 @@
 #include "TCPConnection.h"
 #include "TCPAppQueueItem.h"
 #include "freeNoRefsAppQueueItem.h"
+#include "decrementAppQueueItemRefCount.h"
 
 #include "sendTCPPacketRefcounted.h"
 unsigned int sendTCPPacketRefcounted(struct CaptureContext *context, uint8_t *packet, unsigned int size, void *arg) {
@@ -24,7 +25,7 @@ unsigned int sendTCPPacketRefcounted(struct CaptureContext *context, uint8_t *pa
 	int old_errno = errno;
 	pthread_mutex_t *mutex = &item->connection->mutex;
 	pthread_mutex_lock(mutex);
-	item->ref_count--;
+	decrementAppQueueItemRefCount(item);
 	freeNoRefsAppQueueItem(item);
 	pthread_mutex_unlock(mutex);
 	return (result == -1) && ((old_errno != EAGAIN) && (old_errno != EWOULDBLOCK));

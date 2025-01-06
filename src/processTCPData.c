@@ -22,6 +22,8 @@
 #include "enqueueTCPRetransmission.h"
 #include "isAppQueueItemInWindow.h"
 #include "freeNoRefsAppQueueItem.h"
+#include "findPreviousNextAppQueueItem.h"
+#include "decrementAppQueueItemRefCount.h"
 #include "HEADERS_RESERVE.h"
 
 #include "processTCPData.h"
@@ -29,12 +31,11 @@ unsigned int processTCPData(struct CaptureContext *context, uint8_t *packet, uns
 	struct TCPConnection *connection;
 	connection = (struct TCPConnection *) arg;
 	assert(context == connection->context);
-	struct TCPAppQueueItem *item, **old_last;
+	struct TCPAppQueueItem *item;
 	item = malloc(sizeof(struct TCPAppQueueItem));
 	if (NULL == item) return 1;
 	item->is_filled = false;
 	item->next = NULL;
-	old_last = connection->app_last;
 	*connection->app_last = item;
 	connection->app_last = &item->next;
 	struct TCPHeaderData header;
@@ -74,13 +75,21 @@ unsigned int processTCPData(struct CaptureContext *context, uint8_t *packet, uns
 	item->ref_count = 2; // Одна ссылка — в связном списке, вторая — в локальной переменной в этой функции
 	if (isAppQueueItemInWindow(latest_ack, app_window, item)) {
 		if (enqueueTCPPacketTransmission(item) || enqueueTCPRetransmission(item)) {
-			*old_last = item->next; // TODO сделать лучший способ удаления, чтобы учитывалось, что и предыдущий элемент может измениться. Искать текущий элемент с самого начала.
+			struct TCPAppQueueItem **previous_next = findPreviousNextAppQueueItem(connection, item);
+			if (previous_next) *previous_next = item->next;
+			if (connection->app_last == &item->next) {
+				if (previous_next) connection->app_last = previous_next;
+				else {
+					connection->app_queue = NULL;
+					connection->app_last = &connection->app_queue;
+				};
+			};
 			free(item->free_me);
 			free(item);
 			return 1;
 		};
 	};
-	item->ref_count--; // Ссылка из локальной переменной ушла, всё.
+	decrementAppQueueItemRefCount(item); // Ссылка из локальной переменной ушла, всё.
 	freeNoRefsAppQueueItem(item);
 	return 0;
 };

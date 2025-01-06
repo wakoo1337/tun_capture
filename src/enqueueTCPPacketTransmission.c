@@ -13,6 +13,7 @@
 #include "TCPConnection.h"
 #include "enqueueTxPacket.h"
 #include "sendTCPPacketRefcounted.h"
+#include "incrementAppQueueItemRefCount.h"
 
 #include "enqueueTCPPacketTransmission.h"
 unsigned int enqueueTCPPacketTransmission(struct TCPAppQueueItem *app_item) {
@@ -32,7 +33,7 @@ unsigned int enqueueTCPPacketTransmission(struct TCPAppQueueItem *app_item) {
 			free(queue_item);
 			return 1;
 		};
-		app_item->ref_count++;
+		incrementAppQueueItemRefCount(app_item);
 		return 0;
 	} else return 0;
 };

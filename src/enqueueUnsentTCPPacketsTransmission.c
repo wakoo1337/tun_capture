@@ -8,20 +8,24 @@
 #include "isAppQueueItemInWindow.h"
 #include "enqueueTCPPacketTransmission.h"
 #include "enqueueTCPRetransmission.h"
+#include "freeNoRefsAppQueueItem.h"
+#include "incrementAppQueueItemRefCount.h"
+#include "decrementAppQueueItemRefCount.h"
 
 #include "enqueueUnsentTCPPacketsTransmission.h"
 unsigned int enqueueUnsentTCPPacketsTransmission(struct TCPConnection *connection) {
-	struct TCPAppQueueItem *appqueue_current;
-	appqueue_current = connection->app_queue;
-	while (appqueue_current && appqueue_current->is_filled) {
-		if ((appqueue_current->timeout == NULL) && isAppQueueItemInWindow(connection->latest_ack, connection->app_window, appqueue_current)) {
-			unsigned int status = 0;
-			status |= enqueueTCPPacketTransmission(appqueue_current);
-			if (status) return status;
-			status |= enqueueTCPRetransmission(appqueue_current);
-			if (status) return status;
+	struct TCPAppQueueItem *current;
+	current = connection->app_queue;
+	while (current && current->is_filled) {
+		struct TCPAppQueueItem *next;
+		next = current->next;
+		if ((current->timeout == NULL) && isAppQueueItemInWindow(connection->latest_ack, connection->app_window, current)) {
+			incrementAppQueueItemRefCount(current); // Добавляем ещё одну ссылку, так как она у нас в локальной переменной
+			if (enqueueTCPPacketTransmission(current) || enqueueTCPRetransmission(current)) return 1; // TODO сделать нормальный способ удаления
+			decrementAppQueueItemRefCount(current);
+			freeNoRefsAppQueueItem(current);
 		};
-		appqueue_current = appqueue_current->next;
+		current = next;
 	};
 	return 0;
 };

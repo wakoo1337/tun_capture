@@ -11,6 +11,8 @@
 #include "TCPConnection.h"
 #include "cancelTimeout.h"
 #include "freeNoRefsAppQueueItem.h"
+#include "incrementAppQueueItemRefCount.h"
+#include "decrementAppQueueItemRefCount.h"
 
 #include "tcpCleanupConfirmed.h"
 void tcpCleanupConfirmed(struct TCPConnection *connection) {
@@ -25,13 +27,14 @@ void tcpCleanupConfirmed(struct TCPConnection *connection) {
 		found->next = NULL; // Обнуляем указатель на элемент, следующий за удаляемым, чтобы вовремя остановиться
 		struct TCPAppQueueItem *current = old_begin;
 		while (current) {
-			struct TCPAppQueueItem *next = current->next;
-			current->next = NULL;
+			incrementAppQueueItemRefCount(current);
 			unsigned int new_app_scheduled;
 			new_app_scheduled = connection->app_scheduled - current->data_size;
 			connection->app_scheduled = (new_app_scheduled <= connection->app_scheduled) ? new_app_scheduled : 0;
 			cancelTimeout(connection->context, &connection->mutex, &current->timeout);
-			current->ref_count--;
+			decrementAppQueueItemRefCount(current);
+			decrementAppQueueItemRefCount(current);
+			struct TCPAppQueueItem *next = current->next;
 			freeNoRefsAppQueueItem(current);
 			current = next;
 		};

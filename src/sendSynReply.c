@@ -19,6 +19,7 @@
 #include "enqueueTCPPacketTransmission.h"
 #include "computeTCPDataOffset.h"
 #include "enqueueTCPRetransmission.h"
+#include "decrementAppQueueItemRefCount.h"
 #include "HEADERS_RESERVE.h"
 
 #include "sendSynReply.h"
@@ -64,10 +65,15 @@ unsigned int sendSynReply(struct TCPConnection *connection) {
 	queue_item->timeout = NULL;
 	queue_item->free_me = packet;
 	queue_item->is_filled = true;
-	queue_item->ref_count = 1;
+	queue_item->ref_count = 2;
 	queue_item->next = NULL;
 	*connection->app_last = queue_item;
 	connection->app_last = &queue_item->next;
-	enqueueTCPPacketTransmission(queue_item);
-	return enqueueTCPRetransmission(queue_item);
+	unsigned int result;
+	result = enqueueTCPPacketTransmission(queue_item);
+	if (result) return 1; // TODO нормально обработать ошибки
+	result = enqueueTCPRetransmission(queue_item);
+	if (result) return 1;
+	decrementAppQueueItemRefCount(queue_item);
+	return 0;
 };
