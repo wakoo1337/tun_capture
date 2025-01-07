@@ -20,6 +20,7 @@
 #include "computeTCPDataOffset.h"
 #include "enqueueTCPRetransmission.h"
 #include "decrementAppQueueItemRefCount.h"
+#include "freeNoRefsAppQueueItem.h"
 #include "HEADERS_RESERVE.h"
 
 #include "sendSynReply.h"
@@ -75,5 +76,6 @@ unsigned int sendSynReply(struct TCPConnection *connection) {
 	result = enqueueTCPRetransmission(queue_item);
 	if (result) return 1;
 	decrementAppQueueItemRefCount(queue_item);
+	freeNoRefsAppQueueItem(queue_item);
 	return 0;
 };

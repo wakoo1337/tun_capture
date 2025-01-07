@@ -125,7 +125,7 @@ bin/computeIPv4MSS.o: src/computeIPv4MSS.c src/computeIPv4MSS.h src/contrib/logd
 	$(CC) $(CFLAGS) -c -o bin/computeIPv4MSS.o src/computeIPv4MSS.c
 bin/computeIPv6MSS.o: src/computeIPv6MSS.c src/computeIPv6MSS.h src/contrib/logdel_heap.h src/CaptureSettings.h src/CaptureContext.h
 	$(CC) $(CFLAGS) -c -o bin/computeIPv6MSS.o src/computeIPv6MSS.c
-bin/sendSynReply.o: src/sendSynReply.c src/sendSynReply.h src/contrib/logdel_heap.h src/CaptureSettings.h src/CaptureContext.h src/SrcDstSockaddrs.h src/IPFragmentMetadata.h src/NetworkProtocolStrategy.h src/TCPAppQueueItem.h src/TCPHeaderData.h src/TCPConnection.h src/getSendWindowSize.h src/writeTCPHeader.h src/enqueueTCPPacketTransmission.h src/computeTCPDataOffset.h src/enqueueTCPRetransmission.h src/decrementAppQueueItemRefCount.h src/HEADERS_RESERVE.h
+bin/sendSynReply.o: src/sendSynReply.c src/sendSynReply.h src/contrib/logdel_heap.h src/CaptureSettings.h src/CaptureContext.h src/SrcDstSockaddrs.h src/IPFragmentMetadata.h src/NetworkProtocolStrategy.h src/TCPAppQueueItem.h src/TCPHeaderData.h src/TCPConnection.h src/getSendWindowSize.h src/writeTCPHeader.h src/enqueueTCPPacketTransmission.h src/computeTCPDataOffset.h src/enqueueTCPRetransmission.h src/decrementAppQueueItemRefCount.h src/freeNoRefsAppQueueItem.h src/HEADERS_RESERVE.h
 	$(CC) $(CFLAGS) -c -o bin/sendSynReply.o src/sendSynReply.c
 bin/retry_delay.o: src/retry_delay.c src/retry_delay.h
 	$(CC) $(CFLAGS) -c -o bin/retry_delay.o src/retry_delay.c
