@@ -1,6 +1,7 @@
 #include <pthread.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include <stddef.h>
 #include <stdlib.h>
 #include <errno.h>
 #include <sys/socket.h>
@@ -52,6 +53,6 @@ unsigned int sendSiteQueueItems(struct TCPConnection *connection) {
 			connection->site_queue = next;
 		};
 	};
-	connection->site_last = &connection->site_queue;
+	if (NULL == connection->site_queue) connection->site_last = &connection->site_queue;
 	return 0;
 };
