@@ -3,6 +3,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <sys/socket.h>
+#include <event2/event.h>
 #include "TCPHeaderData.h"
 #include "IPPacketPayload.h"
 #include "SrcDstSockaddrs.h"
@@ -18,6 +19,7 @@ unsigned int tcpGotFINPacketsProcessor(struct TCPConnection *connection, const s
 		connection->latest_ack = header->ack_num;
 		tcpCleanupConfirmed(connection);
 		enqueueUnsentTCPPacketsTransmission(connection);
+		if (NULL == connection->app_queue) event_add(connection->read_event, NULL);
 	};
 	return 0;
 };
