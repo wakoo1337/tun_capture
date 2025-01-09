@@ -47,12 +47,17 @@ unsigned int readAndEnqueueSiteData(struct TCPConnection *connection, unsigned i
 				return on_error(connection);
 			};
 		} else if (received > 0) {
-			buffer = realloc(buffer, HEADERS_RESERVE + received);
-			item->data = &buffer[HEADERS_RESERVE];
+			uint8_t *new_buffer;
+			new_buffer = realloc(buffer, HEADERS_RESERVE + received);
+			if (NULL == new_buffer) {
+				free(buffer);
+				return 1;
+			};
+			item->data = &new_buffer[HEADERS_RESERVE];
 			item->count = received;
 			item->processor = &processTCPData;
 			item->mutex = &connection->mutex;
-			item->free_me = buffer;
+			item->free_me = new_buffer;
 			item->arg = connection;
 			enqueueRxPacket(connection->context, item);
 			pthread_mutex_lock(&connection->mutex); // Разблокировать не надо, он будет нужен либо на следующей итерации цикла, либо при выходе

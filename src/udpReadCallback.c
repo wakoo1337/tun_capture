@@ -38,23 +38,29 @@ void udpReadCallback(evutil_socket_t fd, short what, void *arg) {
 			return;
 		};
 		assert(sender_sa.sa_family == binding->internal_addr.sa_family);
-		buffer = realloc(buffer, (HEADERS_RESERVE + result) * sizeof(uint8_t));
-		if (NULL == buffer) return;
-		struct PacketQueueItem *queue_item;
-		queue_item = malloc(sizeof(struct PacketQueueItem));
-		if (NULL == queue_item) {
+		uint8_t *new_buffer;
+		new_buffer = realloc(buffer, (HEADERS_RESERVE + result) * sizeof(uint8_t));
+		if (NULL == new_buffer) {
 			free(buffer);
 			emergencyStop(binding->context);
 			return;
 		};
-		queue_item->data = &buffer[HEADERS_RESERVE];
+		struct PacketQueueItem *queue_item;
+		queue_item = malloc(sizeof(struct PacketQueueItem));
+		if (NULL == queue_item) {
+			free(new_buffer);
+			emergencyStop(binding->context);
+			return;
+		};
+		queue_item->data = &new_buffer[HEADERS_RESERVE];
+		queue_item->free_me = new_buffer;
 		queue_item->count = result;
 		queue_item->processor = &udpGenerator;
 		queue_item->mutex = NULL;
 		struct UDPParameters *params;
 		params = malloc(sizeof(struct UDPParameters));
 		if (NULL == params) {
-			free(buffer);
+			free(new_buffer);
 			free(queue_item);
 			emergencyStop(binding->context);
 			return;
