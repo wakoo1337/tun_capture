@@ -114,15 +114,15 @@ unsigned int processTCPPacket(struct CaptureContext *context, const struct IPPac
 		connection->write_event = event_new(context->event_base, connection->sock, EV_WRITE | EV_PERSIST | EV_FINALIZE, &tcpWriteCallback, connection);
 		if (NULL == connection->write_event) {
 			connection->write_finalized = true;
-			event_free_finalize(0, connection->read_event, &tcpFinalizeRead);
+			tcpFinalizeRead(connection);
 			pthread_mutex_unlock(&context->tcp_mutex);
 			pthread_mutex_unlock(&connection->mutex);
 			free(payload->free_me);
 			return 1;
 		};
 		if (-1 == event_add(connection->write_event, NULL)) {
-			event_free_finalize(0, connection->read_event, &tcpFinalizeRead);
-			event_free_finalize(0, connection->write_event, &tcpFinalizeWrite);
+			tcpFinalizeRead(connection);
+			tcpFinalizeWrite(connection);
 			pthread_mutex_unlock(&context->tcp_mutex);
 			pthread_mutex_unlock(&connection->mutex);
 			free(payload->free_me);
@@ -130,8 +130,8 @@ unsigned int processTCPPacket(struct CaptureContext *context, const struct IPPac
 		};
 		errno = 0;
 		if ((-1 == connect(connection->sock, &addrs->dst, sizeof(struct sockaddr))) && (errno != EINPROGRESS)) {
-			event_free_finalize(0, connection->read_event, &tcpFinalizeRead);
-			event_free_finalize(0, connection->write_event, &tcpFinalizeWrite);
+			tcpFinalizeRead(connection);
+			tcpFinalizeWrite(connection);
 			pthread_mutex_unlock(&context->tcp_mutex);
 			pthread_mutex_unlock(&connection->mutex);
 			free(payload->free_me);
@@ -140,8 +140,8 @@ unsigned int processTCPPacket(struct CaptureContext *context, const struct IPPac
 		void **probe;
 		probe = avl_probe(context->tcp_connections, connection);
 		if ((NULL == probe) || ((*probe) != connection)) {
-			event_free_finalize(0, connection->read_event, &tcpFinalizeRead);
-			event_free_finalize(0, connection->write_event, &tcpFinalizeWrite);
+			tcpFinalizeRead(connection);
+			tcpFinalizeWrite(connection);
 			pthread_mutex_unlock(&context->tcp_mutex);
 			pthread_mutex_unlock(&connection->mutex);
 			free(payload->free_me);

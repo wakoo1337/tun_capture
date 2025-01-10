@@ -1,1 +1,1 @@
-void tcpFinalizeWrite(struct event *fin_event, void *arg);
+unsigned int tcpFinalizeWrite(struct TCPConnection *connection);

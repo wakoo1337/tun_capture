@@ -19,8 +19,8 @@ unsigned int tcpConnwaitWriteCallback(evutil_socket_t fd, short what, void *arg)
 		int err;
 		socklen_t sl = sizeof(int);
 		if ((-1 == getsockopt(connection->sock, SOL_SOCKET, SO_ERROR, &err, &sl)) || err) {
-			event_free_finalize(0, connection->read_event, &tcpFinalizeRead);
-			event_free_finalize(0, connection->write_event, &tcpFinalizeWrite);
+			tcpFinalizeRead(connection);
+			tcpFinalizeWrite(connection);
 			connection->state = NULL;
 			return 0;
 		};

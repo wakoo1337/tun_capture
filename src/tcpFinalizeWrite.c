@@ -1,19 +1,14 @@
 #include <pthread.h>
-#include <assert.h>
-#include <stdint.h>
 #include <stdbool.h>
-#include <event2/event.h>
+#include <stdint.h>
 #include <sys/socket.h>
+#include <event2/event.h>
 #include "SrcDstSockaddrs.h"
 #include "TCPConnection.h"
-#include "destroyTCPConnection.h"
+#include "tcpWriteFinalizer.h"
 
 #include "tcpFinalizeWrite.h"
-void tcpFinalizeWrite(struct event *fin_event, void *arg) {
-	struct TCPConnection *connection = (struct TCPConnection *) arg;
-	pthread_mutex_lock(&connection->mutex);
-	assert(!connection->write_finalized);
-	connection->write_finalized = true;
-	if (connection->read_finalized && connection->write_finalized) destroyTCPConnection(connection);
-	else pthread_mutex_unlock(&connection->mutex);
+unsigned int tcpFinalizeWrite(struct TCPConnection *connection) {
+	if (!connection->write_finalized) return event_free_finalize(0, connection->write_event, &tcpWriteFinalizer);
+	else return 0;
 };

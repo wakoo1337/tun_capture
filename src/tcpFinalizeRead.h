@@ -1,1 +1,1 @@
-void tcpFinalizeRead(struct event *fin_event, void *arg);
+unsigned int tcpFinalizeRead(struct TCPConnection *connection);

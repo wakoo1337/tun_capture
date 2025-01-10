@@ -20,7 +20,7 @@ unsigned int tcpLastACKWaitPacketsProcessor(struct TCPConnection *connection, co
 		tcpCleanupConfirmed(connection);
 	};
 	if (NULL == connection->app_queue) {
-		event_free_finalize(0, connection->read_event, &tcpFinalizeRead);
+		return tcpFinalizeRead(connection);
 	};
 	return 0;
 };
