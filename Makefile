@@ -183,7 +183,7 @@ bin/enqueueTxPacket.o: src/enqueueTxPacket.c src/enqueueTxPacket.h src/contrib/l
 	$(CC) $(CFLAGS) $(LIBEVENT_CFLAGS) -c -o bin/enqueueTxPacket.o src/enqueueTxPacket.c
 bin/tcpWriteCallback.o: src/tcpWriteCallback.c src/tcpWriteCallback.h src/contrib/logdel_heap.h src/CaptureContext.h src/SrcDstSockaddrs.h src/IPPacketPayload.h src/TCPHeaderData.h src/TCPConnection.h src/TCPState.h src/emergencyStop.h
 	$(CC) $(CFLAGS) $(LIBEVENT_CFLAGS) -c -o bin/tcpWriteCallback.o src/tcpWriteCallback.c
-bin/tcpDestroySitePrequeueItem.o: src/tcpDestroySitePrequeueItem.c src/tcpDestroySitePrequeueItem.h src/SrcDstSockaddrs.h src/TCPConnection.h src/TCPSitePrequeueItem.h src/cancelTimeout.h
+bin/tcpDestroySitePrequeueItem.o: src/tcpDestroySitePrequeueItem.c src/tcpDestroySitePrequeueItem.h src/SrcDstSockaddrs.h src/CaptureContext.h src/TCPConnection.h src/TCPSitePrequeueItem.h src/cancelTimeoutUnlocked.h
 	$(CC) $(CFLAGS) -c -o bin/tcpDestroySitePrequeueItem.o src/tcpDestroySitePrequeueItem.c
 bin/tcpReadFinalizer.o: src/tcpReadFinalizer.c src/tcpReadFinalizer.h src/SrcDstSockaddrs.h src/TCPConnection.h src/destroyTCPConnection.h
 	$(CC) $(CFLAGS) $(LIBEVENT_CFLAGS) -c -o bin/tcpReadFinalizer.o src/tcpReadFinalizer.c
