@@ -8,6 +8,9 @@
 #include "SrcDstSockaddrs.h"
 #include "TCPConnection.h"
 #include "TCPSiteQueueItem.h"
+#include "tcpFinalizeRead.h"
+#include "tcpFinalizeWrite.h"
+#include "tcpstate_connreset.h"
 
 #include "sendSiteQueueItems.h"
 unsigned int sendSiteQueueItems(struct TCPConnection *connection) {
@@ -20,7 +23,12 @@ unsigned int sendSiteQueueItems(struct TCPConnection *connection) {
 			if (-1 == written) {
 				if ((errno == EAGAIN) || (errno == EWOULDBLOCK)) return 0;
 				else if (errno == EINTR) goto urgent_tx_retry;
-				else {
+				else if (errno == ECONNRESET) {
+					connection->state = &tcpstate_connreset;
+					tcpFinalizeRead(connection);
+					tcpFinalizeWrite(connection);
+					return 0;
+				} else {
 					return 1;
 					// TODO обработать ошибку
 				};
@@ -36,7 +44,12 @@ unsigned int sendSiteQueueItems(struct TCPConnection *connection) {
 			if (-1 == written) {
 				if ((errno == EAGAIN) || (errno == EWOULDBLOCK)) return 0;
 				else if (errno == EINTR) goto data_tx_retry;
-				else {
+				else if (errno == ECONNRESET) {
+					connection->state = &tcpstate_connreset;
+					tcpFinalizeRead(connection);
+					tcpFinalizeWrite(connection);
+					return 0;
+				} else {
 					return 1;
 					// TODO обработать ошибку
 				};
