@@ -4,6 +4,7 @@
 #include <stdbool.h>
 #include <sys/socket.h>
 #include <stdlib.h>
+#include <stddef.h>
 #include <unistd.h>
 #include "contrib/avl.h"
 #include "contrib/logdel_heap.h"
@@ -37,7 +38,9 @@ void destroyTCPConnection(struct TCPConnection *connection) {
 		freeNoRefsAppQueueItem(connection->app_queue);
 		connection->app_queue = next;
 	};
-	avl_destroy(connection->site_prequeue, &tcpDestroySitePrequeueItem);
+	struct avl_table *pq_table = connection->site_prequeue;
+	connection->site_prequeue = NULL; // Если сработает какой-нибудь из таймеров, то он не будет делать ничего
+	avl_destroy(pq_table, &tcpDestroySitePrequeueItem);
 	while (connection->site_queue) {
 		struct TCPSiteQueueItem *next;
 		next = connection->site_queue->next;

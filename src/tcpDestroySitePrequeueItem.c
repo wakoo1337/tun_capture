@@ -17,7 +17,7 @@ void tcpDestroySitePrequeueItem(void *item_void, void *futile) {
 	pthread_mutex_lock(timeout_mutex);
 	pthread_mutex_lock(&item->connection->mutex);
 	cancelTimeoutUnlocked(item->connection->context, &item->timeout);
+	pthread_mutex_unlock(timeout_mutex);
 	free(item->free_me);
 	free(item);
-	pthread_mutex_unlock(timeout_mutex);
 };
