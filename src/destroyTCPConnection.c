@@ -25,7 +25,7 @@ void destroyTCPConnection(struct TCPConnection *connection) {
 	pthread_mutex_lock(&connection->context->tcp_mutex);
 	void *del;
 	del = avl_delete(connection->context->tcp_connections, connection);
-	assert(del == connection);
+	assert((del == NULL) || (del == connection));
 	pthread_mutex_lock(&connection->mutex);
 	pthread_mutex_unlock(&connection->context->tcp_mutex);
 	while (connection->app_queue) {

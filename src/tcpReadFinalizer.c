@@ -14,6 +14,7 @@ void tcpReadFinalizer(struct event *fin_event, void *arg) {
 	assert(!connection->read_finalized);
 	pthread_mutex_lock(&connection->mutex);
 	connection->read_finalized = true;
+	connection->read_event = NULL;
 	if (connection->read_finalized && connection->write_finalized) destroyTCPConnection(connection);
 	else pthread_mutex_unlock(&connection->mutex);
 };

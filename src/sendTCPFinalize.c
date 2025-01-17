@@ -20,6 +20,7 @@
 #include "enqueueTCPRetransmission.h"
 #include "freeNoRefsAppQueueItem.h"
 #include "decrementAppQueueItemRefCount.h"
+#include "findPreviousNextAppQueueItem.h"
 #include "HEADERS_RESERVE.h"
 
 #include "sendTCPFinalize.h"
@@ -67,7 +68,16 @@ unsigned int sendTCPFinalize(struct TCPConnection *connection) {
 	*connection->app_last = queue_item;
 	connection->app_last = &queue_item->next;
 	if (enqueueTCPPacketTransmission(queue_item) || enqueueTCPRetransmission(queue_item)) {
-		// TODO реализовать удаление, как в processTCPData()
+		struct TCPAppQueueItem **previous_next = findPreviousNextAppQueueItem(connection, queue_item);
+		if (previous_next) *previous_next = queue_item->next;
+		if (connection->app_last == &queue_item->next) {
+			if (previous_next) connection->app_last = previous_next;
+			else {
+				connection->app_queue = NULL;
+				connection->app_last = &connection->app_queue;
+			};
+		};
+		free(queue_item->free_me);
 		free(queue_item);
 		return 1;
 	};

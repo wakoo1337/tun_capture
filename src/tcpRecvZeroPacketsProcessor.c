@@ -1,31 +1,25 @@
+#include <pthread.h>
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include <pthread.h>
 #include <sys/socket.h>
-#include <event2/event.h>
-#include "contrib/avl.h"
-#include "IPPacketPayload.h"
 #include "SrcDstSockaddrs.h"
 #include "TCPConnection.h"
+#include "IPPacketPayload.h"
 #include "TCPHeaderData.h"
-#include "TCPSitePrequeueItem.h"
-#include "prequeueItemToSiteData.h"
-#include "tcpUpdateReadEvent.h"
+#include "checkPacketInRecieveWindow.h"
+#include "isNewAckAcceptable.h"
+#include "addPacketToPrequeue.h"
+#include "tcpCleanupConfirmed.h"
+#include "prequeueToSiteQueue.h"
+#include "enqueueUnsentTCPPacketsTransmission.h"
 #include "tcpUpdateWriteEvent.h"
 #include "sendTCPAcknowledgement.h"
-#include "tcpCleanupConfirmed.h"
-#include "isNewAckAcceptable.h"
+#include "tcpRecvZeroOnFIN.h"
 #include "scaleRemoteWindow.h"
-#include "enqueueUnsentTCPPacketsTransmission.h"
-#include "checkPacketInRecieveWindow.h"
-#include "tcpEstablishedOnFIN.h"
-#include "addPacketToPrequeue.h"
-#include "prequeueToSiteQueue.h"
 
-#include "tcpEstablishedPacketsProcessor.h"
-unsigned int tcpEstablishedPacketsProcessor(struct TCPConnection *connection, const struct IPPacketPayload *payload, const struct TCPHeaderData *header) {
-	const uint32_t old_first = connection->first_desired;
+#include "tcpRecvZeroPacketsProcessor.h"
+unsigned int tcpRecvZeroPacketsProcessor(struct TCPConnection *connection, const struct IPPacketPayload *payload, const struct TCPHeaderData *header) {const uint32_t old_first = connection->first_desired;
 	if (!checkPacketInRecieveWindow(connection, payload, header)) {
 		// Если не все байты сегмента лежат в окне приёма, он игнорируется
 		free(payload->free_me);
@@ -37,10 +31,9 @@ unsigned int tcpEstablishedPacketsProcessor(struct TCPConnection *connection, co
 		connection->app_window = scaleRemoteWindow(connection, header->raw_window);
 	};
 	tcpCleanupConfirmed(connection);
-	if (prequeueToSiteQueue(connection, &tcpEstablishedOnFIN)) return 1;
+	if (prequeueToSiteQueue(connection, &tcpRecvZeroOnFIN)) return 1;
 	enqueueUnsentTCPPacketsTransmission(connection);
-	tcpUpdateReadEvent(connection);
-	tcpUpdateWriteEvent(connection);
+	if (!connection->write_finalized) tcpUpdateWriteEvent(connection);
 	if (old_first != connection->first_desired) sendTCPAcknowledgement(connection);
 	return 0;
 };
