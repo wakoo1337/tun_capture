@@ -38,6 +38,16 @@ unsigned int processTCPPacket(struct CaptureContext *context, const struct IPPac
 	strategy->port_setter(&addrs->dst, hdr.dst_port);
 	if (hdr.rst) {
 		// Удалить соединение
+		pthread_mutex_lock(&context->tcp_mutex);
+		struct TCPConnection *found;
+		found = avl_find(context->tcp_connections, addrs);
+		if (found) {
+			pthread_mutex_lock(&found->mutex);
+			pthread_mutex_unlock(&context->tcp_mutex);
+			tcpFinalizeRead(found);
+			tcpFinalizeWrite(found);
+			pthread_mutex_unlock(&found->mutex);
+		} else pthread_mutex_unlock(&context->tcp_mutex);
 		free(payload->free_me);
 		return 0;
 	};

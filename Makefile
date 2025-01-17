@@ -103,9 +103,9 @@ bin/tcpstate_connwait.o: src/tcpstate_connwait.c src/tcpstate_connwait.h src/Src
 	$(CC) $(CFLAGS) $(LIBEVENT_CFLAGS) -c -o bin/tcpstate_connwait.o src/tcpstate_connwait.c
 bin/tcpConnwaitReadCallback.o: src/tcpConnwaitReadCallback.c src/tcpConnwaitReadCallback.h src/SrcDstSockaddrs.h src/TCPConnection.h
 	$(CC) $(CFLAGS) $(LIBEVENT_CFLAGS) -c -o bin/tcpConnwaitReadCallback.o src/tcpConnwaitReadCallback.c
-bin/tcpConnwaitWriteCallback.o: src/tcpConnwaitWriteCallback.c src/tcpConnwaitWriteCallback.h src/SrcDstSockaddrs.h src/TCPConnection.h src/destroyTCPConnection.h src/sendSynReply.h src/tcpFinalizeRead.h src/tcpFinalizeWrite.h src/tcpstate_synack_send.h
+bin/tcpConnwaitWriteCallback.o: src/tcpConnwaitWriteCallback.c src/tcpConnwaitWriteCallback.h src/SrcDstSockaddrs.h src/TCPConnection.h src/sendSynReply.h src/tcpFinalizeRead.h src/tcpFinalizeWrite.h src/tcpstate_synack_send.h
 	$(CC) $(CFLAGS) $(LIBEVENT_CFLAGS) -c -o bin/tcpConnwaitWriteCallback.o src/tcpConnwaitWriteCallback.c
-bin/destroyTCPConnection.o: src/destroyTCPConnection.c src/destroyTCPConnection.h src/contrib/avl.h src/contrib/logdel_heap.h src/SrcDstSockaddrs.h src/CaptureContext.h src/TCPConnection.h src/TCPAppQueueItem.h src/TCPSiteQueueItem.h src/tcpDestroySitePrequeueItem.h src/cancelTimeout.h src/freeNoRefsAppQueueItem.h src/incrementAppQueueItemRefCount.h src/decrementAppQueueItemRefCount.h
+bin/destroyTCPConnection.o: src/destroyTCPConnection.c src/destroyTCPConnection.h src/contrib/avl.h src/contrib/logdel_heap.h src/SrcDstSockaddrs.h src/CaptureContext.h src/TCPConnection.h src/TCPAppQueueItem.h src/TCPSiteQueueItem.h src/PacketQueueItem.h src/tcpDestroySitePrequeueItem.h src/cancelTimeout.h src/freeNoRefsAppQueueItem.h src/incrementAppQueueItemRefCount.h src/decrementAppQueueItemRefCount.h src/sendTCPPacketRefcounted.h src/processTCPData.h
 	$(CC) $(CFLAGS) -c -o bin/destroyTCPConnection.o src/destroyTCPConnection.c
 bin/tcpConnwaitPacketsProcessor.o: src/tcpConnwaitPacketsProcessor.c src/tcpConnwaitPacketsProcessor.h src/IPPacketPayload.h src/TCPHeaderData.h src/SrcDstSockaddrs.h src/TCPConnection.h
 	$(CC) $(CFLAGS) -c -o bin/tcpConnwaitPacketsProcessor.o src/tcpConnwaitPacketsProcessor.c

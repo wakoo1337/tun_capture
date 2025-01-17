@@ -6,7 +6,6 @@
 #include <sys/socket.h>
 #include "SrcDstSockaddrs.h"
 #include "TCPConnection.h"
-#include "destroyTCPConnection.h"
 #include "sendSynReply.h"
 #include "tcpFinalizeRead.h"
 #include "tcpFinalizeWrite.h"

@@ -15,11 +15,9 @@
 #include "tcpDeleteExpiredSegment.h"
 void tcpDeleteExpiredSegment(void *arg) {
 	struct TCPSitePrequeueItem *item = (struct TCPSitePrequeueItem *) arg;
-	if (item->connection->site_prequeue) {
-		void *deleted;
-		deleted = avl_delete(item->connection->site_prequeue, item);
-		assert(deleted == arg);
-		free(item->free_me);
-		free(item);
-	} else item->timeout = NULL;
+	void *deleted;
+	deleted = avl_delete(item->connection->site_prequeue, item);
+	assert(deleted == arg);
+	free(item->free_me);
+	free(item);
 };
