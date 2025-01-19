@@ -13,6 +13,7 @@
 #include "TCPConnection.h"
 #include "TCPAppQueueItem.h"
 #include "freeNoRefsAppQueueItem.h"
+#include "incrementAppQueueItemRefCount.h"
 #include "decrementAppQueueItemRefCount.h"
 
 #include "sendTCPPacketRefcounted.h"
@@ -20,11 +21,13 @@ unsigned int sendTCPPacketRefcounted(struct CaptureContext *context, uint8_t *pa
 	struct TCPAppQueueItem *item;
 	item = (struct TCPAppQueueItem *) arg;
 	assert(context == item->connection->context);
+	pthread_mutex_t *mutex = &item->connection->mutex;
+	pthread_mutex_lock(mutex);
+	incrementAppQueueItemRefCount(item);
 	ssize_t result;
 	result = context->settings->write_function(packet, size, context->settings->user);
 	int old_errno = errno;
-	pthread_mutex_t *mutex = &item->connection->mutex;
-	pthread_mutex_lock(mutex);
+	decrementAppQueueItemRefCount(item);
 	decrementAppQueueItemRefCount(item);
 	freeNoRefsAppQueueItem(item);
 	pthread_mutex_unlock(mutex);

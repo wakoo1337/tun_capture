@@ -193,7 +193,7 @@ bin/tcpstate_gotfin.o: src/tcpstate_gotfin.c src/tcpstate_gotfin.h src/IPPacketP
 	$(CC) $(CFLAGS) $(LIBEVENT_CFLAGS) -c -o bin/tcpstate_gotfin.o src/tcpstate_gotfin.c
 bin/sendPacketOnce.o: src/sendPacketOnce.c src/sendPacketOnce.h src/contrib/logdel_heap.h src/CaptureSettings.h src/CaptureContext.h src/PacketQueueItem.h
 	$(CC) $(CFLAGS) -c -o bin/sendPacketOnce.o src/sendPacketOnce.c
-bin/sendTCPPacketRefcounted.o: src/sendTCPPacketRefcounted.c src/sendTCPPacketRefcounted.h src/contrib/logdel_heap.h src/CaptureSettings.h src/CaptureContext.h src/SrcDstSockaddrs.h src/TCPConnection.h src/TCPAppQueueItem.h src/freeNoRefsAppQueueItem.h src/decrementAppQueueItemRefCount.h
+bin/sendTCPPacketRefcounted.o: src/sendTCPPacketRefcounted.c src/sendTCPPacketRefcounted.h src/contrib/logdel_heap.h src/CaptureSettings.h src/CaptureContext.h src/SrcDstSockaddrs.h src/TCPConnection.h src/TCPAppQueueItem.h src/freeNoRefsAppQueueItem.h src/incrementAppQueueItemRefCount.h src/decrementAppQueueItemRefCount.h
 	$(CC) $(CFLAGS) -c -o bin/sendTCPPacketRefcounted.o src/sendTCPPacketRefcounted.c
 bin/tcpGotFINReadCallback.o: src/tcpGotFINReadCallback.c src/tcpGotFINReadCallback.h src/SrcDstSockaddrs.h src/TCPConnection.h src/readAndEnqueueSiteData.h src/tcpGotFINOnEnd.h src/tcpGotFINOnError.h
 	$(CC) $(CFLAGS) $(LIBEVENT_CFLAGS) -c -o bin/tcpGotFINReadCallback.o src/tcpGotFINReadCallback.c
