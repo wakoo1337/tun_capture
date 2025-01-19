@@ -9,13 +9,15 @@
 
 #include "tcpUpdateWriteEvent.h"
 unsigned int tcpUpdateWriteEvent(struct TCPConnection *connection) {
-	if (connection->site_scheduled) {
-		if (-1 == event_add(connection->write_event, NULL)) {
-			return 1;
-		};
-	} else {
-		if (-1 == event_del(connection->write_event)) {
-			return 1;
+	if (!connection->write_finalized) {
+		if (connection->site_scheduled) {
+			if (-1 == event_add(connection->write_event, NULL)) {
+				return 1;
+			};
+		} else {
+			if (-1 == event_del(connection->write_event)) {
+				return 1;
+			};
 		};
 	};
 	return 0;

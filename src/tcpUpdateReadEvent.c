@@ -9,13 +9,15 @@
 
 #include "tcpUpdateReadEvent.h"
 unsigned int tcpUpdateReadEvent(struct TCPConnection *connection) {
-	if (connection->app_scheduled < MAX_APP_QUEUE) {
-		if (-1 == event_add(connection->read_event, NULL)) {
-			return 1;
-		};
-	} else {
-		if (-1 == event_del(connection->read_event)) {
-			return 1;
+	if (!connection->read_finalized) {
+		if (connection->app_scheduled < MAX_APP_QUEUE) {
+			if (-1 == event_add(connection->read_event, NULL)) {
+				return 1;
+			};
+		} else {
+			if (-1 == event_del(connection->read_event)) {
+				return 1;
+			};
 		};
 	};
 	return 0;
