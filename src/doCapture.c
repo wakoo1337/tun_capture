@@ -91,6 +91,8 @@ unsigned int doCapture(const struct CaptureSettings *settings) {
 		free(context);
 		return 1;
 	};
+	pthread_mutex_init(&context->ipv4_id_mutex, NULL);
+	pthread_mutex_init(&context->ipv6_id_mutex, NULL);
 	for (unsigned int i=0;i < context->settings->threads_count;i++) {
 		if (pthread_create(&context->threads[i], NULL, &threadWorker, context)) {
 			free(context->threads);

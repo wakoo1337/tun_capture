@@ -18,4 +18,6 @@ struct CaptureContext {
 	struct avl_table *tcp_connections;
 	uint16_t ipv4_id;
 	uint32_t ipv6_id;
+	pthread_mutex_t ipv4_id_mutex;
+	pthread_mutex_t ipv6_id_mutex;
 };

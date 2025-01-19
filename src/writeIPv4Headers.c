@@ -23,7 +23,9 @@ void writeIPv4Headers(struct CaptureContext *context, struct IPFragmentMetadata 
 		metadata->buffer[0] = 69; // IPv4 и заголовок в 20 байтов, грязный извращенец!
 		metadata->buffer[1] = 0;
 		set16Bit(&metadata->buffer[2], htons(metadata->header_size + metadata->data_size));
+		pthread_mutex_lock(&context->ipv4_id_mutex);
 		set16Bit(&metadata->buffer[4], htons(context->ipv4_id));
+		pthread_mutex_unlock(&context->ipv4_id_mutex);
 		set16Bit(&metadata->buffer[6], htons(((metadata->fragment_offset / 8) & 8191) | ((i != (count-1)) ? 8192 : 0)));
 		metadata->buffer[8] = context->settings->ttl;
 		metadata->buffer[9] = protocol;
@@ -35,5 +37,7 @@ void writeIPv4Headers(struct CaptureContext *context, struct IPFragmentMetadata 
 		computeChecksum(&sum_context, &metadata->buffer[0], 20);
 		set16Bit(&metadata->buffer[10], getChecksum(&sum_context));
 	};
+	pthread_mutex_lock(&context->ipv4_id_mutex);
 	context->ipv4_id++;
+	pthread_mutex_unlock(&context->ipv4_id_mutex);
 };
