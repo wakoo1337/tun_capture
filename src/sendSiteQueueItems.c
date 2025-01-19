@@ -19,11 +19,11 @@ unsigned int sendSiteQueueItems(struct TCPConnection *connection) {
 		if (item->already_sent < item->urgent_count) {
 			ssize_t written;
 			urgent_tx_retry:
-			written = send(connection->sock, item->buffer + item->already_sent, item->urgent_count - item->already_sent, MSG_OOB);
+			written = send(connection->sock, item->buffer + item->already_sent, item->urgent_count - item->already_sent, MSG_OOB | MSG_NOSIGNAL);
 			if (-1 == written) {
 				if ((errno == EAGAIN) || (errno == EWOULDBLOCK)) return 0;
 				else if (errno == EINTR) goto urgent_tx_retry;
-				else if (errno == ECONNRESET) {
+				else if ((errno == ECONNRESET) || (errno == EPIPE)) {
 					connection->state = &tcpstate_connreset;
 					tcpFinalizeRead(connection);
 					tcpFinalizeWrite(connection);
@@ -40,11 +40,11 @@ unsigned int sendSiteQueueItems(struct TCPConnection *connection) {
 		if (item->already_sent >= item->urgent_count) {
 			ssize_t written;
 			data_tx_retry:
-			written = send(connection->sock, item->buffer + item->already_sent, item->urgent_count + item->data_count - item->already_sent, 0);
+			written = send(connection->sock, item->buffer + item->already_sent, item->urgent_count + item->data_count - item->already_sent, MSG_NOSIGNAL);
 			if (-1 == written) {
 				if ((errno == EAGAIN) || (errno == EWOULDBLOCK)) return 0;
 				else if (errno == EINTR) goto data_tx_retry;
-				else if (errno == ECONNRESET) {
+				else if ((errno == ECONNRESET) || (errno == EPIPE)) {
 					connection->state = &tcpstate_connreset;
 					tcpFinalizeRead(connection);
 					tcpFinalizeWrite(connection);
