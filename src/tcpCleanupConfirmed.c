@@ -28,8 +28,7 @@ void tcpCleanupConfirmed(struct TCPConnection *connection) {
 		struct TCPAppQueueItem *current = old_begin;
 		while (current) {
 			incrementAppQueueItemRefCount(current);
-			unsigned int new_app_scheduled;
-			new_app_scheduled = connection->app_scheduled - current->data_size;
+			const unsigned int new_app_scheduled = connection->app_scheduled - current->data_size;
 			connection->app_scheduled = (new_app_scheduled <= connection->app_scheduled) ? new_app_scheduled : 0;
 			cancelTimeout(connection->context, &connection->mutex, &current->timeout);
 			decrementAppQueueItemRefCount(current);
