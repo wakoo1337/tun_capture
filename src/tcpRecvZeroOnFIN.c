@@ -3,6 +3,7 @@
 #include <stdint.h>
 #include <sys/socket.h>
 #include <sys/time.h>
+#include <event2/event.h>
 #include "SrcDstSockaddrs.h"
 #include "CaptureContext.h"
 #include "TCPConnection.h"
@@ -18,6 +19,7 @@
 unsigned int tcpRecvZeroOnFIN(struct TCPConnection *connection) {
 	connection->first_desired++;
 	connection->state = &tcpstate_timewait;
+	event_del(connection->write_event);
 	pthread_mutex_unlock(&connection->mutex);
 	pthread_mutex_lock(&connection->context->timeout_mutex);
 	pthread_mutex_lock(&connection->mutex);

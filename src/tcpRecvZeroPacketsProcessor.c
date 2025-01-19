@@ -19,7 +19,8 @@
 #include "scaleRemoteWindow.h"
 
 #include "tcpRecvZeroPacketsProcessor.h"
-unsigned int tcpRecvZeroPacketsProcessor(struct TCPConnection *connection, const struct IPPacketPayload *payload, const struct TCPHeaderData *header) {const uint32_t old_first = connection->first_desired;
+unsigned int tcpRecvZeroPacketsProcessor(struct TCPConnection *connection, const struct IPPacketPayload *payload, const struct TCPHeaderData *header) {
+	const uint32_t old_first = connection->first_desired;
 	if (!checkPacketInRecieveWindow(connection, payload, header)) {
 		// Если не все байты сегмента лежат в окне приёма, он игнорируется
 		free(payload->free_me);

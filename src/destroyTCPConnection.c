@@ -82,6 +82,7 @@ void destroyTCPConnection(struct TCPConnection *connection) {
 			next = tx_current->next;
 			decrementAppQueueItemRefCount(item);
 			freeNoRefsAppQueueItem(item);
+			free(tx_current);
 			*tx_prevnext = next;
 			tx_current = next;
 		} else {

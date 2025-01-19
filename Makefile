@@ -103,7 +103,7 @@ bin/tcpstate_connwait.o: src/tcpstate_connwait.c src/tcpstate_connwait.h src/Src
 	$(CC) $(CFLAGS) $(LIBEVENT_CFLAGS) -c -o bin/tcpstate_connwait.o src/tcpstate_connwait.c
 bin/tcpConnwaitReadCallback.o: src/tcpConnwaitReadCallback.c src/tcpConnwaitReadCallback.h src/SrcDstSockaddrs.h src/TCPConnection.h
 	$(CC) $(CFLAGS) $(LIBEVENT_CFLAGS) -c -o bin/tcpConnwaitReadCallback.o src/tcpConnwaitReadCallback.c
-bin/tcpConnwaitWriteCallback.o: src/tcpConnwaitWriteCallback.c src/tcpConnwaitWriteCallback.h src/SrcDstSockaddrs.h src/TCPConnection.h src/sendSynReply.h src/tcpFinalizeRead.h src/tcpFinalizeWrite.h src/tcpstate_synack_send.h
+bin/tcpConnwaitWriteCallback.o: src/tcpConnwaitWriteCallback.c src/tcpConnwaitWriteCallback.h src/SrcDstSockaddrs.h src/TCPConnection.h src/sendSynReply.h src/tcpFinalizeRead.h src/tcpFinalizeWrite.h src/tcpstate_synack_send.h src/tcpstate_connreset.h
 	$(CC) $(CFLAGS) $(LIBEVENT_CFLAGS) -c -o bin/tcpConnwaitWriteCallback.o src/tcpConnwaitWriteCallback.c
 bin/destroyTCPConnection.o: src/destroyTCPConnection.c src/destroyTCPConnection.h src/contrib/avl.h src/contrib/logdel_heap.h src/SrcDstSockaddrs.h src/CaptureContext.h src/TCPConnection.h src/TCPAppQueueItem.h src/TCPSiteQueueItem.h src/PacketQueueItem.h src/tcpDestroySitePrequeueItem.h src/cancelTimeout.h src/freeNoRefsAppQueueItem.h src/incrementAppQueueItemRefCount.h src/decrementAppQueueItemRefCount.h src/sendTCPPacketRefcounted.h src/processTCPData.h
 	$(CC) $(CFLAGS) -c -o bin/destroyTCPConnection.o src/destroyTCPConnection.c
@@ -278,7 +278,7 @@ bin/tcpEstablishedOnFIN.o: src/tcpEstablishedOnFIN.c src/tcpEstablishedOnFIN.h s
 bin/timewait_delay.o: src/timewait_delay.c src/timewait_delay.h
 	$(CC) $(CFLAGS) -c -o bin/timewait_delay.o src/timewait_delay.c
 bin/tcpRecvZeroOnFIN.o: src/tcpRecvZeroOnFIN.c src/tcpRecvZeroOnFIN.h src/SrcDstSockaddrs.h src/CaptureContext.h src/TCPConnection.h src/getMonotonicTimeval.h src/addTimeval.h src/enqueueTimeout.h src/startTimer.h src/tcpTimeWaitExpiredCallback.h src/tcpstate_timewait.h src/timewait_delay.h
-	$(CC) $(CFLAGS) -c -o bin/tcpRecvZeroOnFIN.o src/tcpRecvZeroOnFIN.c
+	$(CC) $(CFLAGS) $(LIBEVENT_CFLAGS) -c -o bin/tcpRecvZeroOnFIN.o src/tcpRecvZeroOnFIN.c
 bin/tcpTimeWaitExpiredCallback.o: src/tcpTimeWaitExpiredCallback.c src/tcpTimeWaitExpiredCallback.h src/SrcDstSockaddrs.h src/TCPConnection.h src/tcpFinalizeRead.h src/tcpFinalizeWrite.h
 	$(CC) $(CFLAGS) -c -o bin/tcpTimeWaitExpiredCallback.o src/tcpTimeWaitExpiredCallback.c
 bin/tcpstate_timewait.o: src/tcpstate_timewait.c src/tcpstate_timewait.h src/SrcDstSockaddrs.h src/TCPConnection.h src/TCPHeaderData.h src/IPPacketPayload.h src/TCPState.h src/tcpTimeWaitReadCallback.h src/tcpTimeWaitWriteCallback.h src/tcpTimeWaitPacketsProcessor.h

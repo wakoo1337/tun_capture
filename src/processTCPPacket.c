@@ -51,7 +51,7 @@ unsigned int processTCPPacket(struct CaptureContext *context, const struct IPPac
 		free(payload->free_me);
 		return 0;
 	};
-	if (hdr.syn) {
+	if ((!hdr.urg) && (!hdr.ack) && (!hdr.psh) && (!hdr.rst) && hdr.syn && (!hdr.fin)) {
 		// Установить новое соединение
 		struct TCPConnection *connection;
 		assert(addrs->src.sa_family == addrs->dst.sa_family);
@@ -60,6 +60,23 @@ unsigned int processTCPPacket(struct CaptureContext *context, const struct IPPac
 			free(payload->free_me);
 			return 1;
 		};
+		connection->addrs = *addrs;
+		pthread_mutex_lock(&context->tcp_mutex);
+		void **probe;
+		probe = avl_probe(context->tcp_connections, connection);
+		if (NULL == probe) {
+			// Невозможно вставить
+			pthread_mutex_unlock(&context->tcp_mutex);
+			free(connection);
+			return 1;
+		} else if (*probe != ((void *) connection)) {
+			// Уже есть такое соединение
+			pthread_mutex_unlock(&context->tcp_mutex);
+			free(connection);
+			return 0;
+		};
+		pthread_mutex_init(&connection->mutex, NULL);
+		pthread_mutex_lock(&connection->mutex);
 		if (hdr.mss_present) {
 			connection->max_pktdata = hdr.mss_value; // Это без учёта дополнительных опций, которые могут ещё появиться
 		} else {
@@ -70,71 +87,93 @@ unsigned int processTCPPacket(struct CaptureContext *context, const struct IPPac
 		connection->site_last = &connection->site_queue;
 		connection->app_queue = NULL;
 		connection->app_last = &connection->app_queue;
-		connection->site_prequeue = avl_create(&compareTCPSitePrequeueItems, NULL, NULL);
-		if (NULL == connection->site_prequeue) {
-			free(connection);
-			free(payload->free_me);
-			return 1;
-		};
 		connection->site_scheduled = connection->app_scheduled = 0;
 		connection->our_seq = 0;
 		connection->first_desired = hdr.seq_num + 1;
 		connection->scaling_enabled = hdr.winscale_present;
 		connection->remote_scale = hdr.winscale_value;
 		connection->our_scale = 0; // TODO сделать масштабирование
-		connection->addrs = *addrs;
-		connection->sock = socket(addrs->src.sa_family, SOCK_STREAM, 0);
-		pthread_mutex_init(&connection->mutex, NULL);
-		pthread_mutex_lock(&connection->mutex);
-		if (-1 == connection->sock) {
-			avl_destroy(connection->site_prequeue, &tcpDestroySitePrequeueItem);
+		connection->read_finalized = connection->write_finalized = true;
+		connection->state = &tcpstate_connwait;
+		connection->strategy = strategy;
+		connection->context = context;
+		connection->site_prequeue = avl_create(&compareTCPSitePrequeueItems, NULL, NULL);
+		if (NULL == connection->site_prequeue) {
+			void *deleted;
+			deleted = avl_delete(context->tcp_connections, connection);
+			assert(deleted == connection);
 			pthread_mutex_unlock(&connection->mutex);
 			pthread_mutex_destroy(&connection->mutex);
+			pthread_mutex_unlock(&context->tcp_mutex);
+			free(connection);
+			free(payload->free_me);
+			return 1;
+		};
+		connection->sock = socket(addrs->src.sa_family, SOCK_STREAM, 0);
+		if (-1 == connection->sock) {
+			avl_destroy(connection->site_prequeue, &tcpDestroySitePrequeueItem);
+			void *deleted;
+			deleted = avl_delete(context->tcp_connections, connection);
+			assert(deleted == connection);
+			pthread_mutex_unlock(&connection->mutex);
+			pthread_mutex_destroy(&connection->mutex);
+			pthread_mutex_unlock(&context->tcp_mutex);
 			free(connection);
 			free(payload->free_me);
 			return 1;
 		};
 		if (-1 == fcntl(connection->sock, F_SETFL, O_NONBLOCK)) {
 			avl_destroy(connection->site_prequeue, &tcpDestroySitePrequeueItem);
+			void *deleted;
+			deleted = avl_delete(context->tcp_connections, connection);
+			assert(deleted == connection);
 			pthread_mutex_unlock(&connection->mutex);
 			pthread_mutex_destroy(&connection->mutex);
-			close(connection->sock);
+			pthread_mutex_unlock(&context->tcp_mutex);
 			free(connection);
 			free(payload->free_me);
 			return 1;
 		};
-		pthread_mutex_unlock(&connection->mutex);
-		pthread_mutex_lock(&context->tcp_mutex);
-		pthread_mutex_lock(&connection->mutex);
-		connection->read_finalized = connection->write_finalized = false;
-		connection->state = &tcpstate_connwait;
-		connection->strategy = strategy;
-		connection->context = context;
 		connection->read_event = event_new(context->event_base, connection->sock, EV_READ | EV_PERSIST | EV_FINALIZE, &tcpReadCallback, connection);
 		if (NULL == connection->read_event) {
-			pthread_mutex_unlock(&context->tcp_mutex);
+			avl_destroy(connection->site_prequeue, &tcpDestroySitePrequeueItem);
+			void *deleted;
+			deleted = avl_delete(context->tcp_connections, connection);
+			assert(deleted == connection);
 			pthread_mutex_unlock(&connection->mutex);
 			pthread_mutex_destroy(&connection->mutex);
-			avl_destroy(connection->site_prequeue, &tcpDestroySitePrequeueItem);
-			close(connection->sock);
+			pthread_mutex_unlock(&context->tcp_mutex);
 			free(connection);
 			free(payload->free_me);
 			return 1;
 		};
+		connection->read_finalized = false;
 		connection->write_event = event_new(context->event_base, connection->sock, EV_WRITE | EV_PERSIST | EV_FINALIZE, &tcpWriteCallback, connection);
 		if (NULL == connection->write_event) {
-			connection->write_finalized = true;
 			tcpFinalizeRead(connection);
-			pthread_mutex_unlock(&context->tcp_mutex);
+			avl_destroy(connection->site_prequeue, &tcpDestroySitePrequeueItem);
+			void *deleted;
+			deleted = avl_delete(context->tcp_connections, connection);
+			assert(deleted == connection);
 			pthread_mutex_unlock(&connection->mutex);
+			pthread_mutex_destroy(&connection->mutex);
+			pthread_mutex_unlock(&context->tcp_mutex);
+			free(connection);
 			free(payload->free_me);
 			return 1;
 		};
+		connection->write_finalized = false;
 		if (-1 == event_add(connection->write_event, NULL)) {
 			tcpFinalizeRead(connection);
 			tcpFinalizeWrite(connection);
-			pthread_mutex_unlock(&context->tcp_mutex);
+			avl_destroy(connection->site_prequeue, &tcpDestroySitePrequeueItem);
+			void *deleted;
+			deleted = avl_delete(context->tcp_connections, connection);
+			assert(deleted == connection);
 			pthread_mutex_unlock(&connection->mutex);
+			pthread_mutex_destroy(&connection->mutex);
+			pthread_mutex_unlock(&context->tcp_mutex);
+			free(connection);
 			free(payload->free_me);
 			return 1;
 		};
@@ -142,20 +181,16 @@ unsigned int processTCPPacket(struct CaptureContext *context, const struct IPPac
 		if ((-1 == connect(connection->sock, &addrs->dst, sizeof(struct sockaddr))) && (errno != EINPROGRESS)) {
 			tcpFinalizeRead(connection);
 			tcpFinalizeWrite(connection);
-			pthread_mutex_unlock(&context->tcp_mutex);
+			avl_destroy(connection->site_prequeue, &tcpDestroySitePrequeueItem);
+			void *deleted;
+			deleted = avl_delete(context->tcp_connections, connection);
+			assert(deleted == connection);
 			pthread_mutex_unlock(&connection->mutex);
+			pthread_mutex_destroy(&connection->mutex);
+			pthread_mutex_unlock(&context->tcp_mutex);
+			free(connection);
 			free(payload->free_me);
 			return 1;
-		};
-		void **probe;
-		probe = avl_probe(context->tcp_connections, connection);
-		if ((NULL == probe) || ((*probe) != connection)) {
-			tcpFinalizeRead(connection);
-			tcpFinalizeWrite(connection);
-			pthread_mutex_unlock(&context->tcp_mutex);
-			pthread_mutex_unlock(&connection->mutex);
-			free(payload->free_me);
-			return (unsigned int) (NULL == probe);
 		};
 		pthread_mutex_unlock(&context->tcp_mutex);
 		pthread_mutex_unlock(&connection->mutex);
