@@ -11,10 +11,19 @@
 
 #include "tcpEstablishedOnError.h"
 unsigned int tcpEstablishedOnError(struct TCPConnection *connection) {
-	if (errno == ECONNRESET) {
-		connection->state = &tcpstate_connreset;
-		tcpFinalizeRead(connection);
-		tcpFinalizeWrite(connection);
+	switch (errno) {
+		case ECONNABORTED:
+		case EHOSTUNREACH:
+		case ECONNREFUSED:
+		case ECONNRESET:
+			connection->state = &tcpstate_connreset;
+			tcpFinalizeRead(connection);
+			tcpFinalizeWrite(connection);
+		case ESHUTDOWN:
+			return 0;
+		break;
+		default:
+			return 1;
 	};
 	return 0;
 };
