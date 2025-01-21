@@ -25,10 +25,12 @@ void udpWriteCallback(evutil_socket_t fd, short what, void *arg) {
 				if ((errno == EAGAIN) || (errno == EWOULDBLOCK)) {
 					pthread_mutex_unlock(&binding->mutex);
 					return;
-				} else {
+				} else if ((errno == ECONNREFUSED) || (errno == ECONNABORTED) || (errno == EHOSTUNREACH) || (errno == EMSGSIZE) || (errno == EPIPE)){
 					free(binding->stack->free_me);
 					free(binding->stack);
 					binding->stack = next;
+				} else {
+					emergencyStop(binding->context);
 				};
 			} else {
 				free(binding->stack->free_me);

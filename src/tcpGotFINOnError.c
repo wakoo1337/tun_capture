@@ -16,6 +16,7 @@ unsigned int tcpGotFINOnError(struct TCPConnection *connection) {
 		case EHOSTUNREACH:
 		case ECONNREFUSED:
 		case ECONNRESET:
+		case EPIPE:
 			connection->state = &tcpstate_connreset;
 			tcpFinalizeRead(connection);
 			tcpFinalizeWrite(connection);

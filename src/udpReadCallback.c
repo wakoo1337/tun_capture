@@ -3,6 +3,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include <errno.h>
 #include <sys/socket.h>
 #include <event2/event.h>
 #include "contrib/logdel_heap.h"
@@ -35,6 +36,7 @@ void udpReadCallback(evutil_socket_t fd, short what, void *arg) {
 		result = recvfrom(binding->sock, &buffer[HEADERS_RESERVE], MAX_UDP_PAYLOAD, 0, &sender_sa, &sl);
 		if (result == -1) {
 			free(buffer);
+			if ((errno != EAGAIN) && (errno != EWOULDBLOCK) && (errno != ECONNREFUSED) && (errno != ECONNABORTED) && (errno != EHOSTUNREACH) && (errno != EPIPE)) emergencyStop(binding->context);
 			return;
 		};
 		assert(sender_sa.sa_family == binding->internal_addr.sa_family);
