@@ -32,15 +32,19 @@ void destroyTCPConnection(struct TCPConnection *connection) {
 	del = avl_delete(connection->context->tcp_connections, connection);
 	assert((del == NULL) || (del == connection));
 	pthread_mutex_unlock(&connection->context->tcp_mutex);
-	while (connection->app_queue) {
-		incrementAppQueueItemRefCount(connection->app_queue);
+	struct TCPAppQueueItem *app_queue;
+	app_queue = connection->app_queue;
+	connection->app_queue = NULL;
+	connection->app_last = &connection->app_queue;
+	while (app_queue) {
+		incrementAppQueueItemRefCount(app_queue);
 		struct TCPAppQueueItem *next;
-		next = connection->app_queue->next;
-		cancelTimeout(connection->context, &connection->mutex, &connection->app_queue->timeout);
-		decrementAppQueueItemRefCount(connection->app_queue);
-		decrementAppQueueItemRefCount(connection->app_queue);
-		freeNoRefsAppQueueItem(connection->app_queue);
-		connection->app_queue = next;
+		next = app_queue->next;
+		cancelTimeout(connection->context, &connection->mutex, &app_queue->timeout);
+		decrementAppQueueItemRefCount(app_queue);
+		decrementAppQueueItemRefCount(app_queue);
+		freeNoRefsAppQueueItem(app_queue);
+		app_queue = next;
 	};
 	avl_destroy(connection->site_prequeue, &tcpDestroySitePrequeueItem);
 	while (connection->site_queue) {
