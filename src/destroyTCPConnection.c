@@ -30,8 +30,9 @@ void destroyTCPConnection(struct TCPConnection *connection) {
 	pthread_mutex_lock(&connection->mutex);
 	void *del;
 	del = avl_delete(connection->context->tcp_connections, connection);
-	assert((del == NULL) || (del == connection));
+	assert(del == connection);
 	pthread_mutex_unlock(&connection->context->tcp_mutex);
+	cancelTimeout(connection->context, &connection->mutex, &connection->timewait_item);
 	struct TCPAppQueueItem *app_queue;
 	app_queue = connection->app_queue;
 	connection->app_queue = NULL;

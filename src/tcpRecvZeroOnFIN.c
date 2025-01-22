@@ -26,8 +26,7 @@ unsigned int tcpRecvZeroOnFIN(struct TCPConnection *connection) {
 	struct timeval now, expire;
 	getMonotonicTimeval(&now);
 	addTimeval(&timewait_delay, &now, &expire);
-	struct TimeoutItem *timeout_item;
-	timeout_item = enqueueTimeout(connection->context, &expire, &tcpTimeWaitExpiredCallback, connection, &connection->mutex);
+	connection->timewait_item = enqueueTimeout(connection->context, &expire, &tcpTimeWaitExpiredCallback, connection, &connection->mutex);
 	startTimer(connection->context);
 	pthread_mutex_unlock(&connection->context->timeout_mutex);
 	return 0;

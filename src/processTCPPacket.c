@@ -99,6 +99,7 @@ unsigned int processTCPPacket(struct CaptureContext *context, const struct IPPac
 		connection->context = context;
 		connection->should_send_fin = false;
 		connection->fin_seq = 0;
+		connection->timewait_item = NULL;
 		connection->site_prequeue = avl_create(&compareTCPSitePrequeueItems, NULL, NULL);
 		if (NULL == connection->site_prequeue) {
 			void *deleted;

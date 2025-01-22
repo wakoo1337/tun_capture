@@ -19,5 +19,6 @@ struct TCPConnection {
 	bool scaling_enabled; // Включено ли масштабирование окна?
 	unsigned int our_scale, remote_scale; // Показатели масштабирования
 	bool should_send_fin; // Нужно ли отправить FIN
-	uint32_t fin_seq;
+	uint32_t fin_seq; // Номер последовательности, с которым будет отправлен FIN
+	struct TimeoutItem *timewait_item; // Элемент таймаута для TIME_WAIT
 };

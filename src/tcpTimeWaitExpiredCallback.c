@@ -10,6 +10,7 @@
 #include "tcpTimeWaitExpiredCallback.h"
 void tcpTimeWaitExpiredCallback(void *arg) {
 	struct TCPConnection *connection = (struct TCPConnection *) arg;
+	connection->timewait_item = NULL;
 	tcpFinalizeRead(connection); // Вообще, если соединение в состоянии TimeWait, то событие чтения уже уничтожено
 	tcpFinalizeWrite(connection);
 };
