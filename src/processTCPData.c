@@ -24,6 +24,7 @@
 #include "freeNoRefsAppQueueItem.h"
 #include "findPreviousNextAppQueueItem.h"
 #include "decrementAppQueueItemRefCount.h"
+#include "sendTCPFinalize.h"
 #include "HEADERS_RESERVE.h"
 
 #include "processTCPData.h"
@@ -45,7 +46,7 @@ unsigned int processTCPData(struct CaptureContext *context, uint8_t *packet, uns
 	header.ack_num = connection->first_desired;
 	header.urg = header.rst = header.syn = header.fin = false;
 	header.ack = true;
-	header.psh = count < connection->max_pktdata;
+	header.psh = (count != 0) && (count < connection->max_pktdata);
 	header.raw_window = getSendWindowSize(connection);
 	header.urgent_ptr = 0;
 	header.mss_present = header.winscale_present = false;
@@ -53,7 +54,6 @@ unsigned int processTCPData(struct CaptureContext *context, uint8_t *packet, uns
 	uint8_t pseudo[connection->strategy->pseudo_length];
 	connection->strategy->create_pseudo(pseudo, &connection->addrs.dst, &connection->addrs.src, 6, header.data_offset + count);
 	connection->our_seq += count;
-	assert(connection->our_seq != header.seq_num);
 	const uint32_t latest_ack = connection->latest_ack;
 	const unsigned int app_window = connection->app_window; // Копируем, т.к. в writeTCPHeader() на время вычисления контрольной суммы освобождается мьютекс соединения
 	writeTCPHeader(packet, count, &header, pseudo, connection->strategy->pseudo_length, &connection->mutex);
@@ -91,5 +91,9 @@ unsigned int processTCPData(struct CaptureContext *context, uint8_t *packet, uns
 	};
 	decrementAppQueueItemRefCount(item); // Ссылка из локальной переменной ушла, всё.
 	freeNoRefsAppQueueItem(item);
+	if (connection->should_send_fin && (connection->fin_seq == connection->our_seq)) {
+		sendTCPFinalize(connection);
+		connection->our_seq++;
+	};
 	return 0;
 };

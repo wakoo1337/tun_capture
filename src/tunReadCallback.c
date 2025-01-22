@@ -17,12 +17,15 @@ void tunReadCallback(evutil_socket_t fd, short what, void *arg) {
 	if (what & EV_READ) {
 		uint8_t *buffer;
 		buffer = malloc(context->settings->mtu * sizeof(uint8_t));
-		if (buffer == NULL) event_base_loopexit(context->event_base, NULL);
+		if (buffer == NULL) emergencyStop(context);
 		ssize_t readed;
 		readed = context->settings->read_function(buffer, context->settings->mtu, context->settings->user);
 		if (readed == -1) {
 			free(buffer);
 			emergencyStop(context);
+			return;
+		} else if (readed == 0) {
+			free(buffer);
 			return;
 		};
 		uint8_t *new_buffer;

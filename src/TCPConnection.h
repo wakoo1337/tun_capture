@@ -18,4 +18,6 @@ struct TCPConnection {
 	unsigned int app_window; // Размер окна приложения, с учётом масштабирования
 	bool scaling_enabled; // Включено ли масштабирование окна?
 	unsigned int our_scale, remote_scale; // Показатели масштабирования
+	bool should_send_fin; // Нужно ли отправить FIN
+	uint32_t fin_seq;
 };
