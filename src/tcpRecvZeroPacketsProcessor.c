@@ -34,7 +34,7 @@ unsigned int tcpRecvZeroPacketsProcessor(struct TCPConnection *connection, const
 	tcpCleanupConfirmed(connection);
 	if (prequeueToSiteQueue(connection, &tcpRecvZeroOnFIN)) return 1;
 	enqueueUnsentTCPPacketsTransmission(connection);
-	if (!connection->write_finalized) tcpUpdateWriteEvent(connection);
+	tcpUpdateWriteEvent(connection);
 	if (old_first != connection->first_desired) sendTCPAcknowledgement(connection);
 	return 0;
 };
