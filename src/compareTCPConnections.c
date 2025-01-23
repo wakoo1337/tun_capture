@@ -2,6 +2,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <sys/socket.h>
+#include <semaphore.h>
 #include <string.h>
 #include "SrcDstSockaddrs.h"
 #include "TCPConnection.h"

@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <errno.h>
+#include <semaphore.h>
 #include "contrib/logdel_heap.h"
 #include "CaptureSettings.h"
 #include "CaptureContext.h"

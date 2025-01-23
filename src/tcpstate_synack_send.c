@@ -1,6 +1,7 @@
 #include <sys/socket.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include <semaphore.h>
 #include <event2/event.h>
 #include "SrcDstSockaddrs.h"
 #include "IPPacketPayload.h"

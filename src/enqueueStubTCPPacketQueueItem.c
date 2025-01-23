@@ -2,6 +2,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include <semaphore.h>
 #include <sys/socket.h>
 #include "CaptureContext.h"
 #include "SrcDstSockaddrs.h"
@@ -31,6 +32,7 @@ unsigned int enqueueStubTCPPacketQueueItem(struct TCPConnection *connection) {
 	item->count = 0;
 	item->processor = &processTCPData;
 	item->mutex = &connection->mutex;
+	item->semaphore = &connection->semaphore;
 	item->free_me = stub_buffer;
 	item->arg = connection;
 	enqueueRxPacket(connection->context, item);

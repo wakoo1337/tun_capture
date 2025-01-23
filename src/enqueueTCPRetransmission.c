@@ -2,6 +2,7 @@
 #include <assert.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include <semaphore.h>
 #include <sys/socket.h>
 #include <sys/time.h>
 #include "contrib/logdel_heap.h"

@@ -7,9 +7,11 @@
 #include <fcntl.h>
 #include <unistd.h>
 #include <errno.h>
+#include <semaphore.h>
 #include <event2/event.h>
 #include "contrib/avl.h"
 #include "contrib/logdel_heap.h"
+#include "CaptureSettings.h"
 #include "CaptureContext.h"
 #include "IPPacketPayload.h"
 #include "IPFragmentMetadata.h"
@@ -26,6 +28,7 @@
 #include "tcpFinalizeRead.h"
 #include "tcpFinalizeWrite.h"
 #include "tcpstate_connwait.h"
+#include "tcpstate_connreset.h"
 
 #include "processTCPPacket.h"
 unsigned int processTCPPacket(struct CaptureContext *context, const struct IPPacketPayload *payload, const struct NetworkProtocolStrategy *strategy, struct SrcDstSockaddrs *addrs) {
@@ -44,6 +47,7 @@ unsigned int processTCPPacket(struct CaptureContext *context, const struct IPPac
 		if (found) {
 			pthread_mutex_lock(&found->mutex);
 			pthread_mutex_unlock(&context->tcp_mutex);
+			found->state = &tcpstate_connreset;
 			tcpFinalizeRead(found);
 			tcpFinalizeWrite(found);
 			pthread_mutex_unlock(&found->mutex);
@@ -76,6 +80,8 @@ unsigned int processTCPPacket(struct CaptureContext *context, const struct IPPac
 			return 0;
 		};
 		pthread_mutex_init(&connection->mutex, NULL);
+		sem_init(&connection->semaphore, 0, context->settings->threads_count);
+		sem_wait(&connection->semaphore);
 		pthread_mutex_lock(&connection->mutex);
 		if (hdr.mss_present) {
 			connection->max_pktdata = hdr.mss_value; // Это без учёта дополнительных опций, которые могут ещё появиться
@@ -106,8 +112,10 @@ unsigned int processTCPPacket(struct CaptureContext *context, const struct IPPac
 			deleted = avl_delete(context->tcp_connections, connection);
 			assert(deleted == connection);
 			pthread_mutex_unlock(&connection->mutex);
+			sem_post(&connection->semaphore);
 			pthread_mutex_destroy(&connection->mutex);
 			pthread_mutex_unlock(&context->tcp_mutex);
+			sem_destroy(&connection->semaphore);
 			free(connection);
 			free(payload->free_me);
 			return 1;
@@ -119,8 +127,10 @@ unsigned int processTCPPacket(struct CaptureContext *context, const struct IPPac
 			deleted = avl_delete(context->tcp_connections, connection);
 			assert(deleted == connection);
 			pthread_mutex_unlock(&connection->mutex);
+			sem_post(&connection->semaphore);
 			pthread_mutex_destroy(&connection->mutex);
 			pthread_mutex_unlock(&context->tcp_mutex);
+			sem_destroy(&connection->semaphore);
 			free(connection);
 			free(payload->free_me);
 			return 1;
@@ -131,8 +141,10 @@ unsigned int processTCPPacket(struct CaptureContext *context, const struct IPPac
 			deleted = avl_delete(context->tcp_connections, connection);
 			assert(deleted == connection);
 			pthread_mutex_unlock(&connection->mutex);
+			sem_post(&connection->semaphore);
 			pthread_mutex_destroy(&connection->mutex);
 			pthread_mutex_unlock(&context->tcp_mutex);
+			sem_destroy(&connection->semaphore);
 			free(connection);
 			free(payload->free_me);
 			return 1;
@@ -144,8 +156,10 @@ unsigned int processTCPPacket(struct CaptureContext *context, const struct IPPac
 			deleted = avl_delete(context->tcp_connections, connection);
 			assert(deleted == connection);
 			pthread_mutex_unlock(&connection->mutex);
+			sem_post(&connection->semaphore);
 			pthread_mutex_destroy(&connection->mutex);
 			pthread_mutex_unlock(&context->tcp_mutex);
+			sem_destroy(&connection->semaphore);
 			free(connection);
 			free(payload->free_me);
 			return 1;
@@ -154,13 +168,16 @@ unsigned int processTCPPacket(struct CaptureContext *context, const struct IPPac
 		connection->write_event = event_new(context->event_base, connection->sock, EV_WRITE | EV_PERSIST | EV_FINALIZE, &tcpWriteCallback, connection);
 		if (NULL == connection->write_event) {
 			tcpFinalizeRead(connection);
+			connection->state = &tcpstate_connreset;
 			avl_destroy(connection->site_prequeue, &tcpDestroySitePrequeueItem);
 			void *deleted;
 			deleted = avl_delete(context->tcp_connections, connection);
 			assert(deleted == connection);
 			pthread_mutex_unlock(&connection->mutex);
+			sem_post(&connection->semaphore);
 			pthread_mutex_destroy(&connection->mutex);
 			pthread_mutex_unlock(&context->tcp_mutex);
+			sem_destroy(&connection->semaphore);
 			free(connection);
 			free(payload->free_me);
 			return 1;
@@ -169,13 +186,16 @@ unsigned int processTCPPacket(struct CaptureContext *context, const struct IPPac
 		if (-1 == event_add(connection->write_event, NULL)) {
 			tcpFinalizeRead(connection);
 			tcpFinalizeWrite(connection);
+			connection->state = &tcpstate_connreset;
 			avl_destroy(connection->site_prequeue, &tcpDestroySitePrequeueItem);
 			void *deleted;
 			deleted = avl_delete(context->tcp_connections, connection);
 			assert(deleted == connection);
 			pthread_mutex_unlock(&connection->mutex);
+			sem_post(&connection->semaphore);
 			pthread_mutex_destroy(&connection->mutex);
 			pthread_mutex_unlock(&context->tcp_mutex);
+			sem_destroy(&connection->semaphore);
 			free(connection);
 			free(payload->free_me);
 			return 1;
@@ -184,19 +204,23 @@ unsigned int processTCPPacket(struct CaptureContext *context, const struct IPPac
 		if ((-1 == connect(connection->sock, &addrs->dst, sizeof(struct sockaddr))) && (errno != EINPROGRESS)) {
 			tcpFinalizeRead(connection);
 			tcpFinalizeWrite(connection);
+			connection->state = &tcpstate_connreset;
 			avl_destroy(connection->site_prequeue, &tcpDestroySitePrequeueItem);
 			void *deleted;
 			deleted = avl_delete(context->tcp_connections, connection);
 			assert(deleted == connection);
 			pthread_mutex_unlock(&connection->mutex);
+			sem_post(&connection->semaphore);
 			pthread_mutex_destroy(&connection->mutex);
 			pthread_mutex_unlock(&context->tcp_mutex);
+			sem_destroy(&connection->semaphore);
 			free(connection);
 			free(payload->free_me);
 			return 1;
 		};
 		pthread_mutex_unlock(&context->tcp_mutex);
 		pthread_mutex_unlock(&connection->mutex);
+		sem_post(&connection->semaphore);
 		free(payload->free_me); // TODO убрать, и в первом пакете могут быть данные
 		return 0;
 	};
@@ -205,11 +229,13 @@ unsigned int processTCPPacket(struct CaptureContext *context, const struct IPPac
 	struct TCPConnection *connection;
 	connection = avl_find(context->tcp_connections, addrs);
 	if (connection) {
+		sem_wait(&connection->semaphore);
 		pthread_mutex_lock(&connection->mutex);
 		pthread_mutex_unlock(&context->tcp_mutex);
 		unsigned int result;
 		result = connection->state->packets_processor(connection, payload, &hdr);
 		pthread_mutex_unlock(&connection->mutex);
+		sem_post(&connection->semaphore);
 		return result;
 	} else {
 		// TODO послать RST

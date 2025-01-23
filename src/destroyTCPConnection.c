@@ -6,9 +6,11 @@
 #include <stdlib.h>
 #include <stddef.h>
 #include <unistd.h>
+#include <semaphore.h>
 #include "contrib/avl.h"
 #include "contrib/logdel_heap.h"
 #include "SrcDstSockaddrs.h"
+#include "CaptureSettings.h"
 #include "CaptureContext.h"
 #include "TCPConnection.h"
 #include "TCPAppQueueItem.h"
@@ -17,45 +19,20 @@
 #include "tcpDestroySitePrequeueItem.h"
 #include "cancelTimeout.h"
 #include "freeNoRefsAppQueueItem.h"
-#include "incrementAppQueueItemRefCount.h"
 #include "decrementAppQueueItemRefCount.h"
 #include "sendTCPPacketRefcounted.h"
 #include "processTCPData.h"
 
 #include "destroyTCPConnection.h"
 void destroyTCPConnection(struct TCPConnection *connection) {
-	// ФУНКЦИЯ ДОЛЖНА ВЫПОЛНЯТЬСЯ СТРОГО В ГЛАВНОМ ПОТОКЕ И ИЗ ФИНАЛИЗАТОРА
-	pthread_mutex_unlock(&connection->mutex); // Избегаем взаимной блокировки
+	pthread_mutex_unlock(&connection->mutex);
 	pthread_mutex_lock(&connection->context->tcp_mutex);
 	pthread_mutex_lock(&connection->mutex);
 	void *del;
 	del = avl_delete(connection->context->tcp_connections, connection);
 	assert(del == connection);
 	pthread_mutex_unlock(&connection->context->tcp_mutex);
-	cancelTimeout(connection->context, &connection->mutex, &connection->timewait_item);
-	struct TCPAppQueueItem *app_queue;
-	app_queue = connection->app_queue;
-	connection->app_queue = NULL;
-	connection->app_last = &connection->app_queue;
-	while (app_queue) {
-		incrementAppQueueItemRefCount(app_queue);
-		struct TCPAppQueueItem *next;
-		next = app_queue->next;
-		cancelTimeout(connection->context, &connection->mutex, &app_queue->timeout);
-		decrementAppQueueItemRefCount(app_queue);
-		decrementAppQueueItemRefCount(app_queue);
-		freeNoRefsAppQueueItem(app_queue);
-		app_queue = next;
-	};
-	avl_destroy(connection->site_prequeue, &tcpDestroySitePrequeueItem);
-	while (connection->site_queue) {
-		struct TCPSiteQueueItem *next;
-		next = connection->site_queue->next;
-		free(connection->site_queue->free_me);
-		free(connection->site_queue);
-		connection->site_queue = next;
-	};
-	pthread_mutex_unlock(&connection->mutex);
+	pthread_mutex_unlock(&connection->mutex); // Удалили соединение из списка
 	pthread_mutex_lock(&connection->context->rx_mutex);
 	pthread_mutex_lock(&connection->mutex);
 	struct PacketQueueItem *rx_current, **rx_prevnext;
@@ -75,7 +52,27 @@ void destroyTCPConnection(struct TCPConnection *connection) {
 		};
 	};
 	if (NULL == connection->context->rx_begin) connection->context->rx_end = &connection->context->rx_begin;
-	pthread_mutex_unlock(&connection->context->rx_mutex);
+	pthread_mutex_unlock(&connection->context->rx_mutex); // Удалили все соответствующие соединению принятые пакеты
+	cancelTimeout(connection->context, &connection->mutex, &connection->timewait_item);
+	pthread_mutex_unlock(&connection->mutex);
+	for (unsigned int i=0;i < connection->context->settings->threads_count;i++) sem_wait(&connection->semaphore); // Блокируем все места в семафоре, чтобы убедиться, что в рабочих потоках ничего не выполняется
+	pthread_mutex_lock(&connection->mutex);
+	while (connection->app_queue) {
+		struct TCPAppQueueItem *next;
+		next = connection->app_queue->next;
+		cancelTimeout(connection->context, &connection->mutex, &connection->app_queue->timeout);
+		decrementAppQueueItemRefCount(connection->app_queue);
+		freeNoRefsAppQueueItem(connection->app_queue);
+		connection->app_queue = next;
+	};
+	while (connection->site_queue) {
+		struct TCPSiteQueueItem *next;
+		next = connection->site_queue->next;
+		free(connection->site_queue->free_me);
+		free(connection->site_queue);
+		connection->site_queue = next;
+	};
+	avl_destroy(connection->site_prequeue, &tcpDestroySitePrequeueItem);
 	pthread_mutex_lock(&connection->context->tx_mutex);
 	struct PacketQueueItem *tx_current, **tx_prevnext;
 	tx_current = connection->context->tx_begin;
@@ -99,6 +96,8 @@ void destroyTCPConnection(struct TCPConnection *connection) {
 	pthread_mutex_unlock(&connection->context->tx_mutex);
 	pthread_mutex_unlock(&connection->mutex);
 	pthread_mutex_destroy(&connection->mutex);
+	for (unsigned int i=0;i < connection->context->settings->threads_count;i++) sem_post(&connection->semaphore);
+	sem_destroy(&connection->semaphore);
 	close(connection->sock);
 	free(connection);
 }; 

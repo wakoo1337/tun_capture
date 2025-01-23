@@ -4,6 +4,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <stddef.h>
+#include <semaphore.h>
 #include <sys/time.h>
 #include <sys/socket.h>
 #include "contrib/avl.h"

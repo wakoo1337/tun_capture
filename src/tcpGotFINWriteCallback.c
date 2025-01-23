@@ -1,6 +1,7 @@
 #include <pthread.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include <semaphore.h>
 #include <sys/socket.h>
 #include <event2/event.h>
 #include "TCPSiteQueueItem.h"

@@ -1,6 +1,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <pthread.h>
+#include <semaphore.h>
 #include <sys/socket.h>
 #include "SrcDstSockaddrs.h"
 #include "TCPConnection.h"

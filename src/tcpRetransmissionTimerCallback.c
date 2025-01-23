@@ -1,6 +1,7 @@
 #include <pthread.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include <semaphore.h>
 #include <sys/time.h>
 #include <sys/socket.h>
 #include "SrcDstSockaddrs.h"

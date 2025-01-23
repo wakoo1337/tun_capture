@@ -3,6 +3,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include <semaphore.h>
 #include <sys/socket.h>
 #include "contrib/logdel_heap.h"
 #include "CaptureSettings.h"

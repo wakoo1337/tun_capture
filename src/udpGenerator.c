@@ -3,9 +3,10 @@
 #include <pthread.h>
 #include <stdlib.h>
 #include <assert.h>
+#include <string.h>
+#include <semaphore.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
-#include <string.h>
 #include <event2/event.h>
 #include "contrib/logdel_heap.h"
 #include "ForwardingMappingIPv4.h"

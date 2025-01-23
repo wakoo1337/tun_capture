@@ -2,6 +2,7 @@
 #include <assert.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include <semaphore.h>
 #include <event2/event.h>
 #include <sys/socket.h>
 #include "SrcDstSockaddrs.h"

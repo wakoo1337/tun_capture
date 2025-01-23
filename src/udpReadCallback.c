@@ -4,6 +4,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <errno.h>
+#include <semaphore.h>
 #include <sys/socket.h>
 #include <event2/event.h>
 #include "contrib/logdel_heap.h"
@@ -59,6 +60,7 @@ void udpReadCallback(evutil_socket_t fd, short what, void *arg) {
 		queue_item->count = result;
 		queue_item->processor = &udpGenerator;
 		queue_item->mutex = NULL;
+		queue_item->semaphore = NULL;
 		struct UDPParameters *params;
 		params = malloc(sizeof(struct UDPParameters));
 		if (NULL == params) {

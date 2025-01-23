@@ -1,6 +1,7 @@
 #include <pthread.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include <semaphore.h>
 #include "contrib/logdel_heap.h"
 #include "CaptureContext.h"
 #include "PacketQueueItem.h"
@@ -13,6 +14,7 @@ unsigned int dequeueRxPacket(struct CaptureContext *context, struct PacketQueueI
 			*item = context->rx_begin;
 			context->rx_begin = context->rx_begin->next;
 			if (NULL == context->rx_begin) context->rx_end = &context->rx_begin;
+			if ((*item)->semaphore != NULL) sem_wait((*item)->semaphore);
 			if ((*item)->mutex != NULL) pthread_mutex_lock((*item)->mutex);
 			pthread_mutex_unlock(&context->rx_mutex);
 			return 0;

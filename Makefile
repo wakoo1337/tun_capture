@@ -93,7 +93,7 @@ bin/startTimer.o: src/startTimer.c src/startTimer.h src/contrib/logdel_heap.h sr
 	$(CC) $(CFLAGS) $(LIBEVENT_CFLAGS) -c -o bin/startTimer.o src/startTimer.c
 bin/parseTCPHeader.o: src/parseTCPHeader.c src/parseTCPHeader.h src/TCPHeaderData.h src/ChecksumContext.h src/initChecksum.h src/computeChecksum.h src/getChecksum.h src/get16Bit.h src/get32Bit.h
 	$(CC) $(CFLAGS) -c -o bin/parseTCPHeader.o src/parseTCPHeader.c
-bin/processTCPPacket.o: src/processTCPPacket.c src/processTCPPacket.h src/contrib/avl.h src/contrib/logdel_heap.h src/CaptureContext.h src/IPPacketPayload.h src/IPFragmentMetadata.h src/NetworkProtocolStrategy.h src/SrcDstSockaddrs.h src/TCPHeaderData.h src/TCPConnection.h src/TCPState.h src/parseTCPHeader.h src/compareTCPSitePrequeueItems.h src/tcpReadCallback.h src/tcpWriteCallback.h src/tcpDestroySitePrequeueItem.h src/tcpFinalizeRead.h src/tcpFinalizeWrite.h src/tcpstate_connwait.h
+bin/processTCPPacket.o: src/processTCPPacket.c src/processTCPPacket.h src/contrib/avl.h src/contrib/logdel_heap.h src/CaptureSettings.h src/CaptureContext.h src/IPPacketPayload.h src/IPFragmentMetadata.h src/NetworkProtocolStrategy.h src/SrcDstSockaddrs.h src/TCPHeaderData.h src/TCPConnection.h src/TCPState.h src/parseTCPHeader.h src/compareTCPSitePrequeueItems.h src/tcpReadCallback.h src/tcpWriteCallback.h src/tcpDestroySitePrequeueItem.h src/tcpFinalizeRead.h src/tcpFinalizeWrite.h src/tcpstate_connwait.h src/tcpstate_connreset.h
 	$(CC) $(CFLAGS) $(LIBEVENT_CFLAGS) -c -o bin/processTCPPacket.o src/processTCPPacket.c
 bin/compareTCPConnections.o: src/compareTCPConnections.c src/compareTCPConnections.h src/SrcDstSockaddrs.h src/TCPConnection.h
 	$(CC) $(CFLAGS) -c -o bin/compareTCPConnections.o src/compareTCPConnections.c
@@ -105,7 +105,7 @@ bin/tcpConnwaitReadCallback.o: src/tcpConnwaitReadCallback.c src/tcpConnwaitRead
 	$(CC) $(CFLAGS) $(LIBEVENT_CFLAGS) -c -o bin/tcpConnwaitReadCallback.o src/tcpConnwaitReadCallback.c
 bin/tcpConnwaitWriteCallback.o: src/tcpConnwaitWriteCallback.c src/tcpConnwaitWriteCallback.h src/SrcDstSockaddrs.h src/TCPConnection.h src/sendSynReply.h src/tcpFinalizeRead.h src/tcpFinalizeWrite.h src/tcpstate_synack_send.h src/tcpstate_connreset.h
 	$(CC) $(CFLAGS) $(LIBEVENT_CFLAGS) -c -o bin/tcpConnwaitWriteCallback.o src/tcpConnwaitWriteCallback.c
-bin/destroyTCPConnection.o: src/destroyTCPConnection.c src/destroyTCPConnection.h src/contrib/avl.h src/contrib/logdel_heap.h src/SrcDstSockaddrs.h src/CaptureContext.h src/TCPConnection.h src/TCPAppQueueItem.h src/TCPSiteQueueItem.h src/PacketQueueItem.h src/tcpDestroySitePrequeueItem.h src/cancelTimeout.h src/freeNoRefsAppQueueItem.h src/incrementAppQueueItemRefCount.h src/decrementAppQueueItemRefCount.h src/sendTCPPacketRefcounted.h src/processTCPData.h
+bin/destroyTCPConnection.o: src/destroyTCPConnection.c src/destroyTCPConnection.h src/contrib/avl.h src/contrib/logdel_heap.h src/SrcDstSockaddrs.h src/CaptureSettings.h src/CaptureContext.h src/TCPConnection.h src/TCPAppQueueItem.h src/TCPSiteQueueItem.h src/PacketQueueItem.h src/tcpDestroySitePrequeueItem.h src/cancelTimeout.h src/freeNoRefsAppQueueItem.h src/decrementAppQueueItemRefCount.h src/sendTCPPacketRefcounted.h src/processTCPData.h
 	$(CC) $(CFLAGS) -c -o bin/destroyTCPConnection.o src/destroyTCPConnection.c
 bin/tcpConnwaitPacketsProcessor.o: src/tcpConnwaitPacketsProcessor.c src/tcpConnwaitPacketsProcessor.h src/IPPacketPayload.h src/TCPHeaderData.h src/SrcDstSockaddrs.h src/TCPConnection.h
 	$(CC) $(CFLAGS) -c -o bin/tcpConnwaitPacketsProcessor.o src/tcpConnwaitPacketsProcessor.c
@@ -173,7 +173,7 @@ bin/processTCPData.o: src/processTCPData.c src/processTCPData.h src/contrib/logd
 	$(CC) $(CFLAGS) -c -o bin/processTCPData.o src/processTCPData.c
 bin/dequeueTxPacket.o: src/dequeueTxPacket.c src/dequeueTxPacket.h src/contrib/logdel_heap.h src/CaptureContext.h src/PacketQueueItem.h
 	$(CC) $(CFLAGS) -c -o bin/dequeueTxPacket.o src/dequeueTxPacket.c
-bin/tunWriteCallback.o: src/tunWriteCallback.c src/tunWriteCallback.h src/contrib/logdel_heap.h src/CaptureSettings.h src/CaptureContext.h src/dequeueTxPacket.h src/emergencyStop.h
+bin/tunWriteCallback.o: src/tunWriteCallback.c src/tunWriteCallback.h src/contrib/logdel_heap.h src/CaptureSettings.h src/CaptureContext.h src/PacketQueueItem.h src/dequeueTxPacket.h src/emergencyStop.h
 	$(CC) $(CFLAGS) $(LIBEVENT_CFLAGS) -c -o bin/tunWriteCallback.o src/tunWriteCallback.c
 bin/emergencyStop.o: src/emergencyStop.c src/emergencyStop.h src/contrib/logdel_heap.h src/CaptureContext.h
 	$(CC) $(CFLAGS) $(LIBEVENT_CFLAGS) -c -o bin/emergencyStop.o src/emergencyStop.c

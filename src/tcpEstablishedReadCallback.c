@@ -3,6 +3,7 @@
 #include <assert.h>
 #include <errno.h>
 #include <stdlib.h>
+#include <semaphore.h>
 #include <sys/socket.h>
 #include <event2/event.h>
 #include "SrcDstSockaddrs.h"

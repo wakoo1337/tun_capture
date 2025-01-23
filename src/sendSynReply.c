@@ -3,6 +3,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <assert.h>
+#include <semaphore.h>
 #include <sys/socket.h>
 #include <sys/time.h>
 #include "contrib/logdel_heap.h"

@@ -3,6 +3,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <errno.h>
+#include <semaphore.h>
 #include <sys/socket.h>
 #include "SrcDstSockaddrs.h"
 #include "TCPConnection.h"
@@ -57,6 +58,7 @@ unsigned int readAndEnqueueSiteData(struct TCPConnection *connection, unsigned i
 			item->count = received;
 			item->processor = &processTCPData;
 			item->mutex = &connection->mutex;
+			item->semaphore = &connection->semaphore;
 			item->free_me = new_buffer;
 			item->arg = connection;
 			enqueueRxPacket(connection->context, item);

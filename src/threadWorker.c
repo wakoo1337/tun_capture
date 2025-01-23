@@ -2,6 +2,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include <semaphore.h>
 #include "contrib/logdel_heap.h"
 #include "CaptureContext.h"
 #include "PacketQueueItem.h"
@@ -21,6 +22,7 @@ void *threadWorker(void *arg) {
 			return NULL;
 		};
 		if (packet->mutex) pthread_mutex_unlock(packet->mutex);
+		if (packet->semaphore) sem_post(packet->semaphore);
 		free(packet);
 	};
 	return NULL;

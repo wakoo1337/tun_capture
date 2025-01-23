@@ -2,6 +2,7 @@ struct TCPConnection {
 	struct SrcDstSockaddrs addrs; // src — адрес приложения, dst — адрес сайта
 	int sock; // Сокет, связывающий с внешней сетью
 	pthread_mutex_t mutex;
+	sem_t semaphore; // Семафор нужен, чтобы убедиться, что при уничтожении соединения его никто не держит
 	const struct TCPState *state;
 	const struct NetworkProtocolStrategy *strategy;
 	struct CaptureContext *context;

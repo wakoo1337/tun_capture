@@ -4,6 +4,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <errno.h>
+#include <semaphore.h>
 #include <sys/socket.h>
 #include "SrcDstSockaddrs.h"
 #include "TCPConnection.h"

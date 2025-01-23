@@ -2,6 +2,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include <semaphore.h>
 #include <event2/event.h>
 #include "contrib/logdel_heap.h"
 #include "CaptureSettings.h"
@@ -46,6 +47,7 @@ void tunReadCallback(evutil_socket_t fd, short what, void *arg) {
 		queue_item->count = readed;
 		queue_item->processor = &packetsProcessor;
 		queue_item->mutex = NULL;
+		queue_item->semaphore = NULL;
 		queue_item->arg = NULL;
 		enqueueRxPacket(context, queue_item);
 	};

@@ -1,6 +1,7 @@
 #include <pthread.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include <semaphore.h>
 #include "contrib/logdel_heap.h"
 #include "CaptureContext.h"
 #include "PacketQueueItem.h"
