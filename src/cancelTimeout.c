@@ -3,7 +3,6 @@
 #include <stdbool.h>
 #include <pthread.h>
 #include <sys/time.h>
-#include "contrib/logdel_heap.h"
 #include "CaptureContext.h"
 #include "TimeoutItem.h"
 #include "cancelTimeoutUnlocked.h"

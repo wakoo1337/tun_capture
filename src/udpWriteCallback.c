@@ -4,7 +4,6 @@
 #include <stdlib.h>
 #include <sys/socket.h>
 #include <event2/event.h>
-#include "contrib/logdel_heap.h"
 #include "CaptureContext.h"
 #include "UDPBinding.h"
 #include "UDPStackItem.h"

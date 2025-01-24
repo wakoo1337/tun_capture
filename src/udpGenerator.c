@@ -8,7 +8,6 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <event2/event.h>
-#include "contrib/logdel_heap.h"
 #include "ForwardingMappingIPv4.h"
 #include "ForwardingMappingIPv6.h"
 #include "CaptureSettings.h"

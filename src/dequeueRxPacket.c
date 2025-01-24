@@ -2,7 +2,6 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <semaphore.h>
-#include "contrib/logdel_heap.h"
 #include "CaptureContext.h"
 #include "PacketQueueItem.h"
 

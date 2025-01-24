@@ -7,7 +7,6 @@
 #include <errno.h>
 #include <semaphore.h>
 #include <sys/socket.h>
-#include "contrib/logdel_heap.h"
 #include "CaptureSettings.h"
 #include "CaptureContext.h"
 #include "SrcDstSockaddrs.h"

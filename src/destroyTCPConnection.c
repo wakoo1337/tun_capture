@@ -8,7 +8,6 @@
 #include <unistd.h>
 #include <semaphore.h>
 #include "contrib/avl.h"
-#include "contrib/logdel_heap.h"
 #include "SrcDstSockaddrs.h"
 #include "CaptureSettings.h"
 #include "CaptureContext.h"
@@ -32,9 +31,8 @@ void destroyTCPConnection(struct TCPConnection *connection) {
 	del = avl_delete(connection->context->tcp_connections, connection);
 	assert(del == connection);
 	pthread_mutex_unlock(&connection->context->tcp_mutex);
-	pthread_mutex_unlock(&connection->mutex); // Удалили соединение из списка
+	pthread_mutex_unlock(&connection->mutex); // Удалили соединение из дерева
 	pthread_mutex_lock(&connection->context->rx_mutex);
-	pthread_mutex_lock(&connection->mutex);
 	struct PacketQueueItem *rx_current, **rx_prevnext;
 	rx_current = connection->context->rx_begin;
 	rx_prevnext = &connection->context->rx_begin;
@@ -53,10 +51,9 @@ void destroyTCPConnection(struct TCPConnection *connection) {
 	};
 	if (NULL == connection->context->rx_begin) connection->context->rx_end = &connection->context->rx_begin;
 	pthread_mutex_unlock(&connection->context->rx_mutex); // Удалили все соответствующие соединению принятые пакеты
-	cancelTimeout(connection->context, &connection->mutex, &connection->timewait_item);
-	pthread_mutex_unlock(&connection->mutex);
 	for (unsigned int i=0;i < connection->context->settings->threads_count;i++) sem_wait(&connection->semaphore); // Блокируем все места в семафоре, чтобы убедиться, что в рабочих потоках ничего не выполняется
 	pthread_mutex_lock(&connection->mutex);
+	cancelTimeout(connection->context, &connection->mutex, &connection->timewait_item);
 	while (connection->app_queue) {
 		struct TCPAppQueueItem *next;
 		next = connection->app_queue->next;

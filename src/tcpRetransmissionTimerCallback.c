@@ -4,12 +4,9 @@
 #include <semaphore.h>
 #include <sys/time.h>
 #include <sys/socket.h>
-#include "SrcDstSockaddrs.h"
-#include "TCPConnection.h"
 #include "TCPAppQueueItem.h"
 #include "enqueueTCPPacketTransmission.h"
 #include "enqueueTCPRetransmission.h"
-#include "isAppQueueItemInWindow.h"
 
 #include "tcpRetransmissionTimerCallback.h"
 void tcpRetransmissionTimerCallback(void *arg) {

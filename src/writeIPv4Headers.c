@@ -4,7 +4,6 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <string.h>
-#include "contrib/logdel_heap.h"
 #include "ForwardingMappingIPv4.h"
 #include "ForwardingMappingIPv6.h"
 #include "CaptureSettings.h"

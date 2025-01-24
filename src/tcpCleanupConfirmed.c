@@ -5,7 +5,6 @@
 #include <semaphore.h>
 #include <sys/time.h>
 #include <sys/socket.h>
-#include "contrib/logdel_heap.h"
 #include "SrcDstSockaddrs.h"
 #include "CaptureContext.h"
 #include "TCPAppQueueItem.h"

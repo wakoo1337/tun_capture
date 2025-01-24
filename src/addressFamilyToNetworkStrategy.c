@@ -3,7 +3,6 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <sys/socket.h>
-#include "contrib/logdel_heap.h"
 #include "CaptureContext.h"
 #include "IPFragmentMetadata.h"
 #include "NetworkProtocolStrategy.h"

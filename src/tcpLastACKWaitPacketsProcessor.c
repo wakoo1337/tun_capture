@@ -9,7 +9,6 @@
 #include "TCPConnection.h"
 #include "IPPacketPayload.h"
 #include "TCPHeaderData.h"
-#include "isNewAckAcceptable.h"
 #include "tcpCleanupConfirmed.h"
 #include "tcpFinalizeRead.h"
 

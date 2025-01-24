@@ -2,7 +2,6 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <sys/types.h>
-#include "contrib/logdel_heap.h"
 #include "CaptureSettings.h"
 #include "CaptureContext.h"
 

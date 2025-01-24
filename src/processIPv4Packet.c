@@ -4,7 +4,6 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <pthread.h>
-#include "contrib/logdel_heap.h"
 #include "CaptureContext.h"
 #include "IPv4HeaderData.h"
 #include "IPPacketPayload.h"
@@ -13,7 +12,6 @@
 #include "NetworkProtocolStrategy.h"
 #include "parseIPv4Header.h"
 #include "processUDPPacket.h"
-#include "setIPv4SockaddrPort.h"
 #include "ipv4_strategy.h"
 #include "processTCPPacket.h"
 

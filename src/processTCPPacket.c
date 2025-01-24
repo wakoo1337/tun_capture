@@ -10,7 +10,6 @@
 #include <semaphore.h>
 #include <event2/event.h>
 #include "contrib/avl.h"
-#include "contrib/logdel_heap.h"
 #include "CaptureSettings.h"
 #include "CaptureContext.h"
 #include "IPPacketPayload.h"

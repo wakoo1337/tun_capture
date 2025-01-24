@@ -2,7 +2,6 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <pthread.h>
-#include "contrib/logdel_heap.h"
 #include "CaptureContext.h"
 #include "IPFragmentMetadata.h"
 #include "NetworkProtocolStrategy.h"

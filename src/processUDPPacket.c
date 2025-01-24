@@ -5,7 +5,6 @@
 #include <sys/socket.h>
 #include <pthread.h>
 #include <event2/event.h>
-#include "contrib/logdel_heap.h"
 #include "CaptureContext.h"
 #include "IPPacketPayload.h"
 #include "SrcDstSockaddrs.h"
@@ -36,7 +35,7 @@ unsigned int processUDPPacket(struct CaptureContext *context, const struct IPPac
 		free(payload->free_me);
 		return 0;
 	};
-	hdr.checksum = get16Bit(&payload->packet[6]); // На little-endian машинах порядок байтов менять не нужно — он уже поменян при вычислении контрольной суммы
+	hdr.checksum = get16Bit(&payload->packet[6]); // На little-endian машинах порядок байтов менять не нужно: он уже поменян при вычислении контрольной суммы
 	struct ChecksumContext ctx;
 	uint16_t computed_cs;
 	if ((hdr.checksum == 0) || (

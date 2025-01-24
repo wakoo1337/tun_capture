@@ -4,7 +4,6 @@
 #include <stdlib.h>
 #include <semaphore.h>
 #include <event2/event.h>
-#include "contrib/logdel_heap.h"
 #include "CaptureSettings.h"
 #include "CaptureContext.h"
 #include "PacketQueueItem.h"

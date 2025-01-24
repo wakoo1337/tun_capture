@@ -7,7 +7,6 @@
 #include <sys/socket.h>
 #include <event2/event.h>
 #include "contrib/avl.h"
-#include "contrib/logdel_heap.h"
 #include "CaptureContext.h"
 #include "IPFragmentMetadata.h"
 #include "NetworkProtocolStrategy.h"
