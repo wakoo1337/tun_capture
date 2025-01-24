@@ -54,8 +54,6 @@ unsigned int processTCPData(struct CaptureContext *context, uint8_t *packet, uns
 	uint8_t pseudo[connection->strategy->pseudo_length];
 	connection->strategy->create_pseudo(pseudo, &connection->addrs.dst, &connection->addrs.src, 6, header.data_offset + count);
 	connection->our_seq += count;
-	const uint32_t latest_ack = connection->latest_ack;
-	const unsigned int app_window = connection->app_window; // Копируем, т.к. в writeTCPHeader() на время вычисления контрольной суммы освобождается мьютекс соединения
 	writeTCPHeader(packet, count, &header, pseudo, connection->strategy->pseudo_length, &connection->mutex);
 	unsigned int frags;
 	frags = connection->strategy->compute_fragcount(header.data_offset + count, connection->context->settings->mtu);
@@ -73,7 +71,7 @@ unsigned int processTCPData(struct CaptureContext *context, uint8_t *packet, uns
 	item->free_me = &packet[-HEADERS_RESERVE];
 	item->is_filled = true;
 	item->ref_count = 2; // Одна ссылка — в связном списке, вторая — в локальной переменной в этой функции
-	if (isAppQueueItemInWindow(latest_ack, app_window, item)) {
+	if (isAppQueueItemInWindow(connection->latest_ack, connection->app_window, item)) {
 		if (enqueueTCPPacketTransmission(item) || enqueueTCPRetransmission(item)) {
 			struct TCPAppQueueItem **previous_next = findPreviousNextAppQueueItem(connection, item);
 			if (previous_next) *previous_next = item->next;
