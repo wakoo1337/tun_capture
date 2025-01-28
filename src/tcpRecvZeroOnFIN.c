@@ -20,7 +20,7 @@
 unsigned int tcpRecvZeroOnFIN(struct TCPConnection *connection) {
 	connection->first_desired++;
 	connection->state = &tcpstate_timewait;
-	event_del(connection->write_event);
+	if (!connection->write_finalized) event_del(connection->write_event);
 	pthread_mutex_unlock(&connection->mutex);
 	pthread_mutex_lock(&connection->context->timeout_mutex);
 	pthread_mutex_lock(&connection->mutex);
