@@ -11,11 +11,13 @@
 
 #include "tcpGotFINOnEnd.h"
 unsigned int tcpGotFINOnEnd(struct TCPConnection *connection) {
-	event_del(connection->read_event);
-	if (NULL == connection->app_queue) {
-		connection->state = &tcpstate_lastackwait;
+	if ((NULL == connection->site_queue) && (NULL == connection->app_queue)) {
 		connection->should_send_fin = true;
 		connection->fin_seq = connection->our_seq + connection->app_scheduled;
-		return enqueueStubTCPPacketQueueItem(connection);
-	} else return 0;
+		enqueueStubTCPPacketQueueItem(connection);
+		connection->state = &tcpstate_lastackwait;
+	} else {
+		event_del(connection->read_event);
+	};
+	return 0;
 };

@@ -13,6 +13,7 @@
 #include "tcpFinalizeRead.h"
 #include "tcpFinalizeWrite.h"
 #include "isNewAckAcceptable.h"
+#include "enqueueUnsentTCPPacketsTransmission.h"
 
 #include "tcpLastACKWaitPacketsProcessor.h"
 unsigned int tcpLastACKWaitPacketsProcessor(struct TCPConnection *connection, const struct IPPacketPayload *payload, const struct TCPHeaderData *header) {
@@ -20,6 +21,7 @@ unsigned int tcpLastACKWaitPacketsProcessor(struct TCPConnection *connection, co
 	if (isNewAckAcceptable(connection, header->ack_num)) {
 		connection->latest_ack = header->ack_num;
 		tcpCleanupConfirmed(connection);
+		enqueueUnsentTCPPacketsTransmission(connection);
 	};
 	if (NULL == connection->app_queue) {
 		return tcpFinalizeRead(connection) || tcpFinalizeWrite(connection);
