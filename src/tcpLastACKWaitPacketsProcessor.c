@@ -11,6 +11,7 @@
 #include "TCPHeaderData.h"
 #include "tcpCleanupConfirmed.h"
 #include "tcpFinalizeRead.h"
+#include "tcpFinalizeWrite.h"
 #include "isNewAckAcceptable.h"
 
 #include "tcpLastACKWaitPacketsProcessor.h"
@@ -21,7 +22,7 @@ unsigned int tcpLastACKWaitPacketsProcessor(struct TCPConnection *connection, co
 		tcpCleanupConfirmed(connection);
 	};
 	if (NULL == connection->app_queue) {
-		return tcpFinalizeRead(connection);
+		return tcpFinalizeRead(connection) || tcpFinalizeWrite(connection);
 	};
 	return 0;
 };

@@ -9,5 +9,5 @@
 
 #include "isNewAckAcceptable.h"
 bool isNewAckAcceptable(struct TCPConnection *connection, uint32_t new_ack) {
-	return checkByteInWindow(connection->latest_ack, connection->app_scheduled + (connection->should_send_fin ? 1 : 0), new_ack);
+	return checkByteInWindow(connection->latest_ack, connection->app_scheduled + (connection->fin_sent ? 1 : 0), new_ack);
 };

@@ -7,6 +7,7 @@
 
 #include "packetsProcessor.h"
 unsigned int packetsProcessor(struct CaptureContext *context, uint8_t *packet, unsigned int size, void *arg) {
+	if (size == 0) return 0;
 	uint8_t type = packet[0] >> 4;
 	if (type == 4) return processIPv4Packet(context, packet, size);
 	else if (type == 6) free(packet);
