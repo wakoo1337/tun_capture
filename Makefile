@@ -199,7 +199,7 @@ bin/tcpGotFINReadCallback.o: src/tcpGotFINReadCallback.c src/tcpGotFINReadCallba
 	$(CC) $(CFLAGS) $(LIBEVENT_CFLAGS) -c -o bin/tcpGotFINReadCallback.o src/tcpGotFINReadCallback.c
 bin/tcpGotFINWriteCallback.o: src/tcpGotFINWriteCallback.c src/tcpGotFINWriteCallback.h src/TCPSiteQueueItem.h src/SrcDstSockaddrs.h src/TCPConnection.h src/sendSiteQueueItems.h src/tcpFinalizeWrite.h src/tcpUpdateWriteEvent.h
 	$(CC) $(CFLAGS) $(LIBEVENT_CFLAGS) -c -o bin/tcpGotFINWriteCallback.o src/tcpGotFINWriteCallback.c
-bin/tcpGotFINPacketsProcessor.o: src/tcpGotFINPacketsProcessor.c src/tcpGotFINPacketsProcessor.h src/TCPHeaderData.h src/IPPacketPayload.h src/SrcDstSockaddrs.h src/TCPConnection.h src/isNewAckAcceptable.h src/tcpCleanupConfirmed.h src/enqueueUnsentTCPPacketsTransmission.h
+bin/tcpGotFINPacketsProcessor.o: src/tcpGotFINPacketsProcessor.c src/tcpGotFINPacketsProcessor.h src/TCPHeaderData.h src/IPPacketPayload.h src/SrcDstSockaddrs.h src/TCPConnection.h src/isNewAckAcceptable.h src/tcpCleanupConfirmed.h src/enqueueUnsentTCPPacketsTransmission.h src/scaleRemoteWindow.h
 	$(CC) $(CFLAGS) $(LIBEVENT_CFLAGS) -c -o bin/tcpGotFINPacketsProcessor.o src/tcpGotFINPacketsProcessor.c
 bin/sendSiteQueueItems.o: src/sendSiteQueueItems.c src/sendSiteQueueItems.h src/SrcDstSockaddrs.h src/TCPConnection.h src/TCPSiteQueueItem.h src/tcpFinalizeRead.h src/tcpFinalizeWrite.h src/tcpstate_connreset.h
 	$(CC) $(CFLAGS) -c -o bin/sendSiteQueueItems.o src/sendSiteQueueItems.c
@@ -225,7 +225,7 @@ bin/tcpLastACKWaitReadCallback.o: src/tcpLastACKWaitReadCallback.c src/tcpLastAC
 	$(CC) $(CFLAGS) $(LIBEVENT_CFLAGS) -c -o bin/tcpLastACKWaitReadCallback.o src/tcpLastACKWaitReadCallback.c
 bin/tcpLastACKWaitWriteCallback.o: src/tcpLastACKWaitWriteCallback.c src/tcpLastACKWaitWriteCallback.h src/SrcDstSockaddrs.h src/TCPConnection.h
 	$(CC) $(CFLAGS) $(LIBEVENT_CFLAGS) -c -o bin/tcpLastACKWaitWriteCallback.o src/tcpLastACKWaitWriteCallback.c
-bin/tcpLastACKWaitPacketsProcessor.o: src/tcpLastACKWaitPacketsProcessor.c src/tcpLastACKWaitPacketsProcessor.h src/SrcDstSockaddrs.h src/TCPConnection.h src/IPPacketPayload.h src/TCPHeaderData.h src/tcpCleanupConfirmed.h src/tcpFinalizeRead.h src/tcpFinalizeWrite.h src/isNewAckAcceptable.h src/enqueueUnsentTCPPacketsTransmission.h
+bin/tcpLastACKWaitPacketsProcessor.o: src/tcpLastACKWaitPacketsProcessor.c src/tcpLastACKWaitPacketsProcessor.h src/SrcDstSockaddrs.h src/TCPConnection.h src/IPPacketPayload.h src/TCPHeaderData.h src/tcpCleanupConfirmed.h src/tcpFinalizeRead.h src/isNewAckAcceptable.h src/enqueueUnsentTCPPacketsTransmission.h src/scaleRemoteWindow.h
 	$(CC) $(CFLAGS) $(LIBEVENT_CFLAGS) -c -o bin/tcpLastACKWaitPacketsProcessor.o src/tcpLastACKWaitPacketsProcessor.c
 bin/tcpstate_lastackwait.o: src/tcpstate_lastackwait.c src/tcpstate_lastackwait.h src/IPPacketPayload.h src/SrcDstSockaddrs.h src/TCPHeaderData.h src/TCPConnection.h src/TCPState.h src/tcpLastACKWaitReadCallback.h src/tcpLastACKWaitWriteCallback.h src/tcpLastACKWaitPacketsProcessor.h
 	$(CC) $(CFLAGS) $(LIBEVENT_CFLAGS) -c -o bin/tcpstate_lastackwait.o src/tcpstate_lastackwait.c

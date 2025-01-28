@@ -11,7 +11,7 @@
 
 #include "tcpGotFINOnEnd.h"
 unsigned int tcpGotFINOnEnd(struct TCPConnection *connection) {
-	if ((NULL == connection->site_queue) && (NULL == connection->app_queue)) {
+	if (NULL == connection->site_queue) {
 		connection->should_send_fin = true;
 		connection->fin_seq = connection->our_seq + connection->app_scheduled;
 		enqueueStubTCPPacketQueueItem(connection);
