@@ -28,7 +28,7 @@ unsigned int sendTCPFinalize(struct TCPConnection *connection) {
 	struct TCPHeaderData header;
 	header.src_port = connection->strategy->port_getter(&connection->addrs.dst);
 	header.dst_port = connection->strategy->port_getter(&connection->addrs.src);
-	header.seq_num = connection->our_seq + connection->app_scheduled;
+	header.seq_num = connection->our_seq;
 	header.ack_num = connection->first_desired;
 	header.urg = header.psh = header.rst = header.syn = false;
 	header.ack = header.fin = true;
@@ -83,6 +83,5 @@ unsigned int sendTCPFinalize(struct TCPConnection *connection) {
 	};
 	decrementAppQueueItemRefCount(queue_item);
 	freeNoRefsAppQueueItem(queue_item);
-	connection->fin_sent = true;
 	return 0;
 };

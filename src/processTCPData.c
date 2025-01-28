@@ -24,6 +24,7 @@
 #include "freeNoRefsAppQueueItem.h"
 #include "findPreviousNextAppQueueItem.h"
 #include "decrementAppQueueItemRefCount.h"
+#include "sendTCPFinalize.h"
 #include "HEADERS_RESERVE.h"
 
 #include "processTCPData.h"
@@ -88,5 +89,9 @@ unsigned int processTCPData(struct CaptureContext *context, uint8_t *packet, uns
 	};
 	decrementAppQueueItemRefCount(item); // Ссылка из локальной переменной ушла, всё.
 	freeNoRefsAppQueueItem(item);
+	if (connection->should_send_fin && (connection->fin_seq == connection->our_seq)) {
+		sendTCPFinalize(connection);
+		connection->our_seq++;
+	};
 	return 0;
 };

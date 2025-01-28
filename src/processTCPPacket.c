@@ -102,7 +102,8 @@ unsigned int processTCPPacket(struct CaptureContext *context, const struct IPPac
 		connection->state = &tcpstate_connwait;
 		connection->strategy = strategy;
 		connection->context = context;
-		connection->fin_sent = false;
+		connection->should_send_fin = false;
+		connection->fin_seq = 0;
 		connection->timewait_item = NULL;
 		connection->site_prequeue = avl_create(&compareTCPSitePrequeueItems, NULL, NULL);
 		if (NULL == connection->site_prequeue) {
