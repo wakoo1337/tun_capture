@@ -133,7 +133,7 @@ bin/enqueueTimeout.o: src/enqueueTimeout.c src/enqueueTimeout.h src/contrib/logd
 	$(CC) $(CFLAGS) -c -o bin/enqueueTimeout.o src/enqueueTimeout.c
 bin/enqueueTCPPacketTransmission.o: src/enqueueTCPPacketTransmission.c src/enqueueTCPPacketTransmission.h src/CaptureSettings.h src/CaptureContext.h src/PacketQueueItem.h src/TCPAppQueueItem.h src/SrcDstSockaddrs.h src/TCPConnection.h src/enqueueTxPacket.h src/sendTCPPacketRefcounted.h src/incrementAppQueueItemRefCount.h
 	$(CC) $(CFLAGS) $(LIBEVENT_CFLAGS) -c -o bin/enqueueTCPPacketTransmission.o src/enqueueTCPPacketTransmission.c
-bin/tcpRetransmissionTimerCallback.o: src/tcpRetransmissionTimerCallback.c src/tcpRetransmissionTimerCallback.h src/TCPAppQueueItem.h src/enqueueTCPPacketTransmission.h src/enqueueTCPRetransmission.h
+bin/tcpRetransmissionTimerCallback.o: src/tcpRetransmissionTimerCallback.c src/tcpRetransmissionTimerCallback.h src/TCPAppQueueItem.h src/enqueueTCPPacketTransmission.h src/enqueueTCPRetransmission.h src/incrementAppQueueItemRefCount.h src/decrementAppQueueItemRefCount.h src/freeNoRefsAppQueueItem.h
 	$(CC) $(CFLAGS) -c -o bin/tcpRetransmissionTimerCallback.o src/tcpRetransmissionTimerCallback.c
 bin/computeTCPDataOffset.o: src/computeTCPDataOffset.c src/computeTCPDataOffset.h src/TCPHeaderData.h
 	$(CC) $(CFLAGS) -c -o bin/computeTCPDataOffset.o src/computeTCPDataOffset.c
