@@ -18,8 +18,10 @@ unsigned int tcpGotFINWriteCallback(evutil_socket_t fd, short what, void *arg) {
 		sendSiteQueueItems(connection);
 		if (NULL == connection->site_queue) {
 			// Все данные на сайт отправлены, а новых не будет
-			shutdown(connection->sock, SHUT_WR);
-			tcpFinalizeWrite(connection);
+			if (!connection->write_finalized) {
+				shutdown(connection->sock, SHUT_WR);
+				tcpFinalizeWrite(connection);
+			};
 			event_add(connection->read_event, NULL);
 		} else tcpUpdateWriteEvent(connection);
 	};

@@ -13,6 +13,7 @@
 #include "tcpCleanupConfirmed.h"
 #include "enqueueUnsentTCPPacketsTransmission.h"
 #include "scaleRemoteWindow.h"
+#include "tcpUpdateReadEvent.h"
 
 #include "tcpGotFINPacketsProcessor.h"
 unsigned int tcpGotFINPacketsProcessor(struct TCPConnection *connection, const struct IPPacketPayload *payload, const struct TCPHeaderData *header) {
@@ -22,7 +23,7 @@ unsigned int tcpGotFINPacketsProcessor(struct TCPConnection *connection, const s
 		connection->app_window = scaleRemoteWindow(connection, header->raw_window);
 		tcpCleanupConfirmed(connection);
 		enqueueUnsentTCPPacketsTransmission(connection);
-		if (NULL == connection->app_queue) event_add(connection->read_event, NULL);
+		tcpUpdateReadEvent(connection);
 	};
 	return 0;
 };

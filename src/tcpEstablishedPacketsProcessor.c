@@ -41,10 +41,8 @@ unsigned int tcpEstablishedPacketsProcessor(struct TCPConnection *connection, co
 	tcpCleanupConfirmed(connection);
 	if (prequeueToSiteQueue(connection, &tcpEstablishedOnFIN)) return 1;
 	enqueueUnsentTCPPacketsTransmission(connection);
-	if (connection->state == &tcpstate_established) {
-		tcpUpdateReadEvent(connection);
-		tcpUpdateWriteEvent(connection);
-	};
+	tcpUpdateReadEvent(connection);
+	if (connection->state == &tcpstate_established) tcpUpdateWriteEvent(connection);
 	if (old_first != connection->first_desired) sendTCPAcknowledgement(connection);
 	return 0;
 };
