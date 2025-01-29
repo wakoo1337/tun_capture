@@ -13,6 +13,6 @@
 unsigned int tcpRecvZeroOnFIN(struct TCPConnection *connection) {
 	connection->first_desired++;
 	connection->state = &tcpstate_lastsend;
-	event_add(connection->write_event, NULL);
+	if (!connection->write_finalized) event_add(connection->write_event, NULL);
 	return 0;
 }; 

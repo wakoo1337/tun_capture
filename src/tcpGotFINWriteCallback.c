@@ -22,7 +22,7 @@ unsigned int tcpGotFINWriteCallback(evutil_socket_t fd, short what, void *arg) {
 				shutdown(connection->sock, SHUT_WR);
 				tcpFinalizeWrite(connection);
 			};
-			event_add(connection->read_event, NULL);
+			if (!connection->read_finalized) event_add(connection->read_event, NULL);
 		} else tcpUpdateWriteEvent(connection);
 	};
 	pthread_mutex_unlock(&connection->mutex);
