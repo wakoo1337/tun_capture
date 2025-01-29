@@ -18,6 +18,7 @@
 #include "sendTCPAcknowledgement.h"
 #include "tcpRecvZeroOnFIN.h"
 #include "scaleRemoteWindow.h"
+#include "tcpstate_recvzero.h"
 
 #include "tcpRecvZeroPacketsProcessor.h"
 unsigned int tcpRecvZeroPacketsProcessor(struct TCPConnection *connection, const struct IPPacketPayload *payload, const struct TCPHeaderData *header) {
@@ -35,7 +36,7 @@ unsigned int tcpRecvZeroPacketsProcessor(struct TCPConnection *connection, const
 	tcpCleanupConfirmed(connection);
 	if (prequeueToSiteQueue(connection, &tcpRecvZeroOnFIN)) return 1;
 	enqueueUnsentTCPPacketsTransmission(connection);
-	tcpUpdateWriteEvent(connection);
+	if (connection->state == &tcpstate_recvzero) tcpUpdateWriteEvent(connection);
 	if (old_first != connection->first_desired) sendTCPAcknowledgement(connection);
 	return 0;
 };

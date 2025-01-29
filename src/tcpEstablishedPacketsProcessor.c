@@ -23,6 +23,7 @@
 #include "tcpEstablishedOnFIN.h"
 #include "addPacketToPrequeue.h"
 #include "prequeueToSiteQueue.h"
+#include "tcpstate_established.h"
 
 #include "tcpEstablishedPacketsProcessor.h"
 unsigned int tcpEstablishedPacketsProcessor(struct TCPConnection *connection, const struct IPPacketPayload *payload, const struct TCPHeaderData *header) {
@@ -40,8 +41,10 @@ unsigned int tcpEstablishedPacketsProcessor(struct TCPConnection *connection, co
 	tcpCleanupConfirmed(connection);
 	if (prequeueToSiteQueue(connection, &tcpEstablishedOnFIN)) return 1;
 	enqueueUnsentTCPPacketsTransmission(connection);
-	tcpUpdateReadEvent(connection);
-	tcpUpdateWriteEvent(connection);
+	if (connection->state == &tcpstate_established) {
+		tcpUpdateReadEvent(connection);
+		tcpUpdateWriteEvent(connection);
+	};
 	if (old_first != connection->first_desired) sendTCPAcknowledgement(connection);
 	return 0;
 };
