@@ -25,6 +25,7 @@ unsigned int tcpRecvZeroPacketsProcessor(struct TCPConnection *connection, const
 	const uint32_t old_first = connection->first_desired;
 	if (!checkPacketInRecieveWindow(connection, payload, header)) {
 		// Если не все байты сегмента лежат в окне приёма, он игнорируется
+		sendTCPAcknowledgement(connection);
 		free(payload->free_me);
 		return 0;
 	};

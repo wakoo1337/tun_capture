@@ -31,7 +31,7 @@ unsigned int tcpEstablishedPacketsProcessor(struct TCPConnection *connection, co
 	if (!checkPacketInRecieveWindow(connection, payload, header)) {
 		// Если не все байты сегмента лежат в окне приёма, он игнорируется
 		free(payload->free_me);
-		return 0;
+		return sendTCPAcknowledgement(connection);
 	};
 	if (addPacketToPrequeue(connection, payload, header)) return 1;
 	if (isNewAckAcceptable(connection, header->ack_num)) { // Обновляем последний ACK и размер окна

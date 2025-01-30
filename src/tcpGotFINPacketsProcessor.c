@@ -14,6 +14,7 @@
 #include "enqueueUnsentTCPPacketsTransmission.h"
 #include "scaleRemoteWindow.h"
 #include "tcpUpdateReadEvent.h"
+#include "sendTCPAcknowledgement.h"
 
 #include "tcpGotFINPacketsProcessor.h"
 unsigned int tcpGotFINPacketsProcessor(struct TCPConnection *connection, const struct IPPacketPayload *payload, const struct TCPHeaderData *header) {
@@ -24,6 +25,6 @@ unsigned int tcpGotFINPacketsProcessor(struct TCPConnection *connection, const s
 		tcpCleanupConfirmed(connection);
 		enqueueUnsentTCPPacketsTransmission(connection);
 		tcpUpdateReadEvent(connection);
-	};
+	} else sendTCPAcknowledgement(connection);
 	return 0;
 };

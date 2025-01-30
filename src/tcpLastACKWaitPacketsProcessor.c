@@ -14,6 +14,7 @@
 #include "isNewAckAcceptable.h"
 #include "enqueueUnsentTCPPacketsTransmission.h"
 #include "scaleRemoteWindow.h"
+#include "sendTCPAcknowledgement.h"
 
 #include "tcpLastACKWaitPacketsProcessor.h"
 unsigned int tcpLastACKWaitPacketsProcessor(struct TCPConnection *connection, const struct IPPacketPayload *payload, const struct TCPHeaderData *header) {
@@ -23,7 +24,7 @@ unsigned int tcpLastACKWaitPacketsProcessor(struct TCPConnection *connection, co
 		connection->app_window = scaleRemoteWindow(connection, header->raw_window);
 		tcpCleanupConfirmed(connection);
 		enqueueUnsentTCPPacketsTransmission(connection);
-	};
+	} else sendTCPAcknowledgement(connection);
 	if (NULL == connection->app_queue) {
 		return tcpFinalizeRead(connection);
 	};
