@@ -12,10 +12,9 @@
 #include "tcpReadFinalizer.h"
 void tcpReadFinalizer(struct event *fin_event, void *arg) {
 	struct TCPConnection *connection = (struct TCPConnection *) arg;
-	assert(!connection->read_finalized);
+	assert(connection->read_event != NULL);
 	pthread_mutex_lock(&connection->mutex);
-	connection->read_finalized = true;
 	connection->read_event = NULL;
-	if (connection->read_finalized && connection->write_finalized) destroyTCPConnection(connection);
+	if (!(connection->read_event || connection->write_event)) destroyTCPConnection(connection);
 	else pthread_mutex_unlock(&connection->mutex);
 };

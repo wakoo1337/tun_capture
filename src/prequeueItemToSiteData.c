@@ -5,7 +5,6 @@
 #include <stdlib.h>
 #include <semaphore.h>
 #include <sys/socket.h>
-#include "contrib/avl.h"
 #include "SrcDstSockaddrs.h"
 #include "TCPSitePrequeueItem.h"
 #include "TCPSiteQueueItem.h"
@@ -24,9 +23,6 @@ unsigned int prequeueItemToSiteData(struct TCPConnection *connection, struct TCP
 	q_item->next = NULL;
 	*connection->site_last = q_item;
 	connection->site_last = &q_item->next;
-	void *deleted;
-	deleted = avl_delete(connection->site_prequeue, pq_item);
-	assert(deleted == ((void *) pq_item));
 	const unsigned int total = q_item->urgent_count + q_item->data_count;
 	connection->site_scheduled += total;
 	connection->first_desired += total;

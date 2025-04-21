@@ -10,7 +10,7 @@
 
 #include "tcpUpdateWriteEvent.h"
 unsigned int tcpUpdateWriteEvent(struct TCPConnection *connection) {
-	if (!connection->write_finalized) {
+	if (connection->write_event) {
 		if (connection->site_scheduled) {
 			if (-1 == event_add(connection->write_event, NULL)) {
 				return 1;

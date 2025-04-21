@@ -13,7 +13,7 @@
 unsigned int tcpGotFINOnEnd(struct TCPConnection *connection) {
 	if (NULL == connection->site_queue) {
 		connection->should_send_fin = true;
-		connection->fin_seq = connection->our_seq + connection->app_scheduled;
+		connection->fin_seq = connection->seq_next + connection->app_scheduled;
 		enqueueStubTCPPacketQueueItem(connection);
 		connection->state = &tcpstate_lastackwait;
 	} else {

@@ -23,9 +23,11 @@
 #include "compareTCPSitePrequeueItems.h"
 #include "tcpReadCallback.h"
 #include "tcpWriteCallback.h"
-#include "tcpDestroySitePrequeueItem.h"
 #include "tcpFinalizeRead.h"
 #include "tcpFinalizeWrite.h"
+#include "compareTCPAppPrequeueItems.h"
+#include "tcpDestroySitePrequeue.h"
+#include "tcpDestroyAppPrequeue.h"
 #include "tcpstate_connwait.h"
 #include "tcpstate_connreset.h"
 
@@ -93,12 +95,12 @@ unsigned int processTCPPacket(struct CaptureContext *context, const struct IPPac
 		connection->app_queue = NULL;
 		connection->app_last = &connection->app_queue;
 		connection->site_scheduled = connection->app_scheduled = 0;
-		connection->our_seq = 0;
+		connection->seq_next = connection->seq_first = 0;
 		connection->first_desired = hdr.seq_num + 1;
 		connection->scaling_enabled = hdr.winscale_present;
 		connection->remote_scale = hdr.winscale_value;
 		connection->our_scale = 0; // TODO сделать масштабирование
-		connection->read_finalized = connection->write_finalized = true;
+		connection->read_event = connection->write_event = NULL;
 		connection->state = &tcpstate_connwait;
 		connection->strategy = strategy;
 		connection->context = context;
@@ -119,9 +121,25 @@ unsigned int processTCPPacket(struct CaptureContext *context, const struct IPPac
 			free(payload->free_me);
 			return 1;
 		};
+		connection->app_prequeue = avl_create(&compareTCPAppPrequeueItems, NULL, NULL);
+		if (NULL == connection->app_prequeue) {
+			tcpDestroySitePrequeue(connection);
+			void *deleted;
+			deleted = avl_delete(context->tcp_connections, connection);
+			assert(deleted == connection);
+			pthread_mutex_unlock(&connection->mutex);
+			sem_post(&connection->semaphore);
+			pthread_mutex_destroy(&connection->mutex);
+			pthread_mutex_unlock(&context->tcp_mutex);
+			sem_destroy(&connection->semaphore);
+			free(connection);
+			free(payload->free_me);
+			return 1;
+		};
 		connection->sock = socket(addrs->src.sa_family, SOCK_STREAM, 0);
 		if (-1 == connection->sock) {
-			avl_destroy(connection->site_prequeue, &tcpDestroySitePrequeueItem);
+			tcpDestroySitePrequeue(connection);
+			tcpDestroyAppPrequeue(connection);
 			void *deleted;
 			deleted = avl_delete(context->tcp_connections, connection);
 			assert(deleted == connection);
@@ -135,7 +153,8 @@ unsigned int processTCPPacket(struct CaptureContext *context, const struct IPPac
 			return 1;
 		};
 		if (-1 == fcntl(connection->sock, F_SETFL, O_NONBLOCK)) {
-			avl_destroy(connection->site_prequeue, &tcpDestroySitePrequeueItem);
+			tcpDestroySitePrequeue(connection);
+			tcpDestroyAppPrequeue(connection);
 			void *deleted;
 			deleted = avl_delete(context->tcp_connections, connection);
 			assert(deleted == connection);
@@ -150,7 +169,8 @@ unsigned int processTCPPacket(struct CaptureContext *context, const struct IPPac
 		};
 		connection->read_event = event_new(context->event_base, connection->sock, EV_READ | EV_PERSIST | EV_FINALIZE, &tcpReadCallback, connection);
 		if (NULL == connection->read_event) {
-			avl_destroy(connection->site_prequeue, &tcpDestroySitePrequeueItem);
+			tcpDestroySitePrequeue(connection);
+			tcpDestroyAppPrequeue(connection);
 			void *deleted;
 			deleted = avl_delete(context->tcp_connections, connection);
 			assert(deleted == connection);
@@ -163,12 +183,12 @@ unsigned int processTCPPacket(struct CaptureContext *context, const struct IPPac
 			free(payload->free_me);
 			return 1;
 		};
-		connection->read_finalized = false;
 		connection->write_event = event_new(context->event_base, connection->sock, EV_WRITE | EV_PERSIST | EV_FINALIZE, &tcpWriteCallback, connection);
 		if (NULL == connection->write_event) {
 			tcpFinalizeRead(connection);
 			connection->state = &tcpstate_connreset;
-			avl_destroy(connection->site_prequeue, &tcpDestroySitePrequeueItem);
+			tcpDestroySitePrequeue(connection);
+			tcpDestroyAppPrequeue(connection);
 			void *deleted;
 			deleted = avl_delete(context->tcp_connections, connection);
 			assert(deleted == connection);
@@ -181,12 +201,12 @@ unsigned int processTCPPacket(struct CaptureContext *context, const struct IPPac
 			free(payload->free_me);
 			return 1;
 		};
-		connection->write_finalized = false;
 		if (-1 == event_add(connection->write_event, NULL)) {
 			tcpFinalizeRead(connection);
 			tcpFinalizeWrite(connection);
 			connection->state = &tcpstate_connreset;
-			avl_destroy(connection->site_prequeue, &tcpDestroySitePrequeueItem);
+			tcpDestroySitePrequeue(connection);
+			tcpDestroyAppPrequeue(connection);
 			void *deleted;
 			deleted = avl_delete(context->tcp_connections, connection);
 			assert(deleted == connection);
@@ -204,7 +224,8 @@ unsigned int processTCPPacket(struct CaptureContext *context, const struct IPPac
 			tcpFinalizeRead(connection);
 			tcpFinalizeWrite(connection);
 			connection->state = &tcpstate_connreset;
-			avl_destroy(connection->site_prequeue, &tcpDestroySitePrequeueItem);
+			tcpDestroySitePrequeue(connection);
+			tcpDestroyAppPrequeue(connection);
 			void *deleted;
 			deleted = avl_delete(context->tcp_connections, connection);
 			assert(deleted == connection);

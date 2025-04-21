@@ -68,6 +68,7 @@ unsigned int udpGenerator(struct CaptureContext *context, uint8_t *packet, unsig
 		return enqueueTxPacket(context, queue_item);
 	} else {
 		free(parameters);
+		// TODO Реализовать
 	};
 	return 0;
 };

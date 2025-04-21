@@ -1,4 +1,5 @@
 struct TCPAppQueueItem {
+	uint32_t seq;
 	uint8_t *ip_packet;
 	unsigned int ip_size;
 	unsigned int data_size;
@@ -6,7 +7,6 @@ struct TCPAppQueueItem {
 	struct TCPConnection *connection;
 	struct TimeoutItem *timeout;
 	void *free_me;
-	bool is_filled;
 	unsigned int ref_count;
 	struct TCPAppQueueItem *next;
 };

@@ -15,12 +15,13 @@
 #include "TCPAppQueueItem.h"
 #include "TCPSiteQueueItem.h"
 #include "PacketQueueItem.h"
-#include "tcpDestroySitePrequeueItem.h"
 #include "cancelTimeout.h"
 #include "freeNoRefsAppQueueItem.h"
 #include "decrementAppQueueItemRefCount.h"
 #include "sendTCPPacketRefcounted.h"
 #include "processTCPData.h"
+#include "tcpDestroySitePrequeue.h"
+#include "tcpDestroyAppPrequeue.h"
 
 #include "destroyTCPConnection.h"
 void destroyTCPConnection(struct TCPConnection *connection) {
@@ -69,7 +70,8 @@ void destroyTCPConnection(struct TCPConnection *connection) {
 		free(connection->site_queue);
 		connection->site_queue = next;
 	};
-	avl_destroy(connection->site_prequeue, &tcpDestroySitePrequeueItem);
+	tcpDestroySitePrequeue(connection);
+	tcpDestroyAppPrequeue(connection);
 	pthread_mutex_lock(&connection->context->tx_mutex);
 	struct PacketQueueItem *tx_current, **tx_prevnext;
 	tx_current = connection->context->tx_begin;

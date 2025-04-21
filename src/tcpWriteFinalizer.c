@@ -13,9 +13,8 @@
 void tcpWriteFinalizer(struct event *fin_event, void *arg) {
 	struct TCPConnection *connection = (struct TCPConnection *) arg;
 	pthread_mutex_lock(&connection->mutex);
-	assert(!connection->write_finalized);
-	connection->write_finalized = true;
+	assert(connection->write_event != NULL);
 	connection->write_event = NULL;
-	if (connection->read_finalized && connection->write_finalized) destroyTCPConnection(connection);
+	if (!(connection->read_event || connection->write_event)) destroyTCPConnection(connection);
 	else pthread_mutex_unlock(&connection->mutex);
 };

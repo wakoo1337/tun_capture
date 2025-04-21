@@ -18,11 +18,12 @@
 
 #include "tcpSynackSendPacketsProcessor.h"
 unsigned int tcpSynackSendPacketsProcessor(struct TCPConnection *connection, const struct IPPacketPayload *payload, const struct TCPHeaderData *header) {
-	if ((header->seq_num == connection->first_desired) && (header->ack_num == connection->our_seq+1) && (header->ack)) {
+	if ((header->seq_num == connection->first_desired) && (header->ack_num == connection->seq_next+1) && (header->ack)) {
 		connection->latest_ack = header->ack_num;
 		connection->app_window = scaleRemoteWindow(connection, header->raw_window);
 		tcpCleanupConfirmed(connection);
-		connection->our_seq++;
+		connection->seq_next++;
+		connection->seq_first++;
 		connection->state = &tcpstate_established;
 		tcpUpdateReadEvent(connection);
 		tcpUpdateWriteEvent(connection);

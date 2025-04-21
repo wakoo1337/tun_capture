@@ -17,10 +17,10 @@
 #include "tcpCleanupConfirmed.h"
 void tcpCleanupConfirmed(struct TCPConnection *connection) {
 	struct TCPAppQueueItem *found = connection->app_queue;
-	while (found && found->is_filled && (found->confirm_ack != connection->latest_ack)) {
+	while (found && found->timeout && (found->confirm_ack != connection->latest_ack)) {
 		found = found->next;
 	};
-	if (found && found->is_filled) {
+	if (found) {
 		struct TCPAppQueueItem *old_begin = connection->app_queue; // Запоминаем старое начало
 		connection->app_queue = found->next; // Делаем следующий элемент началом очереди
 		if (NULL == connection->app_queue) connection->app_last = &connection->app_queue; // Если нужно, исправляем указатель на место вставки
@@ -31,9 +31,9 @@ void tcpCleanupConfirmed(struct TCPConnection *connection) {
 			const unsigned int new_app_scheduled = connection->app_scheduled - current->data_size;
 			connection->app_scheduled = (new_app_scheduled <= connection->app_scheduled) ? new_app_scheduled : 0;
 			cancelTimeout(connection->context, &connection->mutex, &current->timeout);
-			decrementAppQueueItemRefCount(current);
-			decrementAppQueueItemRefCount(current);
 			struct TCPAppQueueItem *next = current->next;
+			decrementAppQueueItemRefCount(current);
+			decrementAppQueueItemRefCount(current);
 			freeNoRefsAppQueueItem(current);
 			current = next;
 		};

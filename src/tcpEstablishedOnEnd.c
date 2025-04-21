@@ -14,7 +14,7 @@
 unsigned int tcpEstablishedOnEnd(struct TCPConnection *connection) {
 	connection->state = &tcpstate_recvzero;
 	connection->should_send_fin = true;
-	connection->fin_seq = connection->our_seq + connection->app_scheduled;
+	connection->fin_seq = connection->seq_next + connection->app_scheduled;
 	enqueueStubTCPPacketQueueItem(connection);
 	return tcpFinalizeRead(connection);
 };

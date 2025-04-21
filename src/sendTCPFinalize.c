@@ -20,7 +20,6 @@
 #include "enqueueTCPRetransmission.h"
 #include "freeNoRefsAppQueueItem.h"
 #include "decrementAppQueueItemRefCount.h"
-#include "findPreviousNextAppQueueItem.h"
 #include "HEADERS_RESERVE.h"
 
 #include "sendTCPFinalize.h"
@@ -28,7 +27,7 @@ unsigned int sendTCPFinalize(struct TCPConnection *connection) {
 	struct TCPHeaderData header;
 	header.src_port = connection->strategy->port_getter(&connection->addrs.dst);
 	header.dst_port = connection->strategy->port_getter(&connection->addrs.src);
-	header.seq_num = connection->our_seq;
+	header.seq_num = connection->seq_next;
 	header.ack_num = connection->first_desired;
 	header.urg = header.psh = header.rst = header.syn = false;
 	header.ack = header.fin = true;
@@ -64,19 +63,9 @@ unsigned int sendTCPFinalize(struct TCPConnection *connection) {
 	queue_item->free_me = packet;
 	queue_item->ref_count = 2; // Одна ссылка — в связном списке, вторая — в локальной переменной в этой функции
 	queue_item->next = NULL;
-	queue_item->is_filled = true;
 	*connection->app_last = queue_item;
 	connection->app_last = &queue_item->next;
 	if (enqueueTCPPacketTransmission(queue_item) || enqueueTCPRetransmission(queue_item)) {
-		struct TCPAppQueueItem **previous_next = findPreviousNextAppQueueItem(connection, queue_item);
-		if (previous_next) *previous_next = queue_item->next;
-		if (connection->app_last == &queue_item->next) {
-			if (previous_next) connection->app_last = previous_next;
-			else {
-				connection->app_queue = NULL;
-				connection->app_last = &connection->app_queue;
-			};
-		};
 		free(queue_item->free_me);
 		free(queue_item);
 		return 1;

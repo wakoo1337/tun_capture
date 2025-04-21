@@ -26,7 +26,7 @@ unsigned int sendTCPPacketRefcounted(struct CaptureContext *context, uint8_t *pa
 	incrementAppQueueItemRefCount(item);
 	ssize_t result;
 	result = context->settings->write_function(packet, size, context->settings->user);
-	int old_errno = errno;
+	const int old_errno = errno;
 	decrementAppQueueItemRefCount(item);
 	decrementAppQueueItemRefCount(item);
 	freeNoRefsAppQueueItem(item);

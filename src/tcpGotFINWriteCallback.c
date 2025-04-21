@@ -18,11 +18,11 @@ unsigned int tcpGotFINWriteCallback(evutil_socket_t fd, short what, void *arg) {
 		sendSiteQueueItems(connection);
 		if (NULL == connection->site_queue) {
 			// Все данные на сайт отправлены, а новых не будет
-			if (!connection->write_finalized) {
+			if (connection->write_event) {
 				shutdown(connection->sock, SHUT_WR);
 				tcpFinalizeWrite(connection);
 			};
-			if (!connection->read_finalized) event_add(connection->read_event, NULL);
+			if (connection->read_event) event_add(connection->read_event, NULL);
 		} else tcpUpdateWriteEvent(connection);
 	};
 	pthread_mutex_unlock(&connection->mutex);

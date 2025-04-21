@@ -28,7 +28,7 @@ unsigned int sendSynReply(struct TCPConnection *connection) {
 	struct TCPHeaderData hdr;
 	hdr.src_port = connection->strategy->port_getter(&connection->addrs.dst);
 	hdr.dst_port = connection->strategy->port_getter(&connection->addrs.src);
-	hdr.seq_num = connection->our_seq;
+	hdr.seq_num = connection->seq_next;
 	hdr.ack_num = connection->first_desired;
 	hdr.urg = hdr.psh = hdr.rst = hdr.fin = false;
 	hdr.ack = hdr.syn = true;
@@ -53,7 +53,7 @@ unsigned int sendSynReply(struct TCPConnection *connection) {
 	metadata.buffer = &packet[HEADERS_RESERVE-hdr.data_offset-metadata.header_size];
 	connection->strategy->write_headers(connection->context, &metadata, frags, 6, &connection->addrs.dst, &connection->addrs.src);
 	struct TCPAppQueueItem *queue_item;
-	queue_item = malloc(sizeof(struct TCPAppQueueItem));
+	queue_item = malloc(sizeof * queue_item);
 	if (NULL == queue_item) {
 		free(packet);
 		return 1;
@@ -61,20 +61,20 @@ unsigned int sendSynReply(struct TCPConnection *connection) {
 	queue_item->ip_packet = &packet[HEADERS_RESERVE-metadata.header_size-metadata.data_size];
 	queue_item->ip_size = metadata.header_size + metadata.data_size;
 	queue_item->data_size = 0;
-	queue_item->confirm_ack = connection->our_seq + 1;
+	queue_item->confirm_ack = connection->seq_next + 1;
 	queue_item->connection = connection;
 	queue_item->timeout = NULL;
 	queue_item->free_me = packet;
-	queue_item->is_filled = true;
 	queue_item->ref_count = 2;
 	queue_item->next = NULL;
 	*connection->app_last = queue_item;
 	connection->app_last = &queue_item->next;
-	unsigned int result;
-	result = enqueueTCPPacketTransmission(queue_item);
-	if (result) return 1; // TODO нормально обработать ошибки
-	result = enqueueTCPRetransmission(queue_item);
-	if (result) return 1;
+	if (enqueueTCPPacketTransmission(queue_item)) {
+		return 1; // TODO обработать ошибки
+	};
+	if (enqueueTCPRetransmission(queue_item)) {
+		return 1; // TODO обработать ошибки
+	};
 	decrementAppQueueItemRefCount(queue_item);
 	freeNoRefsAppQueueItem(queue_item);
 	return 0;

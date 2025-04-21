@@ -13,11 +13,12 @@
 #include "NetworkProtocolStrategy.h"
 #include "SrcDstSockaddrs.h"
 #include "TCPConnection.h"
-#include "TCPAppQueueItem.h"
+#include "PacketQueueItem.h"
 #include "writeTCPHeader.h"
-#include "enqueueTCPPacketTransmission.h"
 #include "getSendWindowSize.h"
 #include "computeTCPDataOffset.h"
+#include "sendPacketOnce.h"
+#include "enqueueTxPacket.h"
 #include "HEADERS_RESERVE.h"
 
 #include "sendTCPAcknowledgement.h"
@@ -25,7 +26,7 @@ unsigned int sendTCPAcknowledgement(struct TCPConnection *connection) {
 	struct TCPHeaderData header;
 	header.src_port = connection->strategy->port_getter(&connection->addrs.dst);
 	header.dst_port = connection->strategy->port_getter(&connection->addrs.src);
-	header.seq_num = connection->our_seq;
+	header.seq_num = connection->seq_next;
 	header.ack_num = connection->first_desired;
 	header.urg = header.psh = header.rst = header.syn = header.fin = false;
 	header.ack = true;
@@ -46,21 +47,18 @@ unsigned int sendTCPAcknowledgement(struct TCPConnection *connection) {
 	connection->strategy->fill_metadatas(&metadata, frags, header.data_offset, connection->context->settings->mtu);
 	metadata.buffer = &packet[HEADERS_RESERVE - header.data_offset - metadata.header_size];
 	connection->strategy->write_headers(connection->context, &metadata, frags, 6, &connection->addrs.dst, &connection->addrs.src);
-	struct TCPAppQueueItem *queue_item;
-	queue_item = malloc(sizeof(struct TCPAppQueueItem));
+	struct PacketQueueItem *queue_item;
+	queue_item = malloc(sizeof(struct PacketQueueItem));
 	if (NULL == queue_item) {
 		free(packet);
 		return 1;
 	};
-	queue_item->ip_packet = &packet[HEADERS_RESERVE - header.data_offset - metadata.header_size];
-	queue_item->ip_size = header.data_offset + metadata.header_size;
-	queue_item->data_size = 0;
-	queue_item->confirm_ack = 0;
-	queue_item->connection = connection;
-	queue_item->timeout = NULL;
+	queue_item->data = metadata.buffer;
+	queue_item->count = metadata.header_size + header.data_offset;
+	queue_item->processor = &sendPacketOnce;
+	queue_item->mutex = NULL;
+	queue_item->semaphore = NULL;
 	queue_item->free_me = packet;
-	queue_item->is_filled = true;
-	queue_item->ref_count = 0;
-	queue_item->next = NULL;
-	return enqueueTCPPacketTransmission(queue_item);
+	queue_item->arg = queue_item;
+	return enqueueTxPacket(connection->context, queue_item);
 };

@@ -10,7 +10,7 @@
 
 #include "tcpUpdateReadEvent.h"
 unsigned int tcpUpdateReadEvent(struct TCPConnection *connection) {
-	if (!connection->read_finalized) {
+	if (connection->read_event) {
 		if (connection->app_scheduled < MAX_APP_QUEUE) {
 			if (-1 == event_add(connection->read_event, NULL)) {
 				return 1;

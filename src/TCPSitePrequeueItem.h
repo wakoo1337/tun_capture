@@ -6,4 +6,5 @@ struct TCPSitePrequeueItem {
 	struct TimeoutItem *timeout;
 	void *free_me;
 	bool fin;
+	bool deleteable;
 };

@@ -38,6 +38,7 @@ unsigned int addPacketToPrequeue(struct TCPConnection *connection, const struct 
 		item->timeout = NULL;
 		item->free_me = payload->free_me;
 		item->fin = header->fin;
+		item->deleteable = true;
 		pthread_mutex_unlock(&connection->mutex);
 		pthread_mutex_lock(&connection->context->timeout_mutex);
 		pthread_mutex_lock(&connection->mutex);
