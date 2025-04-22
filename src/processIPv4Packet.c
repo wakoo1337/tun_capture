@@ -41,7 +41,8 @@ unsigned int processIPv4Packet(struct CaptureContext *context, uint8_t *data, un
 		} else if (hdr.protocol == 17) {
 			// UDP
 			return processUDPPacket(context, &ip_payload, &ipv4_strategy, &srcdst);
-		}
+		};
+		free(data);
 		return 0;
 	} else {
 		// Пакет фрагментирован. TODO: реализовать дефрагментацию

@@ -18,6 +18,7 @@
 #include "cancelTimeout.h"
 #include "startTimer.h"
 #include "tcpDeleteExpiredSegment.h"
+#include "fillPrequeueItem.h"
 #include "segexpire_delay.h"
 
 #include "addPacketToPrequeue.h"
@@ -30,15 +31,7 @@ unsigned int addPacketToPrequeue(struct TCPConnection *connection, const struct 
 			free(payload->free_me);
 			return 1;
 		};
-		item->seq = header->seq_num;
-		item->data = payload->packet + header->data_offset;
-		item->urgent_count = header->urg ? header->urgent_ptr : 0;
-		item->data_count = payload->count - header->data_offset - item->urgent_count;
-		item->connection = connection;
-		item->timeout = NULL;
-		item->free_me = payload->free_me;
-		item->fin = header->fin;
-		item->deleteable = true;
+		fillPrequeueItem(item, connection, payload, header);
 		pthread_mutex_unlock(&connection->mutex);
 		pthread_mutex_lock(&connection->context->timeout_mutex);
 		pthread_mutex_lock(&connection->mutex);
@@ -66,6 +59,6 @@ unsigned int addPacketToPrequeue(struct TCPConnection *connection, const struct 
 			free(payload->free_me);
 			return 0;
 		};
-	} else free(payload->free_me);
+	};
 	return 0;
 };

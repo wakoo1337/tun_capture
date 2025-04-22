@@ -71,11 +71,13 @@ unsigned int processTCPPacket(struct CaptureContext *context, const struct IPPac
 		probe = avl_probe(context->tcp_connections, connection);
 		if (NULL == probe) {
 			// Невозможно вставить
+			free(payload->free_me);
 			pthread_mutex_unlock(&context->tcp_mutex);
 			free(connection);
 			return 1;
 		} else if (*probe != ((void *) connection)) {
 			// Уже есть такое соединение
+			free(payload->free_me);
 			pthread_mutex_unlock(&context->tcp_mutex);
 			free(connection);
 			return 0;
@@ -187,8 +189,6 @@ unsigned int processTCPPacket(struct CaptureContext *context, const struct IPPac
 		if (NULL == connection->write_event) {
 			tcpFinalizeRead(connection);
 			connection->state = &tcpstate_connreset;
-			tcpDestroySitePrequeue(connection);
-			tcpDestroyAppPrequeue(connection);
 			void *deleted;
 			deleted = avl_delete(context->tcp_connections, connection);
 			assert(deleted == connection);
@@ -205,8 +205,6 @@ unsigned int processTCPPacket(struct CaptureContext *context, const struct IPPac
 			tcpFinalizeRead(connection);
 			tcpFinalizeWrite(connection);
 			connection->state = &tcpstate_connreset;
-			tcpDestroySitePrequeue(connection);
-			tcpDestroyAppPrequeue(connection);
 			void *deleted;
 			deleted = avl_delete(context->tcp_connections, connection);
 			assert(deleted == connection);
@@ -224,8 +222,6 @@ unsigned int processTCPPacket(struct CaptureContext *context, const struct IPPac
 			tcpFinalizeRead(connection);
 			tcpFinalizeWrite(connection);
 			connection->state = &tcpstate_connreset;
-			tcpDestroySitePrequeue(connection);
-			tcpDestroyAppPrequeue(connection);
 			void *deleted;
 			deleted = avl_delete(context->tcp_connections, connection);
 			assert(deleted == connection);

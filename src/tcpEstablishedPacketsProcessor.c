@@ -23,6 +23,7 @@
 #include "tcpEstablishedOnFIN.h"
 #include "addPacketToPrequeue.h"
 #include "prequeueToSiteQueue.h"
+#include "processTCPPacketImmediately.h"
 #include "tcpstate_established.h"
 
 #include "tcpEstablishedPacketsProcessor.h"
@@ -33,13 +34,18 @@ unsigned int tcpEstablishedPacketsProcessor(struct TCPConnection *connection, co
 		free(payload->free_me);
 		return sendTCPAcknowledgement(connection);
 	};
-	if (addPacketToPrequeue(connection, payload, header)) return 1;
+	if (payload->count <= header->data_offset) free(payload->free_me);
+	if (header->seq_num == connection->first_desired) {
+		if (processTCPPacketImmediately(connection, payload, header)) return 1;
+	} else {
+		if (addPacketToPrequeue(connection, payload, header)) return 1;
+		if (prequeueToSiteQueue(connection, &tcpEstablishedOnFIN)) return 1;
+	};
 	if (isNewAckAcceptable(connection, header->ack_num)) { // Обновляем последний ACK и размер окна
 		connection->latest_ack = header->ack_num;
 		connection->app_window = scaleRemoteWindow(connection, header->raw_window);
 	};
 	tcpCleanupConfirmed(connection);
-	if (prequeueToSiteQueue(connection, &tcpEstablishedOnFIN)) return 1;
 	enqueueUnsentTCPPacketsTransmission(connection);
 	tcpUpdateReadEvent(connection);
 	if (connection->state == &tcpstate_established) tcpUpdateWriteEvent(connection);
