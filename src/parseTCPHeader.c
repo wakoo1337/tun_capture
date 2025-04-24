@@ -39,15 +39,13 @@ unsigned int parseTCPHeader(struct TCPHeaderData *hdr, uint8_t *packet, unsigned
 				break;
 			case 2: // Опция MSS
 				hdr->mss_present = true;
-				if (packet[offset+1] != 4) return 1;
-				if (hdr->data_offset <= offset+3) return 1;
+				if ((hdr->data_offset <= offset+3) || (packet[offset+1] != 4)) return 1;
 				hdr->mss_value = ntohs(get16Bit(&packet[offset+2]));
 				offset += 4;
 				break;
 			case 3: // Опция масштабирования окна
 				hdr->winscale_present = true;
-				if (packet[offset+1] != 3) return 1;
-				if (hdr->data_offset <= offset+2) return 1;
+				if ((hdr->data_offset <= offset+2) || (packet[offset+1] != 3)) return 1;
 				hdr->winscale_value = packet[offset+2];
 				offset += 3;
 				break;

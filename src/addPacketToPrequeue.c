@@ -35,6 +35,14 @@ unsigned int addPacketToPrequeue(struct TCPConnection *connection, const struct 
 		pthread_mutex_unlock(&connection->mutex);
 		pthread_mutex_lock(&connection->context->timeout_mutex);
 		pthread_mutex_lock(&connection->mutex);
+		void **probe;
+		probe = avl_probe(connection->site_prequeue, item);
+		if ((probe == NULL) || (*probe != item)) {
+			free(item);
+			free(payload->free_me);
+			pthread_mutex_unlock(&connection->context->timeout_mutex);
+			return (probe == NULL); // Возвращает true, если не удалось выделить память
+		};
 		struct timeval now, timeout;
 		getMonotonicTimeval(&now);
 		addTimeval(&segexpire_delay, &now, &timeout);
@@ -42,23 +50,11 @@ unsigned int addPacketToPrequeue(struct TCPConnection *connection, const struct 
 		if (NULL == item->timeout) {
 			free(item);
 			free(payload->free_me);
+			pthread_mutex_unlock(&connection->context->timeout_mutex);
 			return 1;
 		};
 		startTimer(connection->context);
 		pthread_mutex_unlock(&connection->context->timeout_mutex);
-		void **probe;
-		probe = avl_probe(connection->site_prequeue, item);
-		if (NULL == probe) {
-			cancelTimeout(connection->context, &connection->mutex, &item->timeout);
-			free(item);
-			free(payload->free_me);
-			return 1;
-		} else if ((*probe) != item) {
-			cancelTimeout(connection->context, &connection->mutex, &item->timeout);
-			free(item);
-			free(payload->free_me);
-			return 0;
-		};
 	};
 	return 0;
 };

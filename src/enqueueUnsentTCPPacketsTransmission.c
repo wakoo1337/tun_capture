@@ -23,11 +23,11 @@ unsigned int enqueueUnsentTCPPacketsTransmission(struct TCPConnection *connectio
 		const void *deleted = avl_delete(connection->app_prequeue, found);
 		assert(deleted == found);
 		connection->seq_first += found->data_size;
-		incrementAppQueueItemRefCount(found);
 		*(connection->app_last) = found;
 		connection->app_last = &found->next;
 		if (enqueueTCPPacketTransmission(found)) {
 		};
+		incrementAppQueueItemRefCount(found);
 		if (enqueueTCPRetransmission(found)) {
 		}; // TODO обработать ошибку, удалить элемент
 		decrementAppQueueItemRefCount(found);
