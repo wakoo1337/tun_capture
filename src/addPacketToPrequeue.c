@@ -37,11 +37,11 @@ unsigned int addPacketToPrequeue(struct TCPConnection *connection, const struct 
 		pthread_mutex_lock(&connection->mutex);
 		void **probe;
 		probe = avl_probe(connection->site_prequeue, item);
-		if ((probe == NULL) || (*probe != item)) {
+		if (*probe != item) {
 			free(item);
 			free(payload->free_me);
 			pthread_mutex_unlock(&connection->context->timeout_mutex);
-			return (probe == NULL); // Возвращает true, если не удалось выделить память
+			return (NULL == probe); // Возвращает true, если не удалось выделить память
 		};
 		struct timeval now, timeout;
 		getMonotonicTimeval(&now);

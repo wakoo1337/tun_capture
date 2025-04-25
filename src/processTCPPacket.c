@@ -28,6 +28,7 @@
 #include "compareTCPAppPrequeueItems.h"
 #include "tcpDestroySitePrequeue.h"
 #include "tcpDestroyAppPrequeue.h"
+#include "sendTCPReset.h"
 #include "tcpstate_connwait.h"
 #include "tcpstate_connreset.h"
 
@@ -257,6 +258,7 @@ unsigned int processTCPPacket(struct CaptureContext *context, const struct IPPac
 		// TODO послать RST
 		pthread_mutex_unlock(&context->tcp_mutex);
 		free(payload->free_me);
+		return sendTCPReset(context, payload, strategy, addrs);
 	};
 	return 0;
 };
