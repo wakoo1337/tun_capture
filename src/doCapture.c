@@ -56,7 +56,7 @@ unsigned int doCapture(const struct CaptureSettings *settings) {
 		free(context);
 		return 1;
 	};
-	context->tx_event = event_new(context->event_base, settings->fd_getter(settings->user), EV_WRITE | EV_PERSIST | EV_FINALIZE, &tunWriteCallback, context);
+	context->tx_event = event_new(context->event_base, settings->fd_getter(settings->user), EV_WRITE | EV_PERSIST, &tunWriteCallback, context);
 	if (NULL == context->tx_event) {
 		event_free(context->rx_event);
 		event_base_free(context->event_base);

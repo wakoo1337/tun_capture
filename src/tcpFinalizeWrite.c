@@ -10,6 +10,9 @@
 
 #include "tcpFinalizeWrite.h"
 unsigned int tcpFinalizeWrite(struct TCPConnection *connection) {
-	if (connection->write_event) return event_free_finalize(0, connection->write_event, &tcpWriteFinalizer);
-	else return 0;
+	if (connection->write_event && (!connection->write_finalize_called)) {
+		const unsigned int result = event_free_finalize(0, connection->write_event, &tcpWriteFinalizer);
+		connection->write_finalize_called = true;
+		return result;
+	} else return 0;
 };

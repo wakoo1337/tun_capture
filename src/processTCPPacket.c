@@ -104,6 +104,7 @@ unsigned int processTCPPacket(struct CaptureContext *context, const struct IPPac
 		connection->remote_scale = hdr.winscale_value;
 		connection->our_scale = 0; // TODO сделать масштабирование
 		connection->read_event = connection->write_event = NULL;
+		connection->read_finalize_called = connection->write_finalize_called = false;
 		connection->state = &tcpstate_connwait;
 		connection->strategy = strategy;
 		connection->context = context;
@@ -156,6 +157,7 @@ unsigned int processTCPPacket(struct CaptureContext *context, const struct IPPac
 			return 1;
 		};
 		if (-1 == fcntl(connection->sock, F_SETFL, O_NONBLOCK)) {
+			close(connection->sock);
 			tcpDestroySitePrequeue(connection);
 			tcpDestroyAppPrequeue(connection);
 			void *deleted;
@@ -172,6 +174,7 @@ unsigned int processTCPPacket(struct CaptureContext *context, const struct IPPac
 		};
 		connection->read_event = event_new(context->event_base, connection->sock, EV_READ | EV_PERSIST | EV_FINALIZE, &tcpReadCallback, connection);
 		if (NULL == connection->read_event) {
+			close(connection->sock);
 			tcpDestroySitePrequeue(connection);
 			tcpDestroyAppPrequeue(connection);
 			void *deleted;
@@ -188,50 +191,32 @@ unsigned int processTCPPacket(struct CaptureContext *context, const struct IPPac
 		};
 		connection->write_event = event_new(context->event_base, connection->sock, EV_WRITE | EV_PERSIST | EV_FINALIZE, &tcpWriteCallback, connection);
 		if (NULL == connection->write_event) {
-			tcpFinalizeRead(connection);
 			connection->state = &tcpstate_connreset;
-			void *deleted;
-			deleted = avl_delete(context->tcp_connections, connection);
-			assert(deleted == connection);
+			tcpFinalizeRead(connection);
+			pthread_mutex_unlock(&context->tcp_mutex);
 			pthread_mutex_unlock(&connection->mutex);
 			sem_post(&connection->semaphore);
-			pthread_mutex_destroy(&connection->mutex);
-			pthread_mutex_unlock(&context->tcp_mutex);
-			sem_destroy(&connection->semaphore);
-			free(connection);
 			free(payload->free_me);
 			return 1;
 		};
 		if (-1 == event_add(connection->write_event, NULL)) {
+			connection->state = &tcpstate_connreset;
 			tcpFinalizeRead(connection);
 			tcpFinalizeWrite(connection);
-			connection->state = &tcpstate_connreset;
-			void *deleted;
-			deleted = avl_delete(context->tcp_connections, connection);
-			assert(deleted == connection);
+			pthread_mutex_unlock(&context->tcp_mutex);
 			pthread_mutex_unlock(&connection->mutex);
 			sem_post(&connection->semaphore);
-			pthread_mutex_destroy(&connection->mutex);
-			pthread_mutex_unlock(&context->tcp_mutex);
-			sem_destroy(&connection->semaphore);
-			free(connection);
 			free(payload->free_me);
 			return 1;
 		};
 		errno = 0;
 		if ((-1 == connect(connection->sock, &addrs->dst, sizeof(struct sockaddr))) && (errno != EINPROGRESS)) {
+			connection->state = &tcpstate_connreset;
 			tcpFinalizeRead(connection);
 			tcpFinalizeWrite(connection);
-			connection->state = &tcpstate_connreset;
-			void *deleted;
-			deleted = avl_delete(context->tcp_connections, connection);
-			assert(deleted == connection);
+			pthread_mutex_unlock(&context->tcp_mutex);
 			pthread_mutex_unlock(&connection->mutex);
 			sem_post(&connection->semaphore);
-			pthread_mutex_destroy(&connection->mutex);
-			pthread_mutex_unlock(&context->tcp_mutex);
-			sem_destroy(&connection->semaphore);
-			free(connection);
 			free(payload->free_me);
 			return 1;
 		};
