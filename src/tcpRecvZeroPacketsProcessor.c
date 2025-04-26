@@ -31,7 +31,7 @@ unsigned int tcpRecvZeroPacketsProcessor(struct TCPConnection *connection, const
 	};
 	if (payload->count <= header->data_offset) free(payload->free_me);
 	if (header->seq_num == connection->first_desired) {
-		if (processTCPPacketImmediately(connection, payload, header)) return 1;
+		if (processTCPPacketImmediately(connection, payload, header, &tcpRecvZeroOnFIN)) return 1;
 	} else {
 		if (addPacketToPrequeue(connection, payload, header)) return 1;
 		if (prequeueToSiteQueue(connection, &tcpRecvZeroOnFIN)) return 1;

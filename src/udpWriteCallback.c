@@ -24,7 +24,7 @@ void udpWriteCallback(evutil_socket_t fd, short what, void *arg) {
 				if ((errno == EAGAIN) || (errno == EWOULDBLOCK)) {
 					pthread_mutex_unlock(&binding->mutex);
 					return;
-				} else if ((errno == ECONNREFUSED) || (errno == ECONNABORTED) || (errno == EHOSTUNREACH) || (errno == EMSGSIZE) || (errno == EPIPE)){
+				} else if ((errno == ECONNREFUSED) || (errno == ECONNABORTED) || (errno == EHOSTUNREACH) || (errno == EMSGSIZE) || (errno == EPIPE) || (errno == EINVAL)){
 					free(binding->stack->free_me);
 					free(binding->stack);
 					binding->stack = next;

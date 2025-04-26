@@ -255,7 +255,6 @@ unsigned int processTCPPacket(struct CaptureContext *context, const struct IPPac
 		sem_post(&connection->semaphore);
 		return result;
 	} else {
-		// TODO послать RST
 		pthread_mutex_unlock(&context->tcp_mutex);
 		free(payload->free_me);
 		return sendTCPReset(context, payload, strategy, addrs);

@@ -36,7 +36,7 @@ void udpReadCallback(evutil_socket_t fd, short what, void *arg) {
 		result = recvfrom(binding->sock, &buffer[HEADERS_RESERVE], MAX_UDP_PAYLOAD, 0, &sender_sa, &sl);
 		if (result == -1) {
 			free(buffer);
-			if ((errno != EAGAIN) && (errno != EWOULDBLOCK) && (errno != ECONNREFUSED) && (errno != ECONNABORTED) && (errno != EHOSTUNREACH) && (errno != EPIPE)) emergencyStop(binding->context);
+			if ((errno != EAGAIN) && (errno != EWOULDBLOCK) && (errno != ECONNREFUSED) && (errno != ECONNABORTED) && (errno != EHOSTUNREACH) && (errno != EPIPE) && (errno != EINVAL)) emergencyStop(binding->context);
 			return;
 		};
 		assert(sender_sa.sa_family == binding->internal_addr.sa_family);

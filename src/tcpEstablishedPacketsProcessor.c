@@ -36,7 +36,7 @@ unsigned int tcpEstablishedPacketsProcessor(struct TCPConnection *connection, co
 	};
 	if (payload->count <= header->data_offset) free(payload->free_me);
 	if (header->seq_num == connection->first_desired) {
-		if (processTCPPacketImmediately(connection, payload, header)) return 1;
+		if (processTCPPacketImmediately(connection, payload, header, &tcpEstablishedOnFIN)) return 1;
 	} else {
 		if (addPacketToPrequeue(connection, payload, header)) return 1;
 		if (prequeueToSiteQueue(connection, &tcpEstablishedOnFIN)) return 1;

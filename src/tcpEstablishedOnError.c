@@ -19,6 +19,7 @@ unsigned int tcpEstablishedOnError(struct TCPConnection *connection) {
 		case ECONNRESET:
 		case EPIPE:
 		case ETIMEDOUT:
+		case EINVAL:
 			connection->state = &tcpstate_connreset;
 			tcpFinalizeRead(connection);
 			tcpFinalizeWrite(connection);
