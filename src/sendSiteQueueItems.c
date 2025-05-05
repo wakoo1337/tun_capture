@@ -41,7 +41,9 @@ unsigned int sendSiteQueueItems(struct TCPConnection *connection) {
 					break;
 					default:
 						if ((errno == EAGAIN) || (errno == EWOULDBLOCK)) return 0;
-						else return 1;
+						else {
+							return 1;
+						};
 				};
 			} else {
 				item->already_sent += written;
@@ -71,7 +73,9 @@ unsigned int sendSiteQueueItems(struct TCPConnection *connection) {
 					break;
 					default:
 						if ((errno == EAGAIN) || (errno == EWOULDBLOCK)) return 0;
-						else return 1;
+						else {
+							return 1;
+						};
 				};
 			} else {
 				item->already_sent += written;

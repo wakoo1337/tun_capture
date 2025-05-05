@@ -39,13 +39,15 @@ unsigned int readAndEnqueueSiteData(struct TCPConnection *connection, unsigned i
 				free(buffer);
 				free(item);
 				pthread_mutex_lock(&connection->mutex);
-				return tcpUpdateReadEvent(connection);
+				const unsigned int result = tcpUpdateReadEvent(connection);
+				return result;
 			} else if (errno == EINTR) goto data_rx_retry;
 			else {
 				free(buffer);
 				free(item);
 				pthread_mutex_lock(&connection->mutex);
-				return on_error(connection);
+				const unsigned int result = on_error(connection);
+				return result;
 			};
 		} else if (received > 0) {
 			uint8_t *new_buffer;
@@ -68,8 +70,10 @@ unsigned int readAndEnqueueSiteData(struct TCPConnection *connection, unsigned i
 			free(buffer);
 			free(item);
 			pthread_mutex_lock(&connection->mutex);
-			return on_end(connection);
+			const unsigned int result = on_end(connection);
+			return result;
 		};
 	};
-	return tcpUpdateReadEvent(connection);
+	const unsigned int result = tcpUpdateReadEvent(connection);
+	return result;
 };

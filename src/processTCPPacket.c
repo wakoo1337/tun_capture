@@ -234,15 +234,15 @@ unsigned int processTCPPacket(struct CaptureContext *context, const struct IPPac
 		sem_wait(&connection->semaphore);
 		pthread_mutex_lock(&connection->mutex);
 		pthread_mutex_unlock(&context->tcp_mutex);
-		unsigned int result;
-		result = connection->state->packets_processor(connection, payload, &hdr);
+		const unsigned int result = connection->state->packets_processor(connection, payload, &hdr);
 		pthread_mutex_unlock(&connection->mutex);
 		sem_post(&connection->semaphore);
 		return result;
 	} else {
 		pthread_mutex_unlock(&context->tcp_mutex);
 		free(payload->free_me);
-		return sendTCPReset(context, payload, strategy, addrs);
+		const unsigned int result = sendTCPReset(context, payload, strategy, addrs);
+		return result;
 	};
 	return 0;
 };
