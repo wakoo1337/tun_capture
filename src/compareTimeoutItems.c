@@ -1,6 +1,8 @@
 #include <pthread.h>
 #include <stdbool.h>
+#include <stdint.h>
 #include <sys/time.h>
+#include "CaptureContext.h"
 #include "TimeoutItem.h"
 #include "compareTimeval.h"
 

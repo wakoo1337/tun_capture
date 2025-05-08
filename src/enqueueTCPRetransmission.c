@@ -27,7 +27,7 @@ unsigned int enqueueTCPRetransmission(struct TCPAppQueueItem *item) {
 	struct timeval now, expire;
 	getMonotonicTimeval(&now);
 	addTimeval(&now, &retry_delay, &expire);
-	item->timeout = enqueueTimeout(item->connection->context, &expire, &tcpRetransmissionTimerCallback, item, &item->connection->mutex);
+	item->timeout = enqueueTimeout(item->connection->context, &expire, &tcpRetransmissionTimerCallback, item);
 	const unsigned int result = (NULL == item->timeout);
 	if (0 == result) {
 		startTimer(item->connection->context);

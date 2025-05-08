@@ -5,8 +5,8 @@
 #include <sys/time.h>
 #include <event2/event.h>
 #include "contrib/logdel_heap.h"
-#include "TimeoutItem.h"
 #include "CaptureContext.h"
+#include "TimeoutItem.h"
 #include "getMonotonicTimeval.h"
 #include "compareTimeval.h"
 #include "startTimer.h"
@@ -20,12 +20,10 @@ void timerCallback(evutil_socket_t socket, short what, void *arg) {
 		struct timeval now;
 		struct TimeoutItem *item;
 		while (((item = logdelheap_peek(context->timeout_queue)) != NULL) && (getMonotonicTimeval(&now), (compareTimeval(&item->expiration, &now) <= 0))) {
-			if (logdelheap_poll(&context->timeout_queue, (void **) &item)) emergencyStop(context);
-			pthread_mutex_lock(item->mutex);
-			pthread_mutex_unlock(&context->timeout_mutex);
-			item->callback(item->arg);
-			pthread_mutex_unlock(item->mutex);
-			free(item);
+			if (item->callback(context, item)) {
+				emergencyStop(context);
+				return;
+			};
 			pthread_mutex_lock(&context->timeout_mutex);
 		};
 		startTimer(context);

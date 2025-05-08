@@ -36,7 +36,7 @@ unsigned int tcpLastSendWriteCallback(evutil_socket_t fd, short what, void *arg)
 			struct timeval now, expire;
 			getMonotonicTimeval(&now);
 			addTimeval(&now, &timewait_delay, &expire);
-			connection->timewait_item = enqueueTimeout(connection->context, &expire, &tcpTimeWaitExpiredCallback, connection, &connection->mutex);
+			connection->timewait_item = enqueueTimeout(connection->context, &expire, &tcpTimeWaitExpiredCallback, connection);
 			startTimer(connection->context);
 			pthread_mutex_unlock(&connection->context->timeout_mutex);
 		};

@@ -1,1 +1,1 @@
-void tcpTimeWaitExpiredCallback(void *arg);
+bool tcpTimeWaitExpiredCallback(struct CaptureContext *context, struct TimeoutItem *timeout_item);

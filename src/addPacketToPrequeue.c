@@ -46,7 +46,7 @@ unsigned int addPacketToPrequeue(struct TCPConnection *connection, const struct 
 		struct timeval now, timeout;
 		getMonotonicTimeval(&now);
 		addTimeval(&segexpire_delay, &now, &timeout);
-		item->timeout = enqueueTimeout(connection->context, &timeout, &tcpDeleteExpiredSegment, item, &connection->mutex);
+		item->timeout = enqueueTimeout(connection->context, &timeout, &tcpDeleteExpiredSegment, item);
 		if (NULL == item->timeout) {
 			free(item);
 			free(payload->free_me);

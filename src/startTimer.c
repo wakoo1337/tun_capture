@@ -4,8 +4,8 @@
 #include <sys/time.h>
 #include <event2/event.h>
 #include "contrib/logdel_heap.h"
-#include "TimeoutItem.h"
 #include "CaptureContext.h"
+#include "TimeoutItem.h"
 #include "getMonotonicTimeval.h"
 #include "subTimeval.h"
 
@@ -21,7 +21,6 @@ unsigned int startTimer(struct CaptureContext *context) {
 			delta.tv_sec = 0;
 			delta.tv_usec = 0;
 		};
-		event_add(context->timeout_event, &delta);
-	};
-	return 0;
+		return (unsigned int) event_add(context->timeout_event, &delta);
+	} else return (unsigned int) event_del(context->timeout_event);
 };

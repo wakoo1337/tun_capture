@@ -29,6 +29,7 @@ unsigned int tcpConnwaitWriteCallback(evutil_socket_t fd, short what, void *arg)
 		assert(sl == sizeof(int));
 		connection->state = &tcpstate_synack_send;
 		sendSynReply(connection);
+		event_del(connection->write_event);
 	};
 	pthread_mutex_unlock(&connection->mutex);
 	return 0;
