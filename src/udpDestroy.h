@@ -1,1 +1,1 @@
-void udpDestroy();
+void udpDestroy(struct UDPBinding *binding);
