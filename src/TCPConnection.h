@@ -7,7 +7,7 @@ struct TCPConnection {
 	const struct NetworkProtocolStrategy *strategy;
 	struct CaptureContext *context;
 	struct event *read_event, *write_event;
-	bool read_finalize_called, write_finalize_called;
+	bool read_alive, write_alive;
 	unsigned int max_pktdata; // Максимальный размер данных в отправляемом пакете
 	struct avl_table *site_prequeue; // Предочередь пакетов, поступающих на сайт
 	struct avl_table *app_prequeue; // Предочередь пакетов, поступающих на приложение. Нужна, так как пакеты создаются многопоточно, и более ранний пакет может быть обработан позже

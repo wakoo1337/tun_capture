@@ -10,9 +10,9 @@
 
 #include "tcpFinalizeRead.h"
 unsigned int tcpFinalizeRead(struct TCPConnection *connection) {
-	if (connection->read_event && (!connection->read_finalize_called)) {
+	if (connection->read_event && connection->read_alive) {
 		const unsigned int result = event_free_finalize(0, connection->read_event, &tcpReadFinalizer);
-		connection->read_finalize_called = true;
+		connection->read_alive = false;
 		return result;
 	} else return 0;
 };

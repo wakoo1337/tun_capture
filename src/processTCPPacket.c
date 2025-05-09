@@ -104,7 +104,7 @@ unsigned int processTCPPacket(struct CaptureContext *context, const struct IPPac
 		connection->remote_scale = hdr.winscale_value;
 		connection->our_scale = 0; // TODO сделать масштабирование
 		connection->read_event = connection->write_event = NULL;
-		connection->read_finalize_called = connection->write_finalize_called = false;
+		connection->read_alive = connection->write_alive = true;
 		connection->state = &tcpstate_connwait;
 		connection->strategy = strategy;
 		connection->context = context;
