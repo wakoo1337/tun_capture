@@ -1,5 +1,7 @@
-#include <sys/socket.h>
+#include <semaphore.h>
+#include <stdbool.h>
 #include <string.h>
+#include <sys/socket.h>
 #include <event2/event.h>
 #include "UDPBinding.h"
 

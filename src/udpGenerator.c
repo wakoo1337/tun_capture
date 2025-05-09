@@ -6,12 +6,15 @@
 #include <string.h>
 #include <semaphore.h>
 #include <sys/socket.h>
+#include <sys/time.h>
 #include <netinet/in.h>
 #include <event2/event.h>
+#include "contrib/logdel_heap.h"
 #include "ForwardingMappingIPv4.h"
 #include "ForwardingMappingIPv6.h"
 #include "CaptureSettings.h"
 #include "CaptureContext.h"
+#include "TimeoutItem.h"
 #include "UDPParameters.h"
 #include "UDPBinding.h"
 #include "ChecksumContext.h"
@@ -25,6 +28,9 @@
 #include "enqueueTxPacket.h"
 #include "sendPacketOnce.h"
 #include "addressFamilyToNetworkStrategy.h"
+#include "getMonotonicTimeval.h"
+#include "addTimeval.h"
+#include "udp_timeout.h"
 #include "HEADERS_RESERVE.h"
 
 #include "udpGenerator.h"
@@ -32,6 +38,7 @@ unsigned int udpGenerator(struct CaptureContext *context, uint8_t *packet, unsig
 	struct UDPParameters *parameters = (struct UDPParameters *) arg;
 	const struct NetworkProtocolStrategy *strategy = addressFamilyToNetworkStrategy(parameters->from.sa_family);
 	if (NULL == strategy) return 1;
+	assert(context == parameters->binding->context);
 	const unsigned int fragment_count = strategy->compute_fragcount(size, context->settings->mtu);
 	struct IPFragmentMetadata frag_metadata[fragment_count];
 	uint8_t *udp_header;
@@ -42,12 +49,13 @@ unsigned int udpGenerator(struct CaptureContext *context, uint8_t *packet, unsig
 	set16Bit(&udp_header[6], 0);
 	uint8_t pseudo[strategy->pseudo_length];
 	strategy->create_pseudo(pseudo, &parameters->from, &parameters->binding->internal_addr, 17, size + 8);
+	pthread_mutex_unlock(&parameters->binding->mutex);
 	struct ChecksumContext checksum_context;
 	initChecksum(&checksum_context);
 	computeChecksum(&checksum_context, pseudo, strategy->pseudo_length);
 	computeChecksum(&checksum_context, udp_header, size + 8);
-	uint16_t checksum;
-	checksum = getChecksum(&checksum_context);
+	pthread_mutex_lock(&parameters->binding->mutex);
+	const uint16_t checksum = getChecksum(&checksum_context);
 	set16Bit(&udp_header[6], (checksum == 0) ? 0xFFFF : checksum);
 	strategy->fill_metadatas(frag_metadata, fragment_count, size + 8, context->settings->mtu);
 	if (fragment_count == 1) {
@@ -64,6 +72,22 @@ unsigned int udpGenerator(struct CaptureContext *context, uint8_t *packet, unsig
 		queue_item->processor = &sendPacketOnce;
 		queue_item->free_me = &packet[-HEADERS_RESERVE];
 		queue_item->arg = queue_item;
+		if (!parameters->binding->persistent) {
+			pthread_mutex_unlock(&parameters->binding->mutex);
+			pthread_mutex_lock(&context->timeout_mutex);
+			pthread_mutex_lock(&parameters->binding->mutex);
+			struct timeval now;
+			getMonotonicTimeval(&now);
+			addTimeval(&now, &udp_timeout, &parameters->binding->timeout->expiration);
+			if (logdelheap_modify_key(context->timeout_queue, parameters->binding->timeout, parameters->binding->timeout->index)) {
+				pthread_mutex_unlock(&context->timeout_mutex);
+				free(parameters);
+				free(queue_item->free_me);
+				free(queue_item);
+				return 1;
+			};
+			pthread_mutex_unlock(&context->timeout_mutex);
+		};
 		free(parameters);
 		return enqueueTxPacket(context, queue_item);
 	} else {

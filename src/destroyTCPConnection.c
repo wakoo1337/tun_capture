@@ -99,4 +99,4 @@ void destroyTCPConnection(struct TCPConnection *connection) {
 	sem_destroy(&connection->semaphore);
 	close(connection->sock);
 	free(connection);
-}; 
+};

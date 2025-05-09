@@ -58,8 +58,8 @@ void udpReadCallback(evutil_socket_t fd, short what, void *arg) {
 		queue_item->free_me = new_buffer;
 		queue_item->count = result;
 		queue_item->processor = &udpGenerator;
-		queue_item->mutex = NULL;
-		queue_item->semaphore = NULL;
+		queue_item->mutex = &binding->mutex;
+		queue_item->semaphore = &binding->semaphore;
 		struct UDPParameters *params;
 		params = malloc(sizeof(struct UDPParameters));
 		if (NULL == params) {

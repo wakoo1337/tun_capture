@@ -1,4 +1,5 @@
 #include <pthread.h>
+#include <semaphore.h>
 #include <stdbool.h>
 #include <netinet/in.h>
 #include <stdlib.h>

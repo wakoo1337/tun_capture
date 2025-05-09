@@ -1,4 +1,5 @@
 #include <pthread.h>
+#include <semaphore.h>
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
@@ -30,6 +31,8 @@ void udpWriteCallback(evutil_socket_t fd, short what, void *arg) {
 					binding->stack = next;
 				} else {
 					emergencyStop(binding->context);
+					pthread_mutex_unlock(&binding->mutex);
+					return;
 				};
 			} else {
 				free(binding->stack->free_me);
