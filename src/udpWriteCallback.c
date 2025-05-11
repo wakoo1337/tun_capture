@@ -40,7 +40,7 @@ void udpWriteCallback(evutil_socket_t fd, short what, void *arg) {
 				binding->stack = next;
 			};
 		};
-		if ((NULL == binding->stack) && (-1 == event_del(binding->write_event))) {
+		if ((NULL == binding->stack) && binding->write_alive && (-1 == event_del(binding->write_event))) {
 			pthread_mutex_unlock(&binding->mutex);
 			emergencyStop(binding->context);
 			return;

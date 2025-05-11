@@ -72,7 +72,7 @@ unsigned int udpGenerator(struct CaptureContext *context, uint8_t *packet, unsig
 		queue_item->processor = &sendPacketOnce;
 		queue_item->free_me = &packet[-HEADERS_RESERVE];
 		queue_item->arg = queue_item;
-		if (!parameters->binding->persistent) {
+		if (parameters->binding->timeout && (!parameters->binding->persistent)) {
 			pthread_mutex_unlock(&parameters->binding->mutex);
 			pthread_mutex_lock(&context->timeout_mutex);
 			pthread_mutex_lock(&parameters->binding->mutex);

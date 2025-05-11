@@ -2,6 +2,7 @@
 #include <semaphore.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include <stdlib.h>
 #include <assert.h>
 #include <sys/socket.h>
 #include <sys/time.h>
@@ -15,13 +16,17 @@
 #include "udpTimeoutCallback.h"
 bool udpTimeoutCallback(struct CaptureContext *context, struct TimeoutItem *timeout_item) {
 	struct UDPBinding *binding = (struct UDPBinding *) timeout_item->arg;
+	pthread_mutex_lock(&binding->mutex);
+	assert(timeout_item == binding->timeout);
 	void *deleted;
 	if (logdelheap_delete(&context->timeout_queue, &deleted, timeout_item->index)) {
+		pthread_mutex_unlock(&binding->mutex);
 		pthread_mutex_unlock(&context->timeout_mutex);
 		return true;
 	};
 	assert(deleted == timeout_item);
-	pthread_mutex_lock(&binding->mutex);
+	free(binding->timeout);
+	binding->timeout = NULL;
 	udpFinalizeRead(binding);
 	udpFinalizeWrite(binding);
 	pthread_mutex_unlock(&binding->mutex);

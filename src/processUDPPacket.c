@@ -75,12 +75,12 @@ unsigned int processUDPPacket(struct CaptureContext *context, const struct IPPac
 		item->dst = addrs->dst;
 		item->next = binding->stack;
 		binding->stack = item;
-		if (-1 == event_add(binding->write_event, NULL)) {
+		if (binding->write_alive && (-1 == event_add(binding->write_event, NULL))) {
 			pthread_mutex_unlock(&binding->mutex);
 			sem_post(&binding->semaphore);
 			return 1;
 		};
-		if (!binding->persistent) {
+		if (binding->timeout && (!binding->persistent)) {
 			pthread_mutex_unlock(&binding->mutex);
 			pthread_mutex_lock(&context->timeout_mutex);
 			pthread_mutex_lock(&binding->mutex);
