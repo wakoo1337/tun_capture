@@ -22,6 +22,7 @@
 #include "processTCPData.h"
 #include "tcpDestroySitePrequeue.h"
 #include "tcpDestroyAppPrequeue.h"
+#include "processTCPUrgentData.h"
 
 #include "destroyTCPConnection.h"
 void destroyTCPConnection(struct TCPConnection *connection) {
@@ -38,7 +39,7 @@ void destroyTCPConnection(struct TCPConnection *connection) {
 	rx_current = connection->context->rx_begin;
 	rx_prevnext = &connection->context->rx_begin;
 	while (rx_current) {
-		if ((rx_current->processor == &processTCPData) && (((struct TCPConnection *) rx_current->arg) == connection)) {
+		if (((rx_current->processor == &processTCPData) || (rx_current->processor == &processTCPUrgentData)) && (((struct TCPConnection *) rx_current->arg) == connection)) {
 			struct PacketQueueItem *next;
 			next = rx_current->next;
 			free(rx_current->free_me);

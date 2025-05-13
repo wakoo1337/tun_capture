@@ -11,6 +11,7 @@
 #include "enqueueRxPacket.h"
 #include "tcpUpdateReadEvent.h"
 #include "processTCPData.h"
+#include "processTCPUrgentData.h"
 #include "HEADERS_RESERVE.h"
 #include "MAX_APP_QUEUE.h"
 
@@ -22,8 +23,8 @@ unsigned int readAndEnqueueSiteData(struct TCPConnection *connection, unsigned i
 		if (NULL == item) {
 			return 1;
 		};
-		const unsigned int remain = MAX_APP_QUEUE - connection->app_scheduled;
-		const unsigned int to_read = (remain < connection->max_pktdata) ? remain : connection->max_pktdata;
+		unsigned int remain = MAX_APP_QUEUE - connection->app_scheduled;
+		unsigned int to_read = (remain < connection->max_pktdata) ? remain : connection->max_pktdata;
 		pthread_mutex_unlock(&connection->mutex);
 		uint8_t *buffer;
 		buffer = malloc(HEADERS_RESERVE + to_read);
@@ -32,8 +33,8 @@ unsigned int readAndEnqueueSiteData(struct TCPConnection *connection, unsigned i
 			return 1;
 		};
 		ssize_t received;
-		data_rx_retry:
-		received = recv(connection->sock, &buffer[HEADERS_RESERVE], to_read, 0);
+		urgent_rx_retry:
+		received = recv(connection->sock, &buffer[HEADERS_RESERVE], to_read, MSG_OOB);
 		if (received < 0) {
 			if ((errno == EAGAIN) || (errno == EWOULDBLOCK)) {
 				free(buffer);
@@ -41,8 +42,10 @@ unsigned int readAndEnqueueSiteData(struct TCPConnection *connection, unsigned i
 				pthread_mutex_lock(&connection->mutex);
 				const unsigned int result = tcpUpdateReadEvent(connection);
 				return result;
-			} else if (errno == EINTR) goto data_rx_retry;
-			else {
+			} else if (errno == EINTR) goto urgent_rx_retry;
+			else if (errno == EINVAL) {
+				// EINVAL значит, что urgent data нет, тогда ничего не делаем
+			} else {
 				free(buffer);
 				free(item);
 				pthread_mutex_lock(&connection->mutex);
@@ -54,11 +57,12 @@ unsigned int readAndEnqueueSiteData(struct TCPConnection *connection, unsigned i
 			new_buffer = realloc(buffer, HEADERS_RESERVE + received);
 			if (NULL == new_buffer) {
 				free(buffer);
+				free(item);
 				return 1;
 			};
 			item->data = &new_buffer[HEADERS_RESERVE];
 			item->count = received;
-			item->processor = &processTCPData;
+			item->processor = &processTCPUrgentData;
 			item->mutex = &connection->mutex;
 			item->semaphore = &connection->semaphore;
 			item->free_me = new_buffer;
@@ -66,13 +70,64 @@ unsigned int readAndEnqueueSiteData(struct TCPConnection *connection, unsigned i
 			enqueueRxPacket(connection->context, item);
 			pthread_mutex_lock(&connection->mutex); // Разблокировать не надо, он будет нужен либо на следующей итерации цикла, либо при выходе
 			connection->app_scheduled += received;
-		} else {
-			free(buffer);
-			free(item);
-			pthread_mutex_lock(&connection->mutex);
-			const unsigned int result = on_end(connection);
-			return result;
+			remain = MAX_APP_QUEUE - connection->app_scheduled;
+			to_read = (remain < connection->max_pktdata) ? remain : connection->max_pktdata;
+			pthread_mutex_unlock(&connection->mutex);
+			if (to_read) {
+				item = malloc(sizeof(struct PacketQueueItem));
+				if (NULL == item) {
+					return 1;
+				};
+				buffer = malloc(HEADERS_RESERVE + to_read);
+				if (NULL == buffer) {
+					free(item);
+					return 1;
+				};
+			};
 		};
+		if (to_read) {
+			data_rx_retry:
+			received = recv(connection->sock, &buffer[HEADERS_RESERVE], to_read, 0);
+			if (received < 0) {
+				if ((errno == EAGAIN) || (errno == EWOULDBLOCK)) {
+					free(buffer);
+					free(item);
+					pthread_mutex_lock(&connection->mutex);
+					const unsigned int result = tcpUpdateReadEvent(connection);
+					return result;
+				} else if (errno == EINTR) goto data_rx_retry;
+				else {
+					free(buffer);
+					free(item);
+					pthread_mutex_lock(&connection->mutex);
+					const unsigned int result = on_error(connection);
+					return result;
+				};
+			} else if (received > 0) {
+				uint8_t *new_buffer;
+				new_buffer = realloc(buffer, HEADERS_RESERVE + received);
+				if (NULL == new_buffer) {
+					free(buffer);
+					return 1;
+				};
+				item->data = &new_buffer[HEADERS_RESERVE];
+				item->count = received;
+				item->processor = &processTCPData;
+				item->mutex = &connection->mutex;
+				item->semaphore = &connection->semaphore;
+				item->free_me = new_buffer;
+				item->arg = connection;
+				enqueueRxPacket(connection->context, item);
+				pthread_mutex_lock(&connection->mutex); // Разблокировать не надо, он будет нужен либо на следующей итерации цикла, либо при выходе
+				connection->app_scheduled += received;
+			} else {
+				free(buffer);
+				free(item);
+				pthread_mutex_lock(&connection->mutex);
+				const unsigned int result = on_end(connection);
+				return result;
+			};
+		} else pthread_mutex_lock(&connection->mutex);
 	};
 	const unsigned int result = tcpUpdateReadEvent(connection);
 	return result;
