@@ -49,6 +49,7 @@ struct UDPBinding *findUDPBinding(struct CaptureContext *context, const struct N
 		binding->stack = NULL;
 		binding->timeout = NULL;
 		binding->read_alive = binding->write_alive = true;
+		binding->read_event = binding->write_event = NULL;
 		binding->persistent = false;
 		void **probe;
 		probe = avl_probe(context->udp_bindings, binding);
