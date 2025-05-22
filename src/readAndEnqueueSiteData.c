@@ -114,6 +114,8 @@ unsigned int readAndEnqueueSiteData(struct TCPConnection *connection, unsigned i
 			new_buffer = realloc(buffer, HEADERS_RESERVE + received);
 			if (NULL == new_buffer) {
 				free(buffer);
+				free(item);
+				pthread_mutex_lock(&connection->mutex);
 				return 1;
 			};
 			item->data = &new_buffer[HEADERS_RESERVE];
